@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.10">
+<title>Untitled</title>
+<link rel="stylesheet" href="css/spring.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="book">
+<div id="header">
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Add Sleuth to your classpath:</p>
+</div>
+<div class="paragraph">
+<p>Maven</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependencyManagement&gt;
+		&lt;dependencies&gt;
+			&lt;dependency&gt;
+				&lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+				&lt;artifactId&gt;spring-cloud-dependencies&lt;/artifactId&gt;
+				&lt;!-- Provide the latest stable Spring Cloud release train version (e.g. 2020.0.0) --&gt;
+				&lt;version&gt;${release.train.version}&lt;/version&gt;
+				&lt;type&gt;pom&lt;/type&gt;
+				&lt;scope&gt;import&lt;/scope&gt;
+			&lt;/dependency&gt;
+			&lt;dependency&gt;
+				&lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+				&lt;artifactId&gt;spring-cloud-sleuth-otel-dependencies&lt;/artifactId&gt;
+				&lt;!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project --&gt;
+				&lt;version&gt;${spring-cloud-sleuth-otel.version}&lt;/version&gt;
+				&lt;scope&gt;import&lt;/scope&gt;
+				&lt;type&gt;pom&lt;/type&gt;
+			&lt;/dependency&gt;
+		&lt;/dependencies&gt;
+	&lt;/dependencyManagement&gt;
+&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-cloud-starter-sleuth&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Gradle</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-groovy" data-lang="groovy">buildscript {
+    dependencies {
+        classpath "io.spring.gradle:dependency-management-plugin:0.5.2.RELEASE"
+    }
+}
+
+apply plugin: "io.spring.dependency-management"
+
+dependencyManagement {
+     imports {
+          mavenBom "org.springframework.cloud:spring-cloud-dependencies:${releaseTrainVersion}"
+     }
+}
+dependencies {
+    compile 'org.springframework.cloud:spring-cloud-starter-sleuth'
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As long as Spring Cloud Sleuth is on the classpath any Spring Boot application will generate trace data:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@SpringBootApplication
+@RestController
+public class Application {
+
+  private static Logger log = LoggerFactory.getLogger(DemoController.class);
+
+  @RequestMapping("/")
+  public String home() {
+    log.info("Handling home");
+    return "Hello World";
+  }
+
+  public static void main(String[] args) {
+    SpringApplication.run(Application.class, args);
+  }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Run this app and then hit the home page.
+You will see traceId and spanId populated in the logs.
+If this app calls out to another one (e.g. with <code>RestTemplate</code>) it will send the trace data in headers and if the receiver is another Sleuth app you will see the trace continue there.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Instead of logging the request in the handler explicitly, you could set <code>logging.level.org.springframework.web.servlet.DispatcherServlet=DEBUG</code></p>
+</li>
+<li>
+<p>Sleuth defaults to a rate limited sampler.
+That means that it will sample up to 1000 transactions per second.</p>
+</li>
+<li>
+<p>Set <code>spring.application.name=bar</code> (for instance) to see the service name as well as the trace and span ids.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<script type="text/javascript" src="js/tocbot/tocbot.min.js"></script>
+<script type="text/javascript" src="js/toc.js"></script>
+</body>
+</html>

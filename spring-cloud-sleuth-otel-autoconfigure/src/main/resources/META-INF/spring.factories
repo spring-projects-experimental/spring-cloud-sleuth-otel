@@ -1,9 +1,0 @@
-# Auto Configuration
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.springframework.cloud.sleuth.autoconfig.otel.OtelAutoConfiguration,\
-org.springframework.cloud.sleuth.autoconfig.otel.instrument.opentracing.OtelOpentracingAutoConfiguration,\
-org.springframework.cloud.sleuth.autoconfig.otel.zipkin2.ZipkinOtelAutoConfiguration
-# Environment Post Processor
-org.springframework.boot.env.EnvironmentPostProcessor=\
-org.springframework.cloud.sleuth.autoconfig.TraceEnvironmentPostProcessor,\
-org.springframework.cloud.sleuth.autoconfig.instrument.web.client.TraceGatewayEnvironmentPostProcessor
