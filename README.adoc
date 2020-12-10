@@ -8,11 +8,11 @@ Edit the files in the src/main/asciidoc/ directory instead.
 :jdkversion: 1.8
 
 image::https://github.com/spring-cloud-incubator/spring-cloud-sleuth-otel/workflows/Build/badge.svg?style=svg["Build",link="https://github.com/spring-cloud-incubator/spring-cloud-sleuth-otel/actions"]
-image::https://badges.gitter.im/spring-cloud-incubator/spring-cloud-sleuth-otel.svg[Gitter,link="https://gitter.im/spring-cloud-incubator/spring-cloud-sleuth-otel?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
+image::https://badges.gitter.im/spring-cloud/spring-cloud-sleuth.svg[Gitter,link="https://gitter.im/spring-cloud/spring-cloud-sleuth?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
 
-== Spring Cloud Sleuth
+== Spring Cloud Sleuth OTel
 
-Spring Cloud Sleuth provides Spring Boot auto-configuration for distributed tracing.
+Spring Cloud Sleuth provides Spring Boot auto-configuration for OpenTelemetry based distributed tracing.
 
 Sleuth configures everything you need to get started.
 This includes where trace data (spans) are reported to, how many traces to keep (sampling), if remote fields (baggage) are sent, and which libraries are traced.
@@ -20,7 +20,6 @@ This includes where trace data (spans) are reported to, how many traces to keep 
 === Quick Start
 
 Add Spring Cloud Sleuth to the classpath of a Spring Boot application (together with a Tracer implementation) and you will see trace IDs in logs.
-Example of Sleuth with Brave tracer:
 
 [source,xml,indent=0,subs="verbatim,quotes,attributes"]
 ----
@@ -44,13 +43,7 @@ Example of Sleuth with Brave tracer:
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <!-- Sleuth with Brave tracer implementation -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-sleuth</artifactId>
-        </dependency>
         <!-- Sleuth with OpenTelemetry tracer implementation -->
-        <!--
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-sleuth</artifactId>
@@ -61,11 +54,11 @@ Example of Sleuth with Brave tracer:
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- This dependency adds OTel support -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-sleuth-otel</artifactId>
         </dependency>
-        -->
     </dependencies>
 ----
 
@@ -99,7 +92,7 @@ NOTE: Set `spring.application.name=myService` (for instance) to see the service 
 
 == Documentation
 
-Please visit the https://docs.spring.io/spring-cloud-sleuth/docs/[documentation page] to read more about the project.
+Please visit the https://docs.spring.io/spring-cloud-sleuth/docs/[Spring Cloud Sleuth documentation page] to read more about the Spring Cloud Sleuth project.
 
 == Building
 
