@@ -1,6 +1,6 @@
 [[spring-cloud-sleuth-reference-documentation]]
-= Spring Cloud Sleuth Reference Documentation
-Adrian Cole, Spencer Gibb, Marcin Grzejszczak, Dave Syer, Jay Bryant
+= Spring Cloud Sleuth OTel Reference Documentation
+Marcin Grzejszczak
 
 :docinfo: shared
 include::_attributes.adoc[]
@@ -14,5 +14,4 @@ The reference documentation consists of the following sections:
 <<using.adoc#using,Using {project-full-name}>> :: {project-full-name} usage examples and workflows.
 <<project-features.adoc#features,{project-full-name} Features>> :: Span creation, context propagation, and more.
 <<howto.adoc#howto,"`How-to`" Guides>> :: Add sampling, propagate remote tags, and more.
-<<integrations.adoc#sleuth-integration,{project-full-name} Integrations>> :: Instrumentation configuration, context propagation, and more.
 <<appendix.adoc#appendix,Appendices>> :: Configuration propertie.

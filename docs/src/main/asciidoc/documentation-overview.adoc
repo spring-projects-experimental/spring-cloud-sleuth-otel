@@ -1,5 +1,5 @@
 [[documentation]]
-= Spring Cloud Sleuth Documentation
+= Spring Cloud Sleuth OTel Documentation
 
 include::_attributes.adoc[]
 
@@ -60,36 +60,4 @@ Need more details about {project-full-name}'s core features?
 <<project-features.adoc#features, The following content is for you>>:
 
 * *Core Features:*
-<<project-features.adoc#features-context-propagation, Context Propagation>> |
-<<project-features.adoc#features-sampling, Sampling>>
-<<project-features.adoc#features-baggage, Baggage>>
-
-* *Tracer Features:*
-<<project-features.adoc#features-brave, OpenZipkin Brave>> |
 <<project-features.adoc#features-otel, OpenTelemetry>>
-
-* *Reporting Features:*
-<<project-features.adoc#features-zipkin, Zipkin>> |
-<<project-features.adoc#features-log-integration, Logs>>
-
-[[sleuth-documentation-integration]]
-== Integrations Topics
-
-Finally, we have topics related to instrumentation integrations:
-
-* *Integrations:*
-<<integrations.adoc#sleuth-async-integration, Asynchronous Communication>> |
-<<integrations.adoc#sleuth-http-client-integration, HTTP Client Integration>> |
-<<integrations.adoc#sleuth-http-server-integration, HTTP Server Integration>> |
-<<integrations.adoc#sleuth-messaging-integration, Messaging>> |
-<<integrations.adoc#sleuth-openfeign-integration, OpenFeign>> |
-<<integrations.adoc#sleuth-opentracing-integration, OpenTracing>> |
-<<integrations.adoc#sleuth-reactor-integration, Reactor>> |
-<<integrations.adoc#sleuth-redis-integration, Redis>> |
-<<integrations.adoc#sleuth-rpc-integration, RPC>> |
-<<integrations.adoc#sleuth-rpc-grpc-integration, gRPC>> |
-<<integrations.adoc#sleuth-rpc-dubbo-integration, Dubbo>> |
-<<integrations.adoc#sleuth-runnablecallable-integration, Runnable and Callable>> |
-<<integrations.adoc#sleuth-rxjava-integration, RxJava>> |
-<<integrations.adoc#sleuth-circuitbreaker-integration, Spring Cloud CircuitBreaker>> |
-<<integrations.adoc#sleuth-quartz-integration, Quartz>>

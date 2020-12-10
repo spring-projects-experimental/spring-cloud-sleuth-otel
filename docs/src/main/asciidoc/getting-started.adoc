@@ -9,85 +9,9 @@ It includes an introduction to {project-full-name}, along with installation inst
 We then walk you through building your first {project-full-name} application, discussing some core principles as we go.
 
 [[getting-started-introducing-spring-cloud-sleuth]]
-== Introducing Spring Cloud Sleuth
+== Introducing Spring Cloud Sleuth OTel
 
-Spring Cloud Sleuth provides API for distributed tracing solution for https://cloud.spring.io[Spring Cloud].
-It integrates out of the box with two tracer implementations:
-
-* https://github.com/openzipkin/brave[OpenZipkin Brave]
-* https://opentelemetry.io[OpenTelemetry SDK]
-
-Spring Cloud Sleuth is able to trace your requests and messages so that you can correlate that communication to corresponding log entries.
-You can also export the tracing information to an external system to visualize latency.
-Spring Cloud Sleuth supports https://zipkin.io[OpenZipkin] compatible systems directly and various other ones via the OpenTelemetry integration.
-
-[[getting-started-terminology]]
-=== Terminology
-
-Spring Cloud Sleuth borrows https://research.google.com/pubs/pub36356.html[Dapper's] terminology.
-
-*Span*: The basic unit of work.
-For example, sending an RPC is a new span, as is sending a response to an RPC.
-Spans also have other data, such as descriptions, timestamped events, key-value annotations (tags), the ID of the span that caused them, and process IDs (normally IP addresses).
-
-Spans can be started and stopped, and they keep track of their timing information.
-Once you create a span, you must stop it at some point in the future.
-
-*Trace:* A set of spans forming a tree-like structure.
-For example, if you run a distributed big-data store, a trace might be formed by a `PUT` request.
-
-*Annotation/Event:* Used to record the existence of an event in time.
-
-Conceptually in a typical RPC scenario we mark these events to highlight what kind of an action took place (it doesn't mean that physically such an event will be set on a span).
-
-* *cs*: Client Sent.
-The client has made a request.
-This annotation indicates the start of the span.
-* *sr*: Server Received: The server side got the request and started processing it.
-Subtracting the `cs` timestamp from this timestamp reveals the network latency.
-* *ss*: Server Sent.
-Annotated upon completion of request processing (when the response got sent back to the client).
-Subtracting the `sr` timestamp from this timestamp reveals the time needed by the server side to process the request.
-* *cr*: Client Received.
-Signifies the end of the span.
-The client has successfully received the response from the server side.
-Subtracting the `cs` timestamp from this timestamp reveals the whole time needed by the client to receive the response from the server.
-
-The following image shows how *Span* and *Trace* look in a system.
-
-image::{github-raw}/docs/src/main/asciidoc/images/trace-id.jpg[Trace Info propagation]
-
-Each color of a note signifies a span (there are seven spans - from *A* to *G*).
-Consider the following note:
-
-[source]
-----
-Trace Id = X
-Span Id = D
-Client Sent
-----
-
-This note indicates that the current span has *Trace Id* set to *X* and *Span Id* set to *D*.
-Also, from the RPC perspective, the `Client Sent` event took place.
-
-Let's consider more notes:
-
-[source]
-----
-Trace Id = X
-Span Id = A
-(no custom span)
-
-Trace Id = X
-Span Id = C
-(custom span)
-----
-
-You can continue with a created span (example with `no custom span` indication) or you can create child spans manually (example with `custom span` indication).
-
-The following image shows how parent-child relationships of spans look:
-
-image::{github-raw}/docs/src/main/asciidoc/images/parents.jpg[Parent child relationship]
+Spring Cloud Sleuth OTel provides integration with https://opentelemetry.io[OpenTelemetry SDK].
 
 [[getting-started-first-application]]
 == Developing Your First Spring Cloud sleuth-based Application
@@ -175,25 +99,7 @@ For simplicity, we continue to use a plain text editor for this example.
 [[getting-started-first-application-dependencies]]
 === Adding Classpath Dependencies
 
-To add the necessary dependencies, edit your `pom.xml` and add the `spring-boot-starter-web` dependency immediately below the `parent` section:
-
-[source,xml,indent=0,subs="verbatim,quotes,attributes"]
-----
-	<dependencies>
-		<!-- Boot's Web support -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<!-- Sleuth with Brave tracer implementation -->
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-sleuth</artifactId>
-		</dependency>
-	</dependencies>
-----
-
-To use Sleuth with OpenTelemetry do the following.
+To add the necessary dependencies, edit your `pom.xml` and add the `spring-boot-starter-web` dependency immediately below the `parent` section. To use Sleuth with OpenTelemetry do the following.
 
 [source,xml,indent=0,subs="verbatim,quotes,attributes"]
 ----
@@ -263,7 +169,7 @@ We step through the important parts in the next few sections.
 ==== The @RestController and @RequestMapping Annotations
 
 Spring Boot sets up the Rest Controller and makes our application bind to a Tomcat port.
-Spring Cloud Sleuth with Brave tracer will provide instrumentation of the incoming request.
+Spring Cloud Sleuth with OTel tracer will provide instrumentation of the incoming request.
 
 [[getting-started-first-application-run]]
 === Running the Example
@@ -323,6 +229,3 @@ We also have {project-full-name}-specific "`<<howto.adoc#howto, how-to>>`" refer
 Otherwise, the next logical step is to read <<using.adoc#using, Using {project-full-name}>>.
 If you are really impatient, you could also jump ahead and read about
 <<project-features.adoc#project-features, {project-full-name} features>>.
-
-You can find the default project samples at
-https://github.com/spring-cloud-incubator/spring-cloud-sleuth-otel/tree/{branch}/spring-cloud-sleuth-samples[samples].

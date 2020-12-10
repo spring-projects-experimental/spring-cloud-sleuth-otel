@@ -46,11 +46,6 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-sleuth-otel-zipkin</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-bom</artifactId>
 				<version>${opentelemetry.version}</version>

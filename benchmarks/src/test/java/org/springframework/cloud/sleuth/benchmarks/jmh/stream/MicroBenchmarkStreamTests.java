@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import brave.Tracing;
 import jmh.mbr.junit5.Microbenchmark;
 import org.junit.platform.commons.annotation.Testable;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -107,7 +106,7 @@ public class MicroBenchmarkStreamTests {
 
 		protected String[] runArgs() {
 			List<String> strings = new ArrayList<>();
-			strings.addAll(Arrays.asList("--spring.jmx.enabled=false", this.tracerImplementation.property(),
+			strings.addAll(Arrays.asList("--spring.jmx.enabled=false",
 					"--spring.application.name=defaultTraceContextForStream" + instrumentation.name() + "_"
 							+ tracerImplementation.name()));
 			strings.addAll(instrumentation.entires.stream().map(s -> "--" + s).collect(Collectors.toList()));
@@ -141,10 +140,6 @@ public class MicroBenchmarkStreamTests {
 
 		@TearDown
 		public void clean() throws Exception {
-			Tracing current = Tracing.current();
-			if (current != null) {
-				current.close();
-			}
 			try {
 				this.applicationContext.close();
 			}

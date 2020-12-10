@@ -21,23 +21,6 @@ import org.springframework.cloud.sleuth.autoconfig.otel.OtelAutoConfiguration;
 
 public enum TracerImplementation {
 
-	otel(BraveAutoConfiguration.class.getCanonicalName()), brave(OtelAutoConfiguration.class.getCanonicalName());
-
-	private String key = "spring.autoconfigure.exclude";
-
-	private String value;
-
-	TracerImplementation(String value) {
-		this.value = value;
-	}
-
-	public String property() {
-		return "--" + this.key + "=" + this.value;
-	}
-
-	@Override
-	public String toString() {
-		return this.name();
-	}
+	otel;
 
 }

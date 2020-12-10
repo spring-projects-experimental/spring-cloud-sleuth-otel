@@ -106,7 +106,7 @@ public class BridgeTests {
 		public void setup() {
 			SpringApplication application = new SpringApplication(TestConfiguration.class);
 			application.setWebApplicationType(WebApplicationType.NONE);
-			this.withSleuth = application.run("--spring.jmx.enabled=false", this.tracerImplementation.property(),
+			this.withSleuth = application.run("--spring.jmx.enabled=false",
 					"--spring.application.name=withSleuth_" + this.tracerImplementation.name());
 			this.tracer = this.withSleuth.getBean(Tracer.class);
 			this.parent = this.tracer.nextSpan().name("name").start();

@@ -31,7 +31,7 @@
 	<properties>
 		<docs.main>spring-cloud-sleuth</docs.main>
 		<main.basedir>${basedir}/..</main.basedir>
-		<configprops.inclusionPattern>spring.sleuth.*|spring.zipkin.*</configprops.inclusionPattern>
+		<configprops.inclusionPattern>spring.sleuth.otel*|spring.zipkin.*</configprops.inclusionPattern>
 		<upload-docs-zip.phase>deploy</upload-docs-zip.phase>
 	</properties>
 	<dependencies>
@@ -42,10 +42,6 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>spring-cloud-sleuth-otel-autoconfigure</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>spring-cloud-sleuth-otel-zipkin</artifactId>
 		</dependency>
 	</dependencies>
 	<build>
