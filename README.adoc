@@ -34,6 +34,14 @@ Add Spring Cloud Sleuth to the classpath of a Spring Boot application (together 
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-sleuth-otel-dependencies</artifactId>
+                <!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project -->
+                <version>${spring-cloud-sleuth-otel.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
