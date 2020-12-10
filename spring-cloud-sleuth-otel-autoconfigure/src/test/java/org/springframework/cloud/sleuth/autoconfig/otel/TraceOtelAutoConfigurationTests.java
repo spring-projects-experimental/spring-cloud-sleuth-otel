@@ -19,14 +19,8 @@ package org.springframework.cloud.sleuth.autoconfig.otel;
 import io.opentelemetry.api.trace.Tracer;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
-import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.cloud.gateway.config.GatewayAutoConfiguration;
-import org.springframework.cloud.gateway.config.GatewayClassPathWarningAutoConfiguration;
-import org.springframework.cloud.gateway.config.GatewayMetricsAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +30,7 @@ class TraceOtelAutoConfigurationTests {
 	@Test
 	void should_start_context_with_otel_tracer_when_sleuth_enabled() {
 		ApplicationContextRunner runner = new ApplicationContextRunner()
-				.withPropertyValues("spring.sleuth.tracer.mode=OTEL").withUserConfiguration(Config.class);
+				.withPropertyValues("spring.sleuth.tracer.mode=AUTO").withUserConfiguration(Config.class);
 
 		runner.run(context -> assertThat(context).hasNotFailed().hasSingleBean(Tracer.class));
 	}
@@ -50,9 +44,7 @@ class TraceOtelAutoConfigurationTests {
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	@EnableAutoConfiguration(exclude = { GatewayClassPathWarningAutoConfiguration.class, GatewayAutoConfiguration.class,
-			GatewayMetricsAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class,
-			MongoAutoConfiguration.class, QuartzAutoConfiguration.class })
+	@EnableAutoConfiguration
 	static class Config {
 
 	}

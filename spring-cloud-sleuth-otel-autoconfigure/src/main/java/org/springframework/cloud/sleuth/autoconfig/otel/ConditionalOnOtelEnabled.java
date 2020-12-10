@@ -51,9 +51,4 @@ final class AnyTracerModePropertySetCondition extends AnyNestedCondition {
 
 	}
 
-	@ConditionalOnProperty(value = "spring.sleuth.tracer.mode", havingValue = "OTEL")
-	static class OnConcreteTracerMode {
-
-	}
-
 }

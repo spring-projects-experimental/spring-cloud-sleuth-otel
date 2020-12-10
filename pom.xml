@@ -23,8 +23,8 @@
 	<artifactId>spring-cloud-sleuth-otel-parent</artifactId>
 	<version>3.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>Spring Cloud Sleuth OTel OTel</name>
-	<description>Spring Cloud Sleuth OTel OTel</description>
+	<name>Spring Cloud Sleuth OTel</name>
+	<description>Spring Cloud Sleuth OTel</description>
 
 	<parent>
 		<groupId>org.springframework.cloud</groupId>

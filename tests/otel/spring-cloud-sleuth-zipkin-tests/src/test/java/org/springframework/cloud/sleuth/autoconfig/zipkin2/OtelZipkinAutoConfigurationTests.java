@@ -19,6 +19,7 @@ package org.springframework.cloud.sleuth.autoconfig.zipkin2;
 import io.opentelemetry.sdk.trace.samplers.Sampler;
 
 import org.springframework.cloud.sleuth.autoconfig.otel.OtelAutoConfiguration;
+import org.springframework.cloud.sleuth.autoconfig.otel.zipkin2.ZipkinOtelAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -27,7 +28,7 @@ public class OtelZipkinAutoConfigurationTests
 
 	@Override
 	protected Class tracerZipkinConfiguration() {
-		return ZipkinOtelConfiguration.class;
+		return ZipkinOtelAutoConfiguration.class;
 	}
 
 	@Override

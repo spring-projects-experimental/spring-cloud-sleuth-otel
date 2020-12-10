@@ -24,8 +24,8 @@
 
 	<artifactId>spring-cloud-sleuth-instrumentation-feign-otel-tests</artifactId>
 	<packaging>jar</packaging>
-	<name>Spring Cloud Sleuth OTel Otel Feign Instrumentation Tests</name>
-	<description>Spring Cloud Sleuth OTel Otel Feign Instrumentation Tests</description>
+	<name>Spring Cloud Sleuth OTel Feign Instrumentation Tests</name>
+	<description>Spring Cloud Sleuth OTel Feign Instrumentation Tests</description>
 
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
@@ -54,6 +54,10 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>spring-cloud-sleuth-tests-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>spring-cloud-sleuth-tests-otel-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -83,7 +87,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-sleuth-otel</artifactId>
+			<artifactId>spring-cloud-sleuth-otel-autoconfigure</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>

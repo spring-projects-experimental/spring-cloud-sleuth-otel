@@ -24,8 +24,8 @@
 
 	<artifactId>spring-cloud-sleuth-instrumentation-annotation-otel-tests</artifactId>
 	<packaging>jar</packaging>
-	<name>Spring Cloud Sleuth OTel Otel Annotation Instrumentation Tests</name>
-	<description>Spring Cloud Sleuth OTel Otel Annotation Instrumentation Tests</description>
+	<name>Spring Cloud Sleuth OTel Annotation Instrumentation Tests</name>
+	<description>Spring Cloud Sleuth OTel Annotation Instrumentation Tests</description>
 
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
@@ -54,6 +54,10 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-sleuth-tests-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-sleuth-tests-otel-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -76,7 +80,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-sleuth-otel</artifactId>
+			<artifactId>spring-cloud-sleuth-otel-autoconfigure</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

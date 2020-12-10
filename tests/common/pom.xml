@@ -59,13 +59,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-sleuth-otel</artifactId>
-			<optional>true</optional>
+			<artifactId>spring-cloud-sleuth-otel-autoconfigure</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
 			<artifactId>opentelemetry-extension-trace-propagators</artifactId>
-			<optional>true</optional>
 		</dependency>
 	</dependencies>
 

@@ -50,7 +50,7 @@ Add Spring Cloud Sleuth to the classpath of a Spring Boot application (together 
 		<!-- This dependency adds OTel support -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-sleuth-otel</artifactId>
+			<artifactId>spring-cloud-sleuth-otel-autoconfigure</artifactId>
 		</dependency>
 	</dependencies>
 ----

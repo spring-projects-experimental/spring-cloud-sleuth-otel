@@ -27,9 +27,9 @@
 	<artifactId>spring-cloud-sleuth-otel-docs</artifactId>
 	<packaging>jar</packaging>
 	<name>Spring Cloud Sleuth OTel Docs</name>
-	<description>Spring Sleuth Docs</description>
+	<description>Spring Sleuth OTel Docs</description>
 	<properties>
-		<docs.main>spring-cloud-sleuth</docs.main>
+		<docs.main>spring-cloud-sleuth-otel</docs.main>
 		<main.basedir>${basedir}/..</main.basedir>
 		<configprops.inclusionPattern>spring.sleuth.otel*|spring.zipkin.*</configprops.inclusionPattern>
 		<upload-docs-zip.phase>deploy</upload-docs-zip.phase>

@@ -1,4 +1,3 @@
 # Auto Configuration
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.springframework.cloud.sleuth.autoconfig.TraceNoOpAutoConfiguration,\
-org.springframework.cloud.sleuth.SleuthTestAutoConfiguration
+org.springframework.cloud.sleuth.autoconfig.TraceNoOpAutoConfiguration

@@ -36,6 +36,7 @@ import io.opentelemetry.spi.metrics.MeterProviderFactory;
 import io.opentelemetry.spi.trace.TracerProviderFactory;
 
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -45,6 +46,7 @@ import org.springframework.cloud.sleuth.autoconfig.SleuthBaggageProperties;
 import org.springframework.cloud.sleuth.autoconfig.SleuthSpanFilterProperties;
 import org.springframework.cloud.sleuth.autoconfig.SleuthTracerProperties;
 import org.springframework.cloud.sleuth.autoconfig.TraceConfiguration;
+import org.springframework.cloud.sleuth.autoconfig.brave.BraveAutoConfiguration;
 import org.springframework.cloud.sleuth.internal.SleuthContextListener;
 import org.springframework.cloud.sleuth.otel.bridge.OtelOpenTelemetry;
 import org.springframework.cloud.sleuth.otel.bridge.SpanExporterCustomizer;
@@ -68,6 +70,9 @@ import org.springframework.context.annotation.Import;
 		SleuthTracerProperties.class })
 @Import({ OtelBridgeConfiguation.class, OtelPropagationConfiguration.class, TraceConfiguration.class,
 		SleuthAnnotationConfiguration.class })
+// Autoconfigurations in the instrumentation module are set to be configured before
+// BraveAutoConfiguration
+@AutoConfigureBefore(BraveAutoConfiguration.class)
 public class OtelAutoConfiguration {
 
 	@Bean

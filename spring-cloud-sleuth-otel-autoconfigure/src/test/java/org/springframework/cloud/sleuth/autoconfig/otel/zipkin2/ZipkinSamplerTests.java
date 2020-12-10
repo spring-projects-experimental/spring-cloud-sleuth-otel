@@ -19,16 +19,10 @@ package org.springframework.cloud.sleuth.autoconfig.otel.zipkin2;
 import org.assertj.core.api.BDDAssertions;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
-import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.cloud.gateway.config.GatewayAutoConfiguration;
-import org.springframework.cloud.gateway.config.GatewayClassPathWarningAutoConfiguration;
-import org.springframework.cloud.gateway.config.GatewayMetricsAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -41,7 +35,7 @@ public class ZipkinSamplerTests {
 	@Test
 	void should_set_sampler_to_non_off_when_zipkin_handler_on_classpath_for_otel() {
 		ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-				.withPropertyValues("spring.sleuth.tracer.mode=OTEL")
+				.withPropertyValues("spring.sleuth.tracer.mode=AUTO")
 				.withConfiguration(AutoConfigurations.of(TestConfig.class));
 
 		contextRunner.run(context -> {
@@ -52,9 +46,7 @@ public class ZipkinSamplerTests {
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	@EnableAutoConfiguration(exclude = { GatewayClassPathWarningAutoConfiguration.class, GatewayAutoConfiguration.class,
-			GatewayMetricsAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class,
-			MongoAutoConfiguration.class, QuartzAutoConfiguration.class })
+	@EnableAutoConfiguration
 	static class TestConfig {
 
 	}

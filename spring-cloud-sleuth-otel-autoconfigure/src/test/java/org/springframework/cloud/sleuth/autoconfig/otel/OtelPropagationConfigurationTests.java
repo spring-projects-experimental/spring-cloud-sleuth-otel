@@ -31,14 +31,8 @@ import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapPropagator;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
-import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
-import org.springframework.cloud.gateway.config.GatewayAutoConfiguration;
-import org.springframework.cloud.gateway.config.GatewayClassPathWarningAutoConfiguration;
-import org.springframework.cloud.gateway.config.GatewayMetricsAutoConfiguration;
 import org.springframework.cloud.sleuth.otel.propagation.CompositeTextMapPropagator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,7 +44,7 @@ class OtelPropagationConfigurationTests {
 	@Test
 	void should_start_a_composite_text_map_propagator_with_b3_as_default() {
 		ApplicationContextRunner runner = new ApplicationContextRunner()
-				.withPropertyValues("spring.sleuth.tracer.mode=OTEL").withUserConfiguration(Config.class);
+				.withPropertyValues("spring.sleuth.tracer.mode=AUTO").withUserConfiguration(Config.class);
 
 		runner.run(context -> {
 			assertThat(context).hasNotFailed();
@@ -62,7 +56,7 @@ class OtelPropagationConfigurationTests {
 	@Test
 	void should_start_a_composite_text_map_propagator_with_a_single_propagation_type() {
 		ApplicationContextRunner runner = new ApplicationContextRunner().withUserConfiguration(Config.class)
-				.withPropertyValues("spring.sleuth.tracer.mode=OTEL")
+				.withPropertyValues("spring.sleuth.tracer.mode=AUTO")
 				.withPropertyValues("spring.sleuth.propagation.type=w3c");
 
 		runner.run(context -> {
@@ -75,7 +69,7 @@ class OtelPropagationConfigurationTests {
 	@Test
 	void should_start_a_composite_text_map_propagator_with_multiple_propagation_types() {
 		ApplicationContextRunner runner = new ApplicationContextRunner().withUserConfiguration(Config.class)
-				.withPropertyValues("spring.sleuth.tracer.mode=OTEL")
+				.withPropertyValues("spring.sleuth.tracer.mode=AUTO")
 				.withPropertyValues("spring.sleuth.propagation.type=b3,w3c");
 
 		runner.run(context -> {
@@ -89,7 +83,7 @@ class OtelPropagationConfigurationTests {
 	void should_start_a_composite_text_map_propagator_with_custom_propagation_types() {
 		ApplicationContextRunner runner = new ApplicationContextRunner()
 				.withUserConfiguration(CustomPropagatorConfig.class)
-				.withPropertyValues("spring.sleuth.tracer.mode=OTEL")
+				.withPropertyValues("spring.sleuth.tracer.mode=AUTO")
 				.withPropertyValues("spring.sleuth.propagation.type=custom");
 
 		runner.run(context -> {
@@ -139,17 +133,13 @@ class OtelPropagationConfigurationTests {
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	@EnableAutoConfiguration(exclude = { GatewayClassPathWarningAutoConfiguration.class, GatewayAutoConfiguration.class,
-			GatewayMetricsAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class,
-			MongoAutoConfiguration.class, QuartzAutoConfiguration.class })
+	@EnableAutoConfiguration
 	static class Config {
 
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	@EnableAutoConfiguration(exclude = { GatewayClassPathWarningAutoConfiguration.class, GatewayAutoConfiguration.class,
-			GatewayMetricsAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class,
-			MongoAutoConfiguration.class, QuartzAutoConfiguration.class })
+	@EnableAutoConfiguration
 	static class CustomPropagatorConfig {
 
 		@Bean

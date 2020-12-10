@@ -36,7 +36,7 @@ class OtelOpentracingAutoConfigurationTests {
 	}
 
 	private ApplicationContextRunner withAutoConfiguration() {
-		return new ApplicationContextRunner().withPropertyValues("spring.sleuth.tracer.mode=OTEL").withConfiguration(
+		return new ApplicationContextRunner().withPropertyValues("spring.sleuth.tracer.mode=AUTO").withConfiguration(
 				AutoConfigurations.of(OtelAutoConfiguration.class, OtelOpentracingAutoConfiguration.class));
 	}
 
