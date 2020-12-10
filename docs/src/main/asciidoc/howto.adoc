@@ -16,23 +16,32 @@ If you want to add a "`how-to`", send us a {github-code}[pull request].
 [[how-to-set-up-sleuth-with-otel]]
 == How to Set Up Sleuth with OpenTelemetry?
 
-Add the Sleuth starter, exlcude Brave and add OpenTelemetry dependency to the classpath.
+Add the Sleuth starter, exclude Brave and add OpenTelemetry dependency to the classpath.
 
 ====
 [source,xml,indent=0,subs="verbatim,attributes",role="primary"]
 .Maven
 ----
     <dependencyManagement>
-          <dependencies>
-              <dependency>
-                  <groupId>org.springframework.cloud</groupId>
-                  <artifactId>spring-cloud-dependencies</artifactId>
-                  <version>${release.train-version}</version>
-                  <type>pom</type>
-                  <scope>import</scope>
-              </dependency>
-          </dependencies>
-    </dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<!-- Provide the latest stable Spring Cloud release train version (e.g. 2020.0.0) -->
+				<version>${release.train.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-sleuth-otel-dependencies</artifactId>
+				<!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project -->
+				<version>${spring-cloud-sleuth-otel.version}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
     <dependency>
         <groupId>org.springframework.cloud</groupId>
@@ -77,16 +86,25 @@ Add the Sleuth starter, exclude Brave, add OTel and Zipkin to the classpath.
 .Maven
 ----
     <dependencyManagement>
-          <dependencies>
-              <dependency>
-                  <groupId>org.springframework.cloud</groupId>
-                  <artifactId>spring-cloud-dependencies</artifactId>
-                  <version>${release.train-version}</version>
-                  <type>pom</type>
-                  <scope>import</scope>
-              </dependency>
-          </dependencies>
-    </dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<!-- Provide the latest stable Spring Cloud release train version (e.g. 2020.0.0) -->
+				<version>${release.train.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-sleuth-otel-dependencies</artifactId>
+				<!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project -->
+				<version>${spring-cloud-sleuth-otel.version}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
     <dependency>
         <groupId>org.springframework.cloud</groupId>
@@ -139,16 +157,25 @@ If using Kafka, you must add the Kafka dependency.
 .Maven
 ----
     <dependencyManagement>
-          <dependencies>
-              <dependency>
-                  <groupId>org.springframework.cloud</groupId>
-                  <artifactId>spring-cloud-dependencies</artifactId>
-                  <version>${release.train-version}</version>
-                  <type>pom</type>
-                  <scope>import</scope>
-              </dependency>
-          </dependencies>
-    </dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<!-- Provide the latest stable Spring Cloud release train version (e.g. 2020.0.0) -->
+				<version>${release.train.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-sleuth-otel-dependencies</artifactId>
+				<!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project -->
+				<version>${spring-cloud-sleuth-otel.version}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
     <dependency>
         <groupId>org.springframework.cloud</groupId>
@@ -207,16 +234,25 @@ If you want Sleuth over RabbitMQ, add the `spring-cloud-sleuth-otel` (exclude `s
 .Maven
 ----
     <dependencyManagement>
-          <dependencies>
-              <dependency>
-                  <groupId>org.springframework.cloud</groupId>
-                  <artifactId>spring-cloud-dependencies</artifactId>
-                  <version>${release.train-version}</version>
-                  <type>pom</type>
-                  <scope>import</scope>
-              </dependency>
-          </dependencies>
-    </dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<!-- Provide the latest stable Spring Cloud release train version (e.g. 2020.0.0) -->
+				<version>${release.train.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-sleuth-otel-dependencies</artifactId>
+				<!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project -->
+				<version>${spring-cloud-sleuth-otel.version}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
     <dependency>
         <groupId>org.springframework.cloud</groupId>
@@ -256,16 +292,25 @@ If you want Sleuth over RabbitMQ, add the `spring-cloud-sleuth-otel` (exclude `s
 .Maven
 ----
     <dependencyManagement>
-          <dependencies>
-              <dependency>
-                  <groupId>org.springframework.cloud</groupId>
-                  <artifactId>spring-cloud-dependencies</artifactId>
-                  <version>${release.train-version}</version>
-                  <type>pom</type>
-                  <scope>import</scope>
-              </dependency>
-          </dependencies>
-    </dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<!-- Provide the latest stable Spring Cloud release train version (e.g. 2020.0.0) -->
+				<version>${release.train.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-sleuth-otel-dependencies</artifactId>
+				<!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project -->
+				<version>${spring-cloud-sleuth-otel.version}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
     <dependency>
         <groupId>org.springframework.cloud</groupId>

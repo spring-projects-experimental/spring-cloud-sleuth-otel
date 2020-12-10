@@ -4,16 +4,25 @@ Maven
 
 ```xml
 <dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-dependencies</artifactId>
-            <version>${release.train.version}</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-    </dependencies>
-</dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<!-- Provide the latest stable Spring Cloud release train version (e.g. 2020.0.0) -->
+				<version>${release.train.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-sleuth-otel-dependencies</artifactId>
+				<!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project -->
+				<version>${spring-cloud-sleuth-otel.version}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 <dependencies>
     <dependency>
         <groupId>org.springframework.cloud</groupId>
