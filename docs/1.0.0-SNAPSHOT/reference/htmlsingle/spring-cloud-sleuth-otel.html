@@ -140,10 +140,19 @@ Open your favorite text editor and add the following:</p>
                 &lt;type&gt;pom&lt;/type&gt;
                 &lt;scope&gt;import&lt;/scope&gt;
             &lt;/dependency&gt;
+            &lt;!-- Spring Cloud Sleuth OTel requires a Spring Cloud Sleuth OTel BOM --&gt;
+            &lt;dependency&gt;
+                &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+                &lt;artifactId&gt;spring-cloud-sleuth-otel-dependencies&lt;/artifactId&gt;
+                &lt;!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project --&gt;
+                &lt;version&gt;${spring-cloud-sleuth-otel.version}&lt;/version&gt;
+                &lt;scope&gt;import&lt;/scope&gt;
+                &lt;type&gt;pom&lt;/type&gt;
+            &lt;/dependency&gt;
         &lt;/dependencies&gt;
     &lt;/dependencyManagement&gt;
 
-    &lt;!-- (you don't need this if you are using a GA version) --&gt;
+    &lt;!-- You 'll need those to add OTel support --&gt;
     &lt;repositories&gt;
         &lt;repository&gt;
             &lt;id&gt;spring-snapshots&lt;/id&gt;
@@ -204,7 +213,7 @@ For simplicity, we continue to use a plain text editor for this example.
         &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
         &lt;artifactId&gt;spring-cloud-starter-sleuth&lt;/artifactId&gt;
         &lt;exclusions&gt;
-            &lt;!-- Exclude Brave --&gt;
+            &lt;!-- Exclude Brave (the default) --&gt;
             &lt;exclusion&gt;
                 &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
                 &lt;artifactId&gt;spring-cloud-sleuth-brave&lt;/artifactId&gt;
@@ -501,7 +510,30 @@ If you want to add a &#8220;how-to&#8221;, send us a <a href="https://github.com
 &lt;dependency&gt;
     &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
     &lt;artifactId&gt;spring-cloud-sleuth-otel-autoconfigure&lt;/artifactId&gt;
-&lt;/dependency&gt;</code></pre>
+&lt;/dependency&gt;
+
+    &lt;!-- You 'll need those to add OTel support --&gt;
+    &lt;repositories&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+            &lt;snapshots&gt;&lt;enabled&gt;true&lt;/enabled&gt;&lt;/snapshots&gt;
+        &lt;/repository&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/repository&gt;
+    &lt;/repositories&gt;
+    &lt;pluginRepositories&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+    &lt;/pluginRepositories&gt;</code></pre>
 </div>
 </div>
 <div class="listingblock secondary">
@@ -510,12 +542,27 @@ If you want to add a &#8220;how-to&#8221;, send us a <a href="https://github.com
 <pre class="highlight"><code class="language-groovy" data-lang="groovy">dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${releaseTrainVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:${springCloudSleuthOtelVersion}"
     }
 }
 
 dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-sleuth") {
         exclude group: 'org.springframework.cloud', module: 'spring-cloud-sleuth-brave'
+    }
+    implementation "org.springframework.cloud:spring-cloud-sleuth-otel-autoconfigure"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+            url "https://repo.spring.io/snapshot"
+    }
+    maven {
+            url "https://repo.spring.io/milestone"
+    }
+    maven {
+            url "https://repo.spring.io/release"
     }
 }</code></pre>
 </div>
@@ -571,7 +618,31 @@ dependencies {
 &lt;dependency&gt;
     &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
     &lt;artifactId&gt;spring-cloud-sleuth-zipkin&lt;/artifactId&gt;
-&lt;/dependency&gt;</code></pre>
+&lt;/dependency&gt;
+
+
+    &lt;!-- You 'll need those to add OTel support --&gt;
+    &lt;repositories&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+            &lt;snapshots&gt;&lt;enabled&gt;true&lt;/enabled&gt;&lt;/snapshots&gt;
+        &lt;/repository&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/repository&gt;
+    &lt;/repositories&gt;
+    &lt;pluginRepositories&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+    &lt;/pluginRepositories&gt;</code></pre>
 </div>
 </div>
 <div class="listingblock secondary">
@@ -580,6 +651,7 @@ dependencies {
 <pre class="highlight"><code class="language-groovy" data-lang="groovy">dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${releaseTrainVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:${springCloudSleuthOtelVersion}"
     }
 }
 
@@ -587,7 +659,21 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-sleuth") {
         exclude group: 'org.springframework.cloud', module: 'spring-cloud-sleuth-brave'
     }
+    implementation "org.springframework.cloud:spring-cloud-sleuth-otel-autoconfigure"
     implementation "org.springframework.cloud:spring-cloud-sleuth-zipkin"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+            url "https://repo.spring.io/snapshot"
+    }
+    maven {
+            url "https://repo.spring.io/milestone"
+    }
+    maven {
+            url "https://repo.spring.io/release"
+    }
 }</code></pre>
 </div>
 </div>
@@ -650,7 +736,31 @@ The default destination name is <code>Zipkin</code>.</p>
 &lt;dependency&gt;
     &lt;groupId&gt;org.springframework.kafka&lt;/groupId&gt;
     &lt;artifactId&gt;spring-kafka&lt;/artifactId&gt;
-&lt;/dependency&gt;</code></pre>
+&lt;/dependency&gt;
+
+
+    &lt;!-- You 'll need those to add OTel support --&gt;
+    &lt;repositories&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+            &lt;snapshots&gt;&lt;enabled&gt;true&lt;/enabled&gt;&lt;/snapshots&gt;
+        &lt;/repository&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/repository&gt;
+    &lt;/repositories&gt;
+    &lt;pluginRepositories&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+    &lt;/pluginRepositories&gt;</code></pre>
 </div>
 </div>
 <div class="listingblock secondary">
@@ -659,6 +769,7 @@ The default destination name is <code>Zipkin</code>.</p>
 <pre class="highlight"><code class="language-groovy" data-lang="groovy">dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${releaseTrainVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:${springCloudSleuthOtelVersion}"
     }
 }
 
@@ -666,8 +777,22 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-sleuth") {
         exclude group: 'org.springframework.cloud', module: 'spring-cloud-sleuth-brave'
     }
+    implementation "org.springframework.cloud:spring-cloud-sleuth-otel-autoconfigure"
     implementation "org.springframework.cloud:spring-cloud-sleuth-zipkin"
     implementation "org.springframework.kafka:spring-kafka"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+            url "https://repo.spring.io/snapshot"
+    }
+    maven {
+            url "https://repo.spring.io/milestone"
+    }
+    maven {
+            url "https://repo.spring.io/release"
+    }
 }</code></pre>
 </div>
 </div>
@@ -721,7 +846,31 @@ dependencies {
 &lt;dependency&gt;
     &lt;groupId&gt;org.springframework.amqp&lt;/groupId&gt;
     &lt;artifactId&gt;spring-rabbit&lt;/artifactId&gt;
-&lt;/dependency&gt;</code></pre>
+&lt;/dependency&gt;
+
+
+    &lt;!-- You 'll need those to add OTel support --&gt;
+    &lt;repositories&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+            &lt;snapshots&gt;&lt;enabled&gt;true&lt;/enabled&gt;&lt;/snapshots&gt;
+        &lt;/repository&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/repository&gt;
+    &lt;/repositories&gt;
+    &lt;pluginRepositories&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+    &lt;/pluginRepositories&gt;</code></pre>
 </div>
 </div>
 <div class="listingblock secondary">
@@ -730,13 +879,29 @@ dependencies {
 <pre class="highlight"><code class="language-groovy" data-lang="groovy">dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${releaseTrainVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:${springCloudSleuthOtelVersion}"
     }
 }
 
 dependencies {
-    implementation "org.springframework.cloud:spring-cloud-starter-sleuth"
+    implementation("org.springframework.cloud:spring-cloud-starter-sleuth") {
+        exclude group: 'org.springframework.cloud', module: 'spring-cloud-sleuth-brave'
+    }
     implementation "org.springframework.cloud:spring-cloud-sleuth-zipkin"
     implementation "org.springframework.amqp:spring-rabbit"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+            url "https://repo.spring.io/snapshot"
+    }
+    maven {
+            url "https://repo.spring.io/milestone"
+    }
+    maven {
+            url "https://repo.spring.io/release"
+    }
 }</code></pre>
 </div>
 </div>
@@ -792,7 +957,31 @@ dependencies {
 &lt;dependency&gt;
     &lt;groupId&gt;org.apache.activemq&lt;/groupId&gt;
     &lt;artifactId&gt;activemq-client&lt;/artifactId&gt;
-&lt;/dependency&gt;</code></pre>
+&lt;/dependency&gt;
+
+
+    &lt;!-- You 'll need those to add OTel support --&gt;
+    &lt;repositories&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+            &lt;snapshots&gt;&lt;enabled&gt;true&lt;/enabled&gt;&lt;/snapshots&gt;
+        &lt;/repository&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/repository&gt;
+    &lt;/repositories&gt;
+    &lt;pluginRepositories&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+    &lt;/pluginRepositories&gt;</code></pre>
 </div>
 </div>
 <div class="listingblock secondary">
@@ -801,6 +990,7 @@ dependencies {
 <pre class="highlight"><code class="language-groovy" data-lang="groovy">dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${releaseTrainVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:${springCloudSleuthOtelVersion}"
     }
 }
 
@@ -808,8 +998,22 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-sleuth") {
         exclude group: 'org.springframework.cloud', module: 'spring-cloud-sleuth-brave'
     }
+    implementation "org.springframework.cloud:spring-cloud-sleuth-otel-autoconfigure"
     implementation "org.springframework.cloud:spring-cloud-sleuth-zipkin"
     implementation "org.apache.activemq:activemq-client"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+            url "https://repo.spring.io/snapshot"
+    }
+    maven {
+            url "https://repo.spring.io/milestone"
+    }
+    maven {
+            url "https://repo.spring.io/release"
+    }
 }</code></pre>
 </div>
 </div>

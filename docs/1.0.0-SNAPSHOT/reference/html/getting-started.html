@@ -106,10 +106,19 @@ Open your favorite text editor and add the following:</p>
                 &lt;type&gt;pom&lt;/type&gt;
                 &lt;scope&gt;import&lt;/scope&gt;
             &lt;/dependency&gt;
+            &lt;!-- Spring Cloud Sleuth OTel requires a Spring Cloud Sleuth OTel BOM --&gt;
+            &lt;dependency&gt;
+                &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+                &lt;artifactId&gt;spring-cloud-sleuth-otel-dependencies&lt;/artifactId&gt;
+                &lt;!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project --&gt;
+                &lt;version&gt;${spring-cloud-sleuth-otel.version}&lt;/version&gt;
+                &lt;scope&gt;import&lt;/scope&gt;
+                &lt;type&gt;pom&lt;/type&gt;
+            &lt;/dependency&gt;
         &lt;/dependencies&gt;
     &lt;/dependencyManagement&gt;
 
-    &lt;!-- (you don't need this if you are using a GA version) --&gt;
+    &lt;!-- You 'll need those to add OTel support --&gt;
     &lt;repositories&gt;
         &lt;repository&gt;
             &lt;id&gt;spring-snapshots&lt;/id&gt;
@@ -170,7 +179,7 @@ For simplicity, we continue to use a plain text editor for this example.
         &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
         &lt;artifactId&gt;spring-cloud-starter-sleuth&lt;/artifactId&gt;
         &lt;exclusions&gt;
-            &lt;!-- Exclude Brave --&gt;
+            &lt;!-- Exclude Brave (the default) --&gt;
             &lt;exclusion&gt;
                 &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
                 &lt;artifactId&gt;spring-cloud-sleuth-brave&lt;/artifactId&gt;

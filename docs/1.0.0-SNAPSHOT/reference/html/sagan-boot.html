@@ -44,11 +44,53 @@
 		&lt;/dependencies&gt;
 	&lt;/dependencyManagement&gt;
 &lt;dependencies&gt;
-    &lt;dependency&gt;
-        &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
-        &lt;artifactId&gt;spring-cloud-starter-sleuth&lt;/artifactId&gt;
-    &lt;/dependency&gt;
-&lt;/dependencies&gt;</code></pre>
+		&lt;!-- Boot's Web support --&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+			&lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+		&lt;/dependency&gt;
+    &lt;!-- Sleuth with Brave tracer implementation --&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+			&lt;artifactId&gt;spring-cloud-starter-sleuth&lt;/artifactId&gt;
+			&lt;exclusions&gt;
+				&lt;!-- Exclude Brave (the default) --&gt;
+				&lt;exclusion&gt;
+					&lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+					&lt;artifactId&gt;spring-cloud-sleuth-brave&lt;/artifactId&gt;
+				&lt;/exclusion&gt;
+			&lt;/exclusions&gt;
+		&lt;/dependency&gt;
+		&lt;!-- Add OpenTelemetry tracer --&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+			&lt;artifactId&gt;spring-cloud-sleuth-otel-autoconfigure&lt;/artifactId&gt;
+		&lt;/dependency&gt;
+&lt;/dependencies&gt;
+
+
+		&lt;!-- You 'll need those to add OTel support --&gt;
+		&lt;repositories&gt;
+			&lt;repository&gt;
+				&lt;id&gt;spring-snapshots&lt;/id&gt;
+				&lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+				&lt;snapshots&gt;&lt;enabled&gt;true&lt;/enabled&gt;&lt;/snapshots&gt;
+			&lt;/repository&gt;
+			&lt;repository&gt;
+				&lt;id&gt;spring-milestones&lt;/id&gt;
+				&lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+			&lt;/repository&gt;
+		&lt;/repositories&gt;
+		&lt;pluginRepositories&gt;
+			&lt;pluginRepository&gt;
+				&lt;id&gt;spring-snapshots&lt;/id&gt;
+				&lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+			&lt;/pluginRepository&gt;
+			&lt;pluginRepository&gt;
+				&lt;id&gt;spring-milestones&lt;/id&gt;
+				&lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+			&lt;/pluginRepository&gt;
+		&lt;/pluginRepositories&gt;</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -66,16 +108,35 @@ apply plugin: "io.spring.dependency-management"
 
 dependencyManagement {
      imports {
-          mavenBom "org.springframework.cloud:spring-cloud-dependencies:${releaseTrainVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${releaseTrainVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:${springCloudSleuthOtelVersion}"
      }
 }
+
 dependencies {
-    compile 'org.springframework.cloud:spring-cloud-starter-sleuth'
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.cloud:spring-cloud-starter-sleuth") {
+        exclude group: 'org.springframework.cloud', module: 'spring-cloud-sleuth-brave'
+    }
+    implementation "org.springframework.cloud:spring-cloud-sleuth-otel-autoconfigure"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+            url "https://repo.spring.io/snapshot"
+    }
+    maven {
+            url "https://repo.spring.io/milestone"
+    }
+    maven {
+            url "https://repo.spring.io/release"
+    }
 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>As long as Spring Cloud Sleuth is on the classpath any Spring Boot application will generate trace data:</p>
+<p>As long as Spring Cloud Sleuth and Spring Cloud Sleuth OTel are on the classpath any Spring Boot application will generate trace data:</p>
 </div>
 <div class="listingblock">
 <div class="content">
