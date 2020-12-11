@@ -1,4 +1,4 @@
-Spring Cloud Sleuth provides Spring Boot auto-configuration for distributed tracing.
+Spring Cloud Sleuth OTel provides Spring Boot auto-configuration for OpenTelemetry support for Spring Cloud Sleuth.
 
 ## Features
 

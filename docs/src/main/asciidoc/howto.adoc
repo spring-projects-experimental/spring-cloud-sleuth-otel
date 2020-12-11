@@ -57,6 +57,29 @@ Add the Sleuth starter, exclude Brave and add OpenTelemetry dependency to the cl
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-sleuth-otel-autoconfigure</artifactId>
     </dependency>
+
+		<!-- You 'll need those to add OTel support -->
+		<repositories>
+			<repository>
+				<id>spring-snapshots</id>
+				<url>https://repo.spring.io/snapshot</url>
+				<snapshots><enabled>true</enabled></snapshots>
+			</repository>
+			<repository>
+				<id>spring-milestones</id>
+				<url>https://repo.spring.io/milestone</url>
+			</repository>
+		</repositories>
+		<pluginRepositories>
+			<pluginRepository>
+				<id>spring-snapshots</id>
+				<url>https://repo.spring.io/snapshot</url>
+			</pluginRepository>
+			<pluginRepository>
+				<id>spring-milestones</id>
+				<url>https://repo.spring.io/milestone</url>
+			</pluginRepository>
+		</pluginRepositories>
 ----
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="secondary"]
@@ -65,12 +88,27 @@ Add the Sleuth starter, exclude Brave and add OpenTelemetry dependency to the cl
 dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${releaseTrainVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:${springCloudSleuthOtelVersion}"
     }
 }
 
 dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-sleuth") {
         exclude group: 'org.springframework.cloud', module: 'spring-cloud-sleuth-brave'
+    }
+    implementation "org.springframework.cloud:spring-cloud-sleuth-otel-autoconfigure"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+            url "https://repo.spring.io/snapshot"
+    }
+    maven {
+            url "https://repo.spring.io/milestone"
+    }
+    maven {
+            url "https://repo.spring.io/release"
     }
 }
 ----
@@ -124,6 +162,30 @@ Add the Sleuth starter, exclude Brave, add OTel and Zipkin to the classpath.
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-sleuth-zipkin</artifactId>
     </dependency>
+
+
+		<!-- You 'll need those to add OTel support -->
+		<repositories>
+			<repository>
+				<id>spring-snapshots</id>
+				<url>https://repo.spring.io/snapshot</url>
+				<snapshots><enabled>true</enabled></snapshots>
+			</repository>
+			<repository>
+				<id>spring-milestones</id>
+				<url>https://repo.spring.io/milestone</url>
+			</repository>
+		</repositories>
+		<pluginRepositories>
+			<pluginRepository>
+				<id>spring-snapshots</id>
+				<url>https://repo.spring.io/snapshot</url>
+			</pluginRepository>
+			<pluginRepository>
+				<id>spring-milestones</id>
+				<url>https://repo.spring.io/milestone</url>
+			</pluginRepository>
+		</pluginRepositories>
 ----
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="secondary"]
@@ -132,6 +194,7 @@ Add the Sleuth starter, exclude Brave, add OTel and Zipkin to the classpath.
 dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${releaseTrainVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:${springCloudSleuthOtelVersion}"
     }
 }
 
@@ -139,8 +202,23 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-sleuth") {
         exclude group: 'org.springframework.cloud', module: 'spring-cloud-sleuth-brave'
     }
+    implementation "org.springframework.cloud:spring-cloud-sleuth-otel-autoconfigure"
     implementation "org.springframework.cloud:spring-cloud-sleuth-zipkin"
 }
+
+repositories {
+    mavenCentral()
+    maven {
+            url "https://repo.spring.io/snapshot"
+    }
+    maven {
+            url "https://repo.spring.io/milestone"
+    }
+    maven {
+            url "https://repo.spring.io/release"
+    }
+}
+
 ----
 ====
 
@@ -199,6 +277,30 @@ If using Kafka, you must add the Kafka dependency.
         <groupId>org.springframework.kafka</groupId>
         <artifactId>spring-kafka</artifactId>
     </dependency>
+
+
+		<!-- You 'll need those to add OTel support -->
+		<repositories>
+			<repository>
+				<id>spring-snapshots</id>
+				<url>https://repo.spring.io/snapshot</url>
+				<snapshots><enabled>true</enabled></snapshots>
+			</repository>
+			<repository>
+				<id>spring-milestones</id>
+				<url>https://repo.spring.io/milestone</url>
+			</repository>
+		</repositories>
+		<pluginRepositories>
+			<pluginRepository>
+				<id>spring-snapshots</id>
+				<url>https://repo.spring.io/snapshot</url>
+			</pluginRepository>
+			<pluginRepository>
+				<id>spring-milestones</id>
+				<url>https://repo.spring.io/milestone</url>
+			</pluginRepository>
+		</pluginRepositories>
 ----
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="secondary"]
@@ -207,6 +309,7 @@ If using Kafka, you must add the Kafka dependency.
 dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${releaseTrainVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:${springCloudSleuthOtelVersion}"
     }
 }
 
@@ -214,8 +317,22 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-sleuth") {
         exclude group: 'org.springframework.cloud', module: 'spring-cloud-sleuth-brave'
     }
+    implementation "org.springframework.cloud:spring-cloud-sleuth-otel-autoconfigure"
     implementation "org.springframework.cloud:spring-cloud-sleuth-zipkin"
     implementation "org.springframework.kafka:spring-kafka"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+            url "https://repo.spring.io/snapshot"
+    }
+    maven {
+            url "https://repo.spring.io/milestone"
+    }
+    maven {
+            url "https://repo.spring.io/release"
+    }
 }
 ----
 ====
@@ -266,6 +383,30 @@ If you want Sleuth over RabbitMQ, add the `spring-cloud-sleuth-otel` (exclude `s
         <groupId>org.springframework.amqp</groupId>
         <artifactId>spring-rabbit</artifactId>
     </dependency>
+
+
+		<!-- You 'll need those to add OTel support -->
+		<repositories>
+			<repository>
+				<id>spring-snapshots</id>
+				<url>https://repo.spring.io/snapshot</url>
+				<snapshots><enabled>true</enabled></snapshots>
+			</repository>
+			<repository>
+				<id>spring-milestones</id>
+				<url>https://repo.spring.io/milestone</url>
+			</repository>
+		</repositories>
+		<pluginRepositories>
+			<pluginRepository>
+				<id>spring-snapshots</id>
+				<url>https://repo.spring.io/snapshot</url>
+			</pluginRepository>
+			<pluginRepository>
+				<id>spring-milestones</id>
+				<url>https://repo.spring.io/milestone</url>
+			</pluginRepository>
+		</pluginRepositories>
 ----
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="secondary"]
@@ -274,13 +415,29 @@ If you want Sleuth over RabbitMQ, add the `spring-cloud-sleuth-otel` (exclude `s
 dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${releaseTrainVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:${springCloudSleuthOtelVersion}"
     }
 }
 
 dependencies {
-    implementation "org.springframework.cloud:spring-cloud-starter-sleuth"
+    implementation("org.springframework.cloud:spring-cloud-starter-sleuth") {
+        exclude group: 'org.springframework.cloud', module: 'spring-cloud-sleuth-brave'
+    }
     implementation "org.springframework.cloud:spring-cloud-sleuth-zipkin"
     implementation "org.springframework.amqp:spring-rabbit"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+            url "https://repo.spring.io/snapshot"
+    }
+    maven {
+            url "https://repo.spring.io/milestone"
+    }
+    maven {
+            url "https://repo.spring.io/release"
+    }
 }
 ----
 ====
@@ -334,6 +491,30 @@ If you want Sleuth over RabbitMQ, add the `spring-cloud-sleuth-otel` (exclude `s
         <groupId>org.apache.activemq</groupId>
         <artifactId>activemq-client</artifactId>
     </dependency>
+
+
+		<!-- You 'll need those to add OTel support -->
+		<repositories>
+			<repository>
+				<id>spring-snapshots</id>
+				<url>https://repo.spring.io/snapshot</url>
+				<snapshots><enabled>true</enabled></snapshots>
+			</repository>
+			<repository>
+				<id>spring-milestones</id>
+				<url>https://repo.spring.io/milestone</url>
+			</repository>
+		</repositories>
+		<pluginRepositories>
+			<pluginRepository>
+				<id>spring-snapshots</id>
+				<url>https://repo.spring.io/snapshot</url>
+			</pluginRepository>
+			<pluginRepository>
+				<id>spring-milestones</id>
+				<url>https://repo.spring.io/milestone</url>
+			</pluginRepository>
+		</pluginRepositories>
 ----
 
 [source,groovy,indent=0,subs="verbatim,attributes",role="secondary"]
@@ -342,6 +523,7 @@ If you want Sleuth over RabbitMQ, add the `spring-cloud-sleuth-otel` (exclude `s
 dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${releaseTrainVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:${springCloudSleuthOtelVersion}"
     }
 }
 
@@ -349,8 +531,22 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-sleuth") {
         exclude group: 'org.springframework.cloud', module: 'spring-cloud-sleuth-brave'
     }
+    implementation "org.springframework.cloud:spring-cloud-sleuth-otel-autoconfigure"
     implementation "org.springframework.cloud:spring-cloud-sleuth-zipkin"
     implementation "org.apache.activemq:activemq-client"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+            url "https://repo.spring.io/snapshot"
+    }
+    maven {
+            url "https://repo.spring.io/milestone"
+    }
+    maven {
+            url "https://repo.spring.io/release"
+    }
 }
 ----
 ====

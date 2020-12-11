@@ -62,10 +62,19 @@ Open your favorite text editor and add the following:
 					<type>pom</type>
 					<scope>import</scope>
 				</dependency>
+				<!-- Spring Cloud Sleuth OTel requires a Spring Cloud Sleuth OTel BOM -->
+				<dependency>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-sleuth-otel-dependencies</artifactId>
+					<!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project -->
+					<version>${spring-cloud-sleuth-otel.version}</version>
+					<scope>import</scope>
+					<type>pom</type>
+				</dependency>
 			</dependencies>
 		</dependencyManagement>
 
-		<!-- (you don't need this if you are using a GA version) -->
+		<!-- You 'll need those to add OTel support -->
 		<repositories>
 			<repository>
 				<id>spring-snapshots</id>
@@ -114,7 +123,7 @@ To add the necessary dependencies, edit your `pom.xml` and add the `spring-boot-
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-sleuth</artifactId>
 			<exclusions>
-				<!-- Exclude Brave -->
+				<!-- Exclude Brave (the default) -->
 				<exclusion>
 					<groupId>org.springframework.cloud</groupId>
 					<artifactId>spring-cloud-sleuth-brave</artifactId>
