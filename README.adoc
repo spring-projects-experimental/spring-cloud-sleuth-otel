@@ -127,7 +127,7 @@ Please visit the https://docs.spring.io/spring-cloud-sleuth/docs/[Spring Cloud S
 
 == Building
 
-:jdkversion: 1.8
+:jdkversion: 1.7
 
 === Basic Compile and Test
 

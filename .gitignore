@@ -17,6 +17,8 @@ _site/
 .checkstyle
 *.log
 .DS_Store
+/spring-cloud-sleuth-core/nb-configuration.xml
+/spring-cloud-sleuth-core/nbactions.xml
 jmh-result.csv
 pom.xml.versionsBackup
 .vscode
@@ -24,4 +26,3 @@ pom.xml.versionsBackup
 _includes
 .sdkmanrc
 results/jmh/*.csv
-config/application.properties
