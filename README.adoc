@@ -70,27 +70,27 @@ Add Spring Cloud Sleuth to the classpath of a Spring Boot application (together 
     </dependencies>
 
 <!-- You 'll need those to add OTel support -->
-		<repositories>
-			<repository>
-				<id>spring-snapshots</id>
-				<url>https://repo.spring.io/snapshot</url>
-				<snapshots><enabled>true</enabled></snapshots>
-			</repository>
-			<repository>
-				<id>spring-milestones</id>
-				<url>https://repo.spring.io/milestone</url>
-			</repository>
-		</repositories>
-		<pluginRepositories>
-			<pluginRepository>
-				<id>spring-snapshots</id>
-				<url>https://repo.spring.io/snapshot</url>
-			</pluginRepository>
-			<pluginRepository>
-				<id>spring-milestones</id>
-				<url>https://repo.spring.io/milestone</url>
-			</pluginRepository>
-		</pluginRepositories>
+        <repositories>
+            <repository>
+                <id>spring-snapshots</id>
+                <url>https://repo.spring.io/snapshot</url>
+                <snapshots><enabled>true</enabled></snapshots>
+            </repository>
+            <repository>
+                <id>spring-milestones</id>
+                <url>https://repo.spring.io/milestone</url>
+            </repository>
+        </repositories>
+        <pluginRepositories>
+            <pluginRepository>
+                <id>spring-snapshots</id>
+                <url>https://repo.spring.io/snapshot</url>
+            </pluginRepository>
+            <pluginRepository>
+                <id>spring-milestones</id>
+                <url>https://repo.spring.io/milestone</url>
+            </pluginRepository>
+        </pluginRepositories>
 ----
 
 Consider the following HTTP handler:
