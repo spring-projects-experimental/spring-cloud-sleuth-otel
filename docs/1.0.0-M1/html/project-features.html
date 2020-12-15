@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.10">
+<title>Spring Cloud Sleuth OTel Features</title>
+<link rel="stylesheet" href="css/spring.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body id="project-features" class="book toc2 toc-left">
+<div id="header">
+<h1>Spring Cloud Sleuth OTel Features</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#features-context-propagation">1. Context Propagation</a></li>
+<li><a href="#features-otel">2. OpenTelemetry Tracer Integration</a>
+<ul class="sectlevel2">
+<li><a href="#features-otel-logging">2.1. OpenTelemetry Logging Integration</a></li>
+<li><a href="#features-otel-opentracing">2.2. OpenTelemetry Opentracing</a></li>
+</ul>
+</li>
+<li><a href="#features-zipkin">3. Sending Spans to Zipkin</a></li>
+<li><a href="#features-whats-next">4. What to Read Next</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section dives into the details of Spring Cloud Sleuth OTel.
+Here you can learn about the key features that you may want to use and customize.
+If you have not already done so, you might want to read the "<a href="getting-started.html#getting-started">getting-started.html</a>" and "<a href="using.html#using">using.html</a>" sections, so that you have a good grounding in the basics.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="features-context-propagation"><a class="anchor" href="#features-context-propagation"></a><a class="link" href="#features-context-propagation">1. Context Propagation</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Traces connect from service to service using header propagation.
+The default format is <a href="https://github.com/openzipkin/b3-propagation">B3</a>.
+Similar to data formats, you can configure alternate header formats also, provided trace and span IDs are compatible with B3. Most notably, this means the trace ID and span IDs are lower-case hex, not UUIDs.
+Besides trace identifiers, other properties (Baggage) can also be passed along with the request.
+Remote Baggage must be predefined, but is flexible otherwise.</p>
+</div>
+<div class="paragraph">
+<p>To use the provided defaults you can set the <code>spring.sleuth.propagation.type</code> property.
+The value can be a list in which case you will propagate more tracing headers.</p>
+</div>
+<div class="paragraph">
+<p>For OpenTelemetry we support <code>AWS</code>, <code>B3</code>, <code>JAEGER</code>, <code>OT_TRACER</code> and <code>W3C</code> via the <code>io.opentelemetry:opentelemetry-extension-trace-propagators</code> dependency that you have to manually add to your classpath.</p>
+</div>
+<div class="paragraph">
+<p>You can read more about how to provide custom context propagation in this "<a href="howto.html#how-to-change-context-propagation">how to section</a>".</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="features-otel"><a class="anchor" href="#features-otel"></a><a class="link" href="#features-otel">2. OpenTelemetry Tracer Integration</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Spring Cloud Sleuth integrates with the OpenTelemetry (OTel in short) SDK tracer via the bridge that is available in the <code>spring-cloud-sleuth-otel</code> module.
+In this section you can read about specific OTel integrations.</p>
+</div>
+<div class="paragraph">
+<p>You can choose to use either Sleuth&#8217;s API or the OpenTelemetry API directly in your code (e.g. either Sleuth&#8217;s <code>Tracer</code> or OpenTelemetry&#8217;s <code>Tracer</code>).
+If you want to use this tracer implementation&#8217;s API directly please read <a href="https://github.com/open-telemetry/opentelemetry-java">their documentation to learn more about it</a>.</p>
+</div>
+<div class="sect2">
+<h3 id="features-otel-logging"><a class="anchor" href="#features-otel-logging"></a><a class="link" href="#features-otel-logging">2.1. OpenTelemetry Logging Integration</a></h3>
+<div class="paragraph">
+<p>We&#8217;re providing an Slf4j integration via a <code>SpanProcessor</code> that injects to and removes entries (trace / span ids, baggage, tags etc.) from MDC. You can disable that via the <code>spring.sleuth.otel.log.slf4j.enabled=false</code> property.</p>
+</div>
+<div class="paragraph">
+<p>If it&#8217;s there on the classpath, we integrate with the <code>LoggingSpanExporter</code>.
+You can disable that integration via the <code>spring.sleuth.otel.log.exporter.enabled=false</code> property.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="features-otel-opentracing"><a class="anchor" href="#features-otel-opentracing"></a><a class="link" href="#features-otel-opentracing">2.2. OpenTelemetry Opentracing</a></h3>
+<div class="paragraph">
+<p>You can integrate with OpenTelemetry and <a href="https://opentracing.io/">OpenTracing</a> via the
+<code>io.opentelemetry:opentelemetry-opentracing-shim</code> bridge.
+Just add it to the classpath and the OpenTracing <code>Tracer</code> will be set up automatically.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="features-zipkin"><a class="anchor" href="#features-zipkin"></a><a class="link" href="#features-zipkin">3. Sending Spans to Zipkin</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Spring Cloud Sleuth provides various integrations with the <a href="https://zipkin.io">OpenZipkin</a> distributed tracing system.
+Regardless of the chosen tracer implementation it&#8217;s enough to add <code>spring-cloud-sleuth-zipkin</code> to the classpath to start sending spans to Zipkin.
+You can choose whether to do that via HTTP or messaging.
+You can read more about how to do that in "<a href="howto.html#how-to-set-up-sleuth-with-otel-zipkin-messaging">how to section</a>".</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="features-whats-next"><a class="anchor" href="#features-whats-next"></a><a class="link" href="#features-whats-next">4. What to Read Next</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you want to learn more about any of the classes discussed in this section, you can browse the
+<a href="https://github.com/spring-cloud/spring-cloud-sleuth-otel/tree/14d1deb22210cc496b4cfbe6e4b07325e6480a5d">source code directly</a>.
+If you have specific questions, see the
+<a href="howto.html#howto">how-to</a> section.</p>
+</div>
+</div>
+</div>
+</div>
+<script type="text/javascript" src="js/tocbot/tocbot.min.js"></script>
+<script type="text/javascript" src="js/toc.js"></script>
+</body>
+</html>
