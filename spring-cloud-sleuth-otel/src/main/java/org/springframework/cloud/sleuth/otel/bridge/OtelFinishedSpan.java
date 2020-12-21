@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import io.opentelemetry.api.common.AttributeConsumer;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.trace.data.SpanData;
@@ -68,13 +67,9 @@ class OtelFinishedSpan implements FinishedSpan {
 	@Override
 	public Map<String, String> getTags() {
 		if (this.tags.isEmpty()) {
-			this.spanData.getAttributes().forEach(new AttributeConsumer() {
-				@Override
-				public <T> void accept(AttributeKey<T> key, T value) {
-					tags.put(key.getKey(), String.valueOf(value));
-				}
-			});
+			this.spanData.getAttributes().forEach((key, value) -> tags.put(key.getKey(), String.valueOf(value)));
 		}
+
 		return this.tags;
 	}
 
