@@ -107,29 +107,25 @@ public class OtelHttpClientHandler extends HttpClientTracer<HttpClientRequest, H
 	}
 
 	@Override
-	protected io.opentelemetry.api.trace.Span onRequest(io.opentelemetry.api.trace.Span span,
-			HttpClientRequest httpClientRequest) {
-		io.opentelemetry.api.trace.Span afterRequest = super.onRequest(span, httpClientRequest);
+	protected void onRequest(io.opentelemetry.api.trace.Span span, HttpClientRequest httpClientRequest) {
+		super.onRequest(span, httpClientRequest);
 		if (this.httpClientRequestParser != null) {
-			Span fromOtel = OtelSpan.fromOtel(afterRequest);
+			Span fromOtel = OtelSpan.fromOtel(span);
 			this.httpClientRequestParser.parse(httpClientRequest, fromOtel.context(), fromOtel);
 		}
 		String path = httpClientRequest.path();
 		if (path != null) {
 			span.setAttribute("http.path", path);
 		}
-		return afterRequest;
 	}
 
 	@Override
-	protected io.opentelemetry.api.trace.Span onResponse(io.opentelemetry.api.trace.Span span,
-			HttpClientResponse httpClientResponse) {
-		io.opentelemetry.api.trace.Span afterResponse = super.onResponse(span, httpClientResponse);
+	protected void onResponse(io.opentelemetry.api.trace.Span span, HttpClientResponse httpClientResponse) {
+		super.onResponse(span, httpClientResponse);
 		if (this.httpClientResponseParser != null) {
-			Span fromOtel = OtelSpan.fromOtel(afterResponse);
+			Span fromOtel = OtelSpan.fromOtel(span);
 			this.httpClientResponseParser.parse(httpClientResponse, fromOtel.context(), fromOtel);
 		}
-		return afterResponse;
 	}
 
 	@Override
