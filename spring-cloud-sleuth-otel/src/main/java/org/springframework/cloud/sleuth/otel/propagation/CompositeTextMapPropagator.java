@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 import io.opentelemetry.api.baggage.propagation.W3CBaggagePropagator;
 import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.propagation.HttpTraceContext;
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapPropagator;
 import io.opentelemetry.extension.trace.propagation.AwsXRayPropagator;
@@ -76,7 +76,7 @@ public class CompositeTextMapPropagator implements TextMapPropagator {
 					.getIfAvailable(OtTracerPropagator::getInstance));
 		}
 		this.mapping.put(PropagationType.W3C, new MultiTextMapPropagator(
-				Arrays.asList(HttpTraceContext.getInstance(), W3CBaggagePropagator.getInstance())));
+				Arrays.asList(W3CTraceContextPropagator.getInstance(), W3CBaggagePropagator.getInstance())));
 		this.mapping.put(PropagationType.CUSTOM, NoopTextMapPropagator.INSTANCE);
 		log.info("Registered the following context propagation types " + this.mapping.keySet());
 	}
