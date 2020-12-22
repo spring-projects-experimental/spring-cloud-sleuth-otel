@@ -16,9 +16,6 @@
 
 package org.springframework.cloud.sleuth.benchmarks.jmh;
 
-import org.springframework.cloud.sleuth.autoconfig.brave.BraveAutoConfiguration;
-import org.springframework.cloud.sleuth.autoconfig.otel.OtelAutoConfiguration;
-
 public enum TracerImplementation {
 
 	otel;

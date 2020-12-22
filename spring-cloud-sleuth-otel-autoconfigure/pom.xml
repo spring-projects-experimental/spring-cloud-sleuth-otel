@@ -110,7 +110,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
-			<artifactId>opentelemetry-sdk-tracing</artifactId>
+			<artifactId>opentelemetry-sdk-trace</artifactId>
 			<exclusions>
 				<exclusion>
 					<groupId>io.opentelemetry</groupId>
@@ -257,7 +257,11 @@
 			<artifactId>archunit-junit5</artifactId>
 			<scope>test</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>com.google.code.findbugs</groupId>
+			<artifactId>jsr305</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<profiles>

@@ -23,9 +23,8 @@ import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.metrics.MeterProvider;
 import io.opentelemetry.api.trace.TracerProvider;
 import io.opentelemetry.context.propagation.ContextPropagators;
-import io.opentelemetry.context.propagation.DefaultContextPropagators;
 import io.opentelemetry.extension.trace.propagation.B3Propagator;
-import io.opentelemetry.sdk.trace.TracerSdkProvider;
+import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.config.TraceConfig;
 import io.opentelemetry.sdk.trace.samplers.Sampler;
 import io.opentelemetry.sdk.trace.spi.TracerProviderFactorySdk;
@@ -69,15 +68,14 @@ public class OtelTestTracing implements TracerAware, TestTracingAware, TestTraci
 	CurrentTraceContext currentTraceContext = OtelAccessor.currentTraceContext(publisher());
 
 	io.opentelemetry.api.trace.Tracer otelTracer() {
-		TracerSdkProvider provider = TracerSdkProvider.builder().build();
+		SdkTracerProvider provider = SdkTracerProvider.builder().build();
 		provider.addSpanProcessor(this.spanProcessor);
 		provider.updateActiveTraceConfig(TraceConfig.getDefault().toBuilder().setSampler(this.sampler).build());
 		return provider.get("org.springframework.cloud.sleuth");
 	}
 
 	protected ContextPropagators contextPropagators() {
-		return DefaultContextPropagators.builder()
-				.addTextMapPropagator(B3Propagator.builder().injectMultipleHeaders().build()).build();
+		return ContextPropagators.create(B3Propagator.builder().injectMultipleHeaders().build());
 	}
 
 	OpenTelemetry otel() {

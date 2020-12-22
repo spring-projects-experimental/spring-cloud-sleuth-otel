@@ -22,7 +22,6 @@ import java.util.List;
 
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.ContextPropagators;
-import io.opentelemetry.context.propagation.DefaultContextPropagators;
 import io.opentelemetry.context.propagation.TextMapPropagator;
 
 import org.springframework.beans.factory.BeanFactory;
@@ -62,9 +61,8 @@ class OtelPropagationConfiguration {
 		if (mapPropagators.isEmpty()) {
 			return noOpContextPropagator();
 		}
-		DefaultContextPropagators.Builder builder = DefaultContextPropagators.builder();
-		mapPropagators.forEach(builder::addTextMapPropagator);
-		return builder.build();
+
+		return ContextPropagators.create(TextMapPropagator.composite(mapPropagators));
 	}
 
 	private ContextPropagators noOpContextPropagator() {

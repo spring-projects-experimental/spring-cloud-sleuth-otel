@@ -41,7 +41,7 @@ public class OtelOpenTelemetry implements OpenTelemetry {
 
 	private final MeterProvider meterProvider;
 
-	private final ContextPropagators contextPropagators;
+	private ContextPropagators contextPropagators;
 
 	public OtelOpenTelemetry(TracerProviderFactory tracerProviderFactory, MeterProviderFactory meterProviderFactory,
 			TracerProvider tracerProvider, MeterProvider meterProvider, ContextPropagators contextPropagators) {
@@ -50,6 +50,11 @@ public class OtelOpenTelemetry implements OpenTelemetry {
 		this.tracerProvider = tracerProvider;
 		this.meterProvider = meterProvider;
 		this.contextPropagators = contextPropagators;
+	}
+
+	@Override
+	public void setPropagators(ContextPropagators propagators) {
+		this.contextPropagators = propagators;
 	}
 
 	@Override
@@ -65,11 +70,6 @@ public class OtelOpenTelemetry implements OpenTelemetry {
 	@Override
 	public ContextPropagators getPropagators() {
 		return this.contextPropagators;
-	}
-
-	@Override
-	public io.opentelemetry.api.OpenTelemetryBuilder<OtelOpenTelemetry.Builder> toBuilder() {
-		return new Builder(this.meterProviderFactory, this.tracerProviderFactory);
 	}
 
 	static class Builder implements io.opentelemetry.api.OpenTelemetryBuilder<OtelOpenTelemetry.Builder> {

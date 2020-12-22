@@ -25,8 +25,8 @@ import io.opentelemetry.api.metrics.MeterProvider;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.api.trace.TracerProvider;
 import io.opentelemetry.context.propagation.ContextPropagators;
+import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.SpanProcessor;
-import io.opentelemetry.sdk.trace.TracerSdkProvider;
 import io.opentelemetry.sdk.trace.config.TraceConfig;
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
@@ -123,7 +123,7 @@ public class OtelAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	Tracer otelTracer(TracerProvider tracerProvider, ObjectProvider<TracerSdkProvider> tracerSdkObjectProvider,
+	Tracer otelTracer(TracerProvider tracerProvider, ObjectProvider<SdkTracerProvider> tracerSdkObjectProvider,
 			TraceConfig traceConfig, OtelProperties otelProperties, ObjectProvider<List<SpanProcessor>> spanProcessors,
 			ObjectProvider<List<SpanExporter>> spanExporters, SpanExporterCustomizer spanExporterCustomizer) {
 		tracerSdkObjectProvider.ifAvailable(tracerSdkProvider -> {

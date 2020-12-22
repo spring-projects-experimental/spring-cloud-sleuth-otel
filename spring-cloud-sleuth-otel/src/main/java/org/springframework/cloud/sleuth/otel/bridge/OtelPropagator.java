@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.sleuth.otel.bridge;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.opentelemetry.api.trace.Tracer;
@@ -46,7 +47,8 @@ public class OtelPropagator implements Propagator {
 
 	@Override
 	public List<String> fields() {
-		return this.propagator.fields();
+		// TODO: We should make Propagator::fields returning Collection<String>
+		return new ArrayList<>(this.propagator.fields());
 	}
 
 	@Override

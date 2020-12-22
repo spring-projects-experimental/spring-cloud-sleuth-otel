@@ -29,7 +29,8 @@ import java.util.Objects;
 import io.opentelemetry.api.baggage.Baggage;
 import io.opentelemetry.api.baggage.BaggageBuilder;
 import io.opentelemetry.api.baggage.BaggageConsumer;
-import io.opentelemetry.api.baggage.EntryMetadata;
+import io.opentelemetry.api.baggage.BaggageEntry;
+import io.opentelemetry.api.baggage.BaggageEntryMetadata;
 import io.opentelemetry.context.Context;
 
 import org.springframework.cloud.sleuth.BaggageInScope;
@@ -38,6 +39,11 @@ import org.springframework.cloud.sleuth.CurrentTraceContext;
 import org.springframework.cloud.sleuth.TraceContext;
 import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.context.ApplicationEventPublisher;
+
+import static java.util.Collections.unmodifiableCollection;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * OpenTelemetry implementation of a {@link BaggageManager}. Doesn't implement an
@@ -149,7 +155,7 @@ public class OtelBaggageManager implements BaggageManager {
 		List<String> remoteFieldsFields = this.remoteFields;
 		boolean remoteField = remoteFieldsFields.stream().map(String::toLowerCase)
 				.anyMatch(s -> s.equals(name.toLowerCase()));
-		EntryMetadata entryMetadata = EntryMetadata.create(propagationString(remoteField));
+		BaggageEntryMetadata entryMetadata = BaggageEntryMetadata.create(propagationString(remoteField));
 		Entry entry = new Entry(name, value, entryMetadata);
 		return new OtelBaggageInScope(this, this.currentTraceContext, this.publisher, this.tagFields, entry);
 	}
@@ -167,26 +173,33 @@ public class OtelBaggageManager implements BaggageManager {
 
 class CompositeBaggage implements io.opentelemetry.api.baggage.Baggage {
 
-	private final Deque<Context> stack;
-
+	// TODO: Try to use a Map of BaggageEntry only: delete the Entry class
+	// (might need a bigger refactor)
 	private final Collection<Entry> entries;
 
+	private final Map<String, BaggageEntry> baggageEntries;
+
 	CompositeBaggage(Deque<Context> stack) {
-		this.stack = stack;
-		this.entries = getEntries();
+		this.entries = unmodifiableCollection(createEntries(stack));
+		this.baggageEntries = unmodifiableMap(this.entries.stream().collect(toMap(Entry::getKey, identity())));
 	}
 
-	Collection<Entry> getEntries() {
+	private Collection<Entry> createEntries(Deque<Context> stack) {
 		// parent baggage foo=bar
 		// child baggage foo=baz - we want the last one to override the previous one
 		Map<String, Entry> map = new HashMap<>();
-		Iterator<Context> iterator = this.stack.descendingIterator();
+		Iterator<Context> iterator = stack.descendingIterator();
 		while (iterator.hasNext()) {
 			Context next = iterator.next();
 			Baggage baggage = Baggage.fromContext(next);
 			baggage.forEach((key, value, metadata) -> map.put(key, new Entry(key, value, metadata)));
 		}
+
 		return map.values();
+	}
+
+	Collection<Entry> getEntries() {
+		return this.entries;
 	}
 
 	@Override
@@ -197,6 +210,11 @@ class CompositeBaggage implements io.opentelemetry.api.baggage.Baggage {
 	@Override
 	public void forEach(BaggageConsumer consumer) {
 		this.entries.forEach(entry -> consumer.accept(entry.getKey(), entry.getValue(), entry.getEntryMetadata()));
+	}
+
+	@Override
+	public Map<String, BaggageEntry> asMap() {
+		return this.baggageEntries;
 	}
 
 	@Override
@@ -212,29 +230,31 @@ class CompositeBaggage implements io.opentelemetry.api.baggage.Baggage {
 
 }
 
-class Entry {
+class Entry implements BaggageEntry {
 
 	final String key;
 
 	final String value;
 
-	final EntryMetadata entryMetadata;
+	final BaggageEntryMetadata entryMetadata;
 
-	Entry(String key, String value, EntryMetadata entryMetadata) {
+	Entry(String key, String value, BaggageEntryMetadata entryMetadata) {
 		this.key = key;
 		this.value = value;
 		this.entryMetadata = entryMetadata;
 	}
 
-	String getKey() {
+	public String getKey() {
 		return this.key;
 	}
 
-	String getValue() {
+	@Override
+	public String getValue() {
 		return this.value;
 	}
 
-	EntryMetadata getEntryMetadata() {
+	@Override
+	public BaggageEntryMetadata getEntryMetadata() {
 		return this.entryMetadata;
 	}
 
