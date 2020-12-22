@@ -257,7 +257,11 @@
 			<artifactId>archunit-junit5</artifactId>
 			<scope>test</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>com.google.code.findbugs</groupId>
+			<artifactId>jsr305</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<profiles>

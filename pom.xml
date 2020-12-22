@@ -87,6 +87,7 @@
 		<hamcrest-core.version>2.2</hamcrest-core.version>
 		<awaitility.version>4.0.3</awaitility.version>
 		<archunit-junit5.version>0.14.1</archunit-junit5.version>
+		<jsr305.version>3.0.2</jsr305.version>
 	</properties>
 
 	<build>
@@ -288,6 +289,11 @@
 				<groupId>com.tngtech.archunit</groupId>
 				<artifactId>archunit-junit5</artifactId>
 				<version>${archunit-junit5.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.code.findbugs</groupId>
+				<artifactId>jsr305</artifactId>
+				<version>${jsr305.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
