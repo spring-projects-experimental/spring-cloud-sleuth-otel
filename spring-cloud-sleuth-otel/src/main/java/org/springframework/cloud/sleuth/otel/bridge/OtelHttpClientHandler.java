@@ -20,6 +20,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
 import io.opentelemetry.context.propagation.TextMapPropagator;
 import io.opentelemetry.instrumentation.api.tracer.HttpClientTracer;
@@ -71,8 +72,8 @@ public class OtelHttpClientHandler extends HttpClientTracer<HttpClientRequest, H
 			}
 			return OtelSpan.fromOtel(io.opentelemetry.api.trace.Span.getInvalid());
 		}
-		io.opentelemetry.api.trace.Span span = startSpan(request);
-		return span(request, span);
+		Context context = startSpan(Context.current(), request, request);
+		return span(request, context);
 	}
 
 	@Override
@@ -85,16 +86,17 @@ public class OtelHttpClientHandler extends HttpClientTracer<HttpClientRequest, H
 		}
 		io.opentelemetry.api.trace.Span span = parent != null ? ((OtelTraceContext) parent).span() : null;
 		if (span == null) {
-			return span(request, startSpan(request));
+			return span(request, startSpan(Context.current(), request, request));
 		}
 		try (Scope scope = span.makeCurrent()) {
-			io.opentelemetry.api.trace.Span withParent = startSpan(request);
+			Context withParent = startSpan(Context.current(), request, request);
 			return span(request, withParent);
 		}
 	}
 
-	private Span span(HttpClientRequest request, io.opentelemetry.api.trace.Span span) {
-		try (Scope scope = startScope(span, request)) {
+	private Span span(HttpClientRequest request, Context context) {
+		try (Scope scope = context.makeCurrent()) {
+			io.opentelemetry.api.trace.Span span = io.opentelemetry.api.trace.Span.fromContext(context);
 			if (span.isRecording()) {
 				String remoteIp = request.remoteIp();
 				if (StringUtils.hasText(remoteIp)) {
@@ -141,13 +143,13 @@ public class OtelHttpClientHandler extends HttpClientTracer<HttpClientRequest, H
 			if (log.isDebugEnabled()) {
 				log.debug("There was an error, will finish span [" + otel + "] exceptionally");
 			}
-			endExceptionally(otel, response, response.error());
+			endExceptionally(otel.storeInContext(Context.current()), response, response.error());
 		}
 		else {
 			if (log.isDebugEnabled()) {
 				log.debug("There was no error, will finish span [" + otel + "] in a standard way");
 			}
-			end(otel, response);
+			end(otel.storeInContext(Context.current()), response);
 		}
 	}
 

@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 import io.opentelemetry.context.propagation.TextMapPropagator;
 import io.opentelemetry.instrumentation.api.tracer.HttpServerTracer;
 
@@ -64,7 +65,7 @@ public class OtelHttpServerHandler
 		if (shouldSkip) {
 			return OtelSpan.fromOtel(io.opentelemetry.api.trace.Span.getInvalid());
 		}
-		Context context = startSpan(request, request, request.method());
+		Context context = startSpan(request, request, request, request.method());
 		return OtelSpan.fromOtel(io.opentelemetry.api.trace.Span.fromContext(context), context);
 	}
 
@@ -72,12 +73,14 @@ public class OtelHttpServerHandler
 	public void handleSend(HttpServerResponse response, Span span) {
 		Throwable throwable = response.error();
 		io.opentelemetry.api.trace.Span otel = OtelSpan.toOtel(span);
-		parseResponse(span, response);
-		if (throwable == null) {
-			end(otel, response);
-		}
-		else {
-			endExceptionally(otel, throwable, response);
+		try (Scope scope = otel.makeCurrent()) {
+			parseResponse(span, response);
+			if (throwable == null) {
+				end(Context.current(), response);
+			}
+			else {
+				endExceptionally(Context.current(), throwable, response);
+			}
 		}
 	}
 
