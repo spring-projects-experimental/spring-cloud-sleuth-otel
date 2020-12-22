@@ -181,7 +181,7 @@ class CompositeBaggage implements io.opentelemetry.api.baggage.Baggage {
 
 	CompositeBaggage(Deque<Context> stack) {
 		this.entries = unmodifiableCollection(createEntries(stack));
-		this.baggageEntries = unmodifiableMap(entries.stream().collect(toMap(Entry::getKey, identity())));
+		this.baggageEntries = unmodifiableMap(this.entries.stream().collect(toMap(Entry::getKey, identity())));
 	}
 
 	private Collection<Entry> createEntries(Deque<Context> stack) {
@@ -199,7 +199,7 @@ class CompositeBaggage implements io.opentelemetry.api.baggage.Baggage {
 	}
 
 	Collection<Entry> getEntries() {
-		return entries;
+		return this.entries;
 	}
 
 	@Override
@@ -214,7 +214,7 @@ class CompositeBaggage implements io.opentelemetry.api.baggage.Baggage {
 
 	@Override
 	public Map<String, BaggageEntry> asMap() {
-		return baggageEntries;
+		return this.baggageEntries;
 	}
 
 	@Override
