@@ -147,4 +147,5 @@ public class OtelAutoConfiguration {
 	SleuthContextListener sleuthContextListener() {
 		return new SleuthContextListener();
 	}
+
 }
