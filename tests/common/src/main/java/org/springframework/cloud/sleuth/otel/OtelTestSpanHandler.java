@@ -19,6 +19,7 @@ package org.springframework.cloud.sleuth.otel;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import io.opentelemetry.context.Context;
@@ -119,6 +120,11 @@ public class OtelTestSpanHandler implements TestSpanHandler, SpanProcessor, Span
 	@Override
 	public CompletableResultCode forceFlush() {
 		return spanProcessor.forceFlush();
+	}
+
+	@Override
+	public void close() {
+		shutdown().join(10, TimeUnit.SECONDS);
 	}
 
 	@Override

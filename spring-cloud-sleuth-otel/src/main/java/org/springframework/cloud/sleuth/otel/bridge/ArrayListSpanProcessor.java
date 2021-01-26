@@ -28,6 +28,8 @@ import io.opentelemetry.sdk.trace.SpanProcessor;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 /**
  * Stores spans in a queue.
  *
@@ -76,6 +78,11 @@ public class ArrayListSpanProcessor implements SpanProcessor, SpanExporter {
 	@Override
 	public CompletableResultCode forceFlush() {
 		return CompletableResultCode.ofSuccess();
+	}
+
+	@Override
+	public void close() {
+		shutdown().join(10, SECONDS);
 	}
 
 	public SpanData takeLocalSpan() {
