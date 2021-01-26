@@ -31,7 +31,7 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapPropagator;
-import io.opentelemetry.extension.trace.propagation.AwsXRayPropagator;
+import io.opentelemetry.extension.trace.propagation.AwsXrayPropagator;
 import io.opentelemetry.extension.trace.propagation.B3Propagator;
 import io.opentelemetry.extension.trace.propagation.JaegerPropagator;
 import io.opentelemetry.extension.trace.propagation.OtTracerPropagator;
@@ -60,8 +60,8 @@ public class CompositeTextMapPropagator implements TextMapPropagator {
 	public CompositeTextMapPropagator(BeanFactory beanFactory, List<PropagationType> types) {
 		this.types = types;
 		if (isOnClasspath("io.opentelemetry.extension.trace.propagation.AwsXRayPropagator")) {
-			this.mapping.put(PropagationType.AWS, beanFactory.getBeanProvider(AwsXRayPropagator.class)
-					.getIfAvailable(AwsXRayPropagator::getInstance));
+			this.mapping.put(PropagationType.AWS, beanFactory.getBeanProvider(AwsXrayPropagator.class)
+					.getIfAvailable(AwsXrayPropagator::getInstance));
 		}
 		if (isOnClasspath("io.opentelemetry.extension.trace.propagation.B3Propagator")) {
 			this.mapping.put(PropagationType.B3,
