@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.10">
+<title>Features</title>
+<link rel="stylesheet" href="css/spring.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_features">Features</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Spring Cloud Sleuth OTel provides Spring Boot auto-configuration for OpenTelemetry support for Spring Cloud Sleuth.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_features"><a class="link" href="#_features">Features</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Sleuth configures everything you need to get started.
+This includes where trace data (spans) are reported to, how many traces to keep (sampling), if remote fields (baggage) are sent, and which libraries are traced.</p>
+</div>
+<div class="paragraph">
+<p>Specifically, Spring Cloud Sleuth&#8230;&#8203;</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Adds trace and span ids to the Slf4J MDC, so you can extract all the logs from a given trace or span in a log aggregator.</p>
+</li>
+<li>
+<p>Instruments common ingress and egress points from Spring applications (servlet filter, rest template, scheduled actions, message channels, feign client).</p>
+</li>
+<li>
+<p>If <code>spring-cloud-sleuth-zipkin</code> is available then the app will generate and report <a href="https://zipkin.io">Zipkin</a>-compatible traces via HTTP. By default it sends them to a Zipkin collector service on localhost (port 9411).
+Configure the location of the service using <code>spring.zipkin.baseUrl</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<script type="text/javascript" src="js/tocbot/tocbot.min.js"></script>
+<script type="text/javascript" src="js/toc.js"></script>
+</body>
+</html>
