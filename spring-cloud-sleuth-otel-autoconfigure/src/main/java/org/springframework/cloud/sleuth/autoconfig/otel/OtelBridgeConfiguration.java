@@ -69,7 +69,7 @@ import org.springframework.lang.Nullable;
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(OpenTelemetry.class)
 @Import({ OtelLogConfiguration.class, OtelExporterConfiguration.class })
-class OtelBridgeConfiguation {
+class OtelBridgeConfiguration {
 
 	@Bean
 	Tracer otelTracerBridge(io.opentelemetry.api.trace.Tracer tracer, ApplicationEventPublisher publisher,

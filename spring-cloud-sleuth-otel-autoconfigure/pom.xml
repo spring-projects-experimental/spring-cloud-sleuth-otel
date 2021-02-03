@@ -24,6 +24,9 @@
 	<packaging>jar</packaging>
 	<name>Spring Cloud Sleuth OTel AutoConfigure</name>
 	<description>Spring Cloud Sleuth AutoConfigure</description>
+	<properties>
+		<opentelemetry-alpha.version>0.15.0-alpha</opentelemetry-alpha.version>
+	</properties>
 
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
@@ -101,6 +104,7 @@
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
 			<artifactId>opentelemetry-semconv</artifactId>
+			<version>${opentelemetry-alpha.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
@@ -160,6 +164,7 @@
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
 			<artifactId>opentelemetry-opentracing-shim</artifactId>
+			<version>${opentelemetry-alpha.version}</version>
 			<optional>true</optional>
 			<exclusions>
 				<exclusion>

@@ -20,20 +20,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import io.opentelemetry.api.DefaultOpenTelemetry;
-import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.api.trace.TracerProvider;
 import io.opentelemetry.context.propagation.ContextPropagators;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
+import io.opentelemetry.sdk.trace.SdkTracerProviderBuilder;
 import io.opentelemetry.sdk.trace.SpanProcessor;
 import io.opentelemetry.sdk.trace.config.TraceConfig;
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 import io.opentelemetry.sdk.trace.samplers.Sampler;
-import io.opentelemetry.sdk.trace.spi.SdkTracerProviderFactory;
-import io.opentelemetry.spi.trace.TracerProviderFactory;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -58,6 +57,7 @@ import org.springframework.context.annotation.Import;
  * Auto-configuration} to enable tracing via Spring Cloud Sleuth and OpenTelemetry SDK.
  *
  * @author Marcin Grzejszczak
+ * @author John Watson
  * @since 3.0.0
  */
 @Configuration(proxyBeanMethods = false)
@@ -67,7 +67,7 @@ import org.springframework.context.annotation.Import;
 @ConditionalOnMissingBean(org.springframework.cloud.sleuth.Tracer.class)
 @EnableConfigurationProperties({ OtelProperties.class, SleuthSpanFilterProperties.class, SleuthBaggageProperties.class,
 		SleuthTracerProperties.class })
-@Import({ OtelBridgeConfiguation.class, OtelPropagationConfiguration.class, TraceConfiguration.class,
+@Import({ OtelBridgeConfiguration.class, OtelPropagationConfiguration.class, TraceConfiguration.class,
 		SleuthAnnotationConfiguration.class })
 // Autoconfigurations in the instrumentation module are set to be configured before
 // BraveAutoConfiguration
@@ -76,23 +76,28 @@ public class OtelAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	OpenTelemetry otel(TracerProvider tracerProvider, ContextPropagators contextPropagators) {
-		OpenTelemetry openTelemetry = DefaultOpenTelemetry.builder().setTracerProvider(tracerProvider)
+	OpenTelemetry otel(SdkTracerProvider tracerProvider, ContextPropagators contextPropagators) {
+		return OpenTelemetrySdk.builder().setTracerProvider(tracerProvider)
 				.setPropagators(contextPropagators).build();
-		GlobalOpenTelemetry.set(openTelemetry);
-		return openTelemetry;
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	TracerProviderFactory otelTracerProviderFactory() {
-		return new SdkTracerProviderFactory();
-	}
+	SdkTracerProvider otelTracerProvider(TraceConfig traceConfig, ObjectProvider<List<SpanProcessor>> spanProcessors,
+			SpanExporterCustomizer spanExporterCustomizer, ObjectProvider<List<SpanExporter>> spanExporters,
+			Sampler sampler) {
+		SdkTracerProviderBuilder sdkTracerProviderBuilder = SdkTracerProvider.builder()
+				// todo: populate the resource with the right stuff (service.name, etc)
+				// env.getProperty("spring.application.name", env.getProperty(
+				// "spring.zipkin.service.name", ZipkinSpanExporter.DEFAULT_SERVICE_NAME)
+				.setResource(Resource.getDefault()).setSampler(sampler).setTraceConfig(traceConfig);
+		List<SpanProcessor> processors = spanProcessors.getIfAvailable(ArrayList::new);
+		processors.addAll(spanExporters.getIfAvailable(ArrayList::new).stream()
+				.map(e -> SimpleSpanProcessor.create(spanExporterCustomizer.customize(e)))
+				.collect(Collectors.toList()));
 
-	@Bean
-	@ConditionalOnMissingBean
-	TracerProvider otelTracerProvider(TracerProviderFactory tracerProviderFactory) {
-		return tracerProviderFactory.create();
+		processors.forEach(sdkTracerProviderBuilder::addSpanProcessor);
+		return sdkTracerProviderBuilder.build();
 	}
 
 	@Bean
@@ -103,22 +108,12 @@ public class OtelAutoConfiguration {
 				.setMaxNumberOfAttributesPerEvent(otelProperties.getMaxEventAttrs())
 				.setMaxNumberOfAttributesPerLink(otelProperties.getMaxLinkAttrs())
 				.setMaxNumberOfEvents(otelProperties.getMaxEvents()).setMaxNumberOfLinks(otelProperties.getMaxLinks())
-				.setSampler(sampler).build();
+				.build();
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	Tracer otelTracer(TracerProvider tracerProvider, ObjectProvider<SdkTracerProvider> tracerSdkObjectProvider,
-			TraceConfig traceConfig, OtelProperties otelProperties, ObjectProvider<List<SpanProcessor>> spanProcessors,
-			ObjectProvider<List<SpanExporter>> spanExporters, SpanExporterCustomizer spanExporterCustomizer) {
-		tracerSdkObjectProvider.ifAvailable(tracerSdkProvider -> {
-			List<SpanProcessor> processors = spanProcessors.getIfAvailable(ArrayList::new);
-			processors.addAll(spanExporters.getIfAvailable(ArrayList::new).stream()
-					.map(e -> SimpleSpanProcessor.builder(spanExporterCustomizer.customize(e)).build())
-					.collect(Collectors.toList()));
-			processors.forEach(tracerSdkProvider::addSpanProcessor);
-			tracerSdkProvider.updateActiveTraceConfig(traceConfig);
-		});
+	Tracer otelTracer(TracerProvider tracerProvider, OtelProperties otelProperties) {
 		return tracerProvider.get(otelProperties.getInstrumentationName());
 	}
 

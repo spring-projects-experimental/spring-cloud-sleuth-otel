@@ -19,17 +19,10 @@ package org.springframework.cloud.sleuth.otel;
 import java.io.Closeable;
 import java.util.regex.Pattern;
 
-import io.opentelemetry.api.DefaultOpenTelemetry;
-import io.opentelemetry.api.GlobalOpenTelemetry;
-import io.opentelemetry.api.OpenTelemetry;
-import io.opentelemetry.api.trace.TracerProvider;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.extension.trace.propagation.B3Propagator;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
-import io.opentelemetry.sdk.trace.config.TraceConfig;
 import io.opentelemetry.sdk.trace.samplers.Sampler;
-import io.opentelemetry.sdk.trace.spi.SdkTracerProviderFactory;
-import io.opentelemetry.spi.trace.TracerProviderFactory;
 
 import org.springframework.cloud.sleuth.CurrentTraceContext;
 import org.springframework.cloud.sleuth.SamplerFunction;
@@ -54,10 +47,6 @@ public class OtelTestTracing implements TracerAware, TestTracingAware, TestTraci
 
 	ContextPropagators contextPropagators = contextPropagators();
 
-	OpenTelemetry openTelemetry = otel();
-
-	ContextPropagators defaultContextPropagators = openTelemetry.getPropagators();
-
 	Sampler sampler = Sampler.alwaysOn();
 
 	HttpRequestParser clientRequestParser;
@@ -67,30 +56,13 @@ public class OtelTestTracing implements TracerAware, TestTracingAware, TestTraci
 	CurrentTraceContext currentTraceContext = OtelAccessor.currentTraceContext(publisher());
 
 	io.opentelemetry.api.trace.Tracer otelTracer() {
-		SdkTracerProvider provider = SdkTracerProvider.builder().build();
-		provider.addSpanProcessor(this.spanProcessor);
-		provider.updateActiveTraceConfig(TraceConfig.getDefault().toBuilder().setSampler(this.sampler).build());
+		SdkTracerProvider provider = SdkTracerProvider.builder().addSpanProcessor(this.spanProcessor)
+				.setSampler(this.sampler).build();
 		return provider.get("org.springframework.cloud.sleuth");
 	}
 
 	protected ContextPropagators contextPropagators() {
 		return ContextPropagators.create(B3Propagator.builder().injectMultipleHeaders().build());
-	}
-
-	OpenTelemetry otel() {
-		TracerProviderFactory providerFactory = otelTracerProviderFactory();
-		OpenTelemetry openTelemetry = DefaultOpenTelemetry.builder()
-				.setTracerProvider(otelTracerProvider(providerFactory)).setPropagators(this.contextPropagators).build();
-		GlobalOpenTelemetry.set(openTelemetry);
-		return openTelemetry;
-	}
-
-	TracerProviderFactory otelTracerProviderFactory() {
-		return new SdkTracerProviderFactory();
-	}
-
-	TracerProvider otelTracerProvider(TracerProviderFactory tracerProviderFactory) {
-		return tracerProviderFactory.create();
 	}
 
 	private void reset() {

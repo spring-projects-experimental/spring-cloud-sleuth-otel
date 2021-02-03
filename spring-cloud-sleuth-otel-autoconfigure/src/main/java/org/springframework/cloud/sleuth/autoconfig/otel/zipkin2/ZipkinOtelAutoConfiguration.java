@@ -33,7 +33,6 @@ import org.springframework.cloud.sleuth.zipkin2.ZipkinRestTemplateCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -65,13 +64,7 @@ public class ZipkinOtelAutoConfiguration {
 		ZipkinSpanExporter otelZipkinSpanExporter(ZipkinProperties zipkinProperties,
 				@Qualifier(ZipkinAutoConfiguration.SENDER_BEAN_NAME) Sender sender, Environment env) {
 			return ZipkinSpanExporter.builder().setEndpoint(zipkinProperties.getBaseUrl() + "api/v2/spans")
-					.setSender(sender).setEncoder(zipkinProperties.getEncoder())
-					.setServiceName(
-							StringUtils.hasText(zipkinProperties.getService().getName())
-									? zipkinProperties.getService().getName()
-									: env.getProperty("spring.application.name", env.getProperty(
-											"spring.zipkin.service.name", ZipkinSpanExporter.DEFAULT_SERVICE_NAME)))
-					.build();
+					.setSender(sender).setEncoder(zipkinProperties.getEncoder()).build();
 		}
 
 	}
