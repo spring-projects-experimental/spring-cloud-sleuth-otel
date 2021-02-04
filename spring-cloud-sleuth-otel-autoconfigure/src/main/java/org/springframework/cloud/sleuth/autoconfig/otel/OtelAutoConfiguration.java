@@ -125,7 +125,7 @@ public class OtelAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	TraceConfig otelTracerConfig(OtelProperties otelProperties, Sampler sampler) {
+	TraceConfig otelTracerConfig(OtelProperties otelProperties) {
 		return TraceConfig.getDefault().toBuilder().setMaxLengthOfAttributeValues(otelProperties.getMaxAttrLength())
 				.setMaxNumberOfAttributes(otelProperties.getMaxAttrs())
 				.setMaxNumberOfAttributesPerEvent(otelProperties.getMaxEventAttrs())
