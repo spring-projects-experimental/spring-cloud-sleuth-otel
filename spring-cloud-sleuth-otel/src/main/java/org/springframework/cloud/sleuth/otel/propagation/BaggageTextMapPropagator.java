@@ -64,7 +64,6 @@ public class BaggageTextMapPropagator implements TextMapPropagator {
 
 	private <C> List<Map.Entry<String, String>> applicableBaggageEntries(C c) {
 		Map<String, String> allBaggage = this.baggageManager.getAllBaggage();
-		log.debug("baggageEntries: " + allBaggage);
 		List<String> lowerCaseKeys = this.remoteFields.stream().map(String::toLowerCase).collect(Collectors.toList());
 		return allBaggage.entrySet().stream().filter(e -> lowerCaseKeys.contains(e.getKey().toLowerCase()))
 				.collect(Collectors.toList());
@@ -72,7 +71,6 @@ public class BaggageTextMapPropagator implements TextMapPropagator {
 
 	@Override
 	public <C> Context extract(Context context, C c, Getter<C> getter) {
-		log.debug("remoteFields: " + remoteFields);
 		Map<String, String> baggageEntries = this.remoteFields.stream()
 				.map(s -> new AbstractMap.SimpleEntry<>(s, getter.get(c, s))).filter(e -> e.getValue() != null)
 				.collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()));
