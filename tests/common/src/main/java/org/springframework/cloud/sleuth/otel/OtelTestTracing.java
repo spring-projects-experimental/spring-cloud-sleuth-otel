@@ -19,8 +19,11 @@ package org.springframework.cloud.sleuth.otel;
 import java.io.Closeable;
 import java.util.regex.Pattern;
 
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.extension.trace.propagation.B3Propagator;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.samplers.Sampler;
 
@@ -43,6 +46,12 @@ import org.springframework.context.ApplicationEventPublisher;
 
 public class OtelTestTracing implements TracerAware, TestTracingAware, TestTracingAwareSupplier, Closeable {
 
+	public OtelTestTracing() {
+		// the global instance is used by the instrumentation APIs internally, so we need
+		// to initialize it.
+		initializeOtelGlobal();
+	}
+
 	ArrayListSpanProcessor spanProcessor = new ArrayListSpanProcessor();
 
 	ContextPropagators contextPropagators = contextPropagators();
@@ -63,6 +72,18 @@ public class OtelTestTracing implements TracerAware, TestTracingAware, TestTraci
 
 	protected ContextPropagators contextPropagators() {
 		return ContextPropagators.create(B3Propagator.builder().injectMultipleHeaders().build());
+	}
+
+	OpenTelemetry initializeOtelGlobal() {
+		GlobalOpenTelemetry.resetForTest();
+		OpenTelemetry openTelemetry = OpenTelemetrySdk.builder().setTracerProvider(otelTracerProvider())
+				.setPropagators(this.contextPropagators).build();
+		GlobalOpenTelemetry.set(openTelemetry);
+		return openTelemetry;
+	}
+
+	SdkTracerProvider otelTracerProvider() {
+		return SdkTracerProvider.builder().build();
 	}
 
 	private void reset() {

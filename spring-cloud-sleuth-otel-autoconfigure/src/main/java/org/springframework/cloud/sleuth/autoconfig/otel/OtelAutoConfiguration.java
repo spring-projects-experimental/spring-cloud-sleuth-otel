@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.api.trace.TracerProvider;
 import io.opentelemetry.context.propagation.ContextPropagators;
@@ -33,6 +35,7 @@ import io.opentelemetry.sdk.trace.config.TraceConfig;
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 import io.opentelemetry.sdk.trace.samplers.Sampler;
+import io.opentelemetry.semconv.resource.attributes.ResourceAttributes;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -51,6 +54,7 @@ import org.springframework.cloud.sleuth.otel.bridge.SpanExporterCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
 
 /**
  * {@link org.springframework.boot.autoconfigure.EnableAutoConfiguration
@@ -77,20 +81,23 @@ public class OtelAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	OpenTelemetry otel(SdkTracerProvider tracerProvider, ContextPropagators contextPropagators) {
-		return OpenTelemetrySdk.builder().setTracerProvider(tracerProvider)
+		// this is super hacky. it would be better to go and eliminate all usage of the
+		// global. That requires some changes upstream in the instrumentation APIs, so for
+		// now, we hack.
+		GlobalOpenTelemetry.resetForTest();
+		OpenTelemetrySdk openTelemetrySdk = OpenTelemetrySdk.builder().setTracerProvider(tracerProvider)
 				.setPropagators(contextPropagators).build();
+		GlobalOpenTelemetry.set(openTelemetrySdk);
+		return openTelemetrySdk;
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
 	SdkTracerProvider otelTracerProvider(TraceConfig traceConfig, ObjectProvider<List<SpanProcessor>> spanProcessors,
 			SpanExporterCustomizer spanExporterCustomizer, ObjectProvider<List<SpanExporter>> spanExporters,
-			Sampler sampler) {
-		SdkTracerProviderBuilder sdkTracerProviderBuilder = SdkTracerProvider.builder()
-				// todo: populate the resource with the right stuff (service.name, etc)
-				// env.getProperty("spring.application.name", env.getProperty(
-				// "spring.zipkin.service.name", ZipkinSpanExporter.DEFAULT_SERVICE_NAME)
-				.setResource(Resource.getDefault()).setSampler(sampler).setTraceConfig(traceConfig);
+			Sampler sampler, Resource resource) {
+		SdkTracerProviderBuilder sdkTracerProviderBuilder = SdkTracerProvider.builder().setResource(resource)
+				.setSampler(sampler).setTraceConfig(traceConfig);
 		List<SpanProcessor> processors = spanProcessors.getIfAvailable(ArrayList::new);
 		processors.addAll(spanExporters.getIfAvailable(ArrayList::new).stream()
 				.map(e -> SimpleSpanProcessor.create(spanExporterCustomizer.customize(e)))
@@ -98,6 +105,22 @@ public class OtelAutoConfiguration {
 
 		processors.forEach(sdkTracerProviderBuilder::addSpanProcessor);
 		return sdkTracerProviderBuilder.build();
+	}
+
+	@Bean
+	@ConditionalOnMissingBean
+	Resource resource(Environment env) {
+		// todo: populate the resource with the right stuff (service.name, etc)
+		// this was the code in the zipkin exporter configuration previously:
+		// env.getProperty("spring.application.name", env.getProperty(
+		// "spring.zipkin.service.name", ZipkinSpanExporter.DEFAULT_SERVICE_NAME)
+		String applicationName = env.getProperty("spring.application.name");
+		if (applicationName == null) {
+			return Resource.getDefault();
+		}
+		return Resource.getDefault()
+				.merge(Resource.create(Attributes.of(ResourceAttributes.SERVICE_NAME, applicationName)));
+
 	}
 
 	@Bean
