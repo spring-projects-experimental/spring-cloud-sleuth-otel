@@ -109,20 +109,20 @@ class OtelBridgeConfiguration {
 	static class TraceOtelHttpBridgeConfiguration {
 
 		@Bean
-		HttpClientHandler otelHttpClientHandler(io.opentelemetry.api.trace.Tracer tracer,
+		HttpClientHandler otelHttpClientHandler(io.opentelemetry.api.OpenTelemetry openTelemetry,
 				@Nullable @HttpClientRequestParser HttpRequestParser httpClientRequestParser,
 				@Nullable @HttpClientResponseParser HttpResponseParser httpClientResponseParser,
 				SamplerFunction<HttpRequest> samplerFunction) {
-			return new OtelHttpClientHandler(tracer, httpClientRequestParser, httpClientResponseParser,
+			return new OtelHttpClientHandler(openTelemetry, httpClientRequestParser, httpClientResponseParser,
 					samplerFunction);
 		}
 
 		@Bean
-		HttpServerHandler otelHttpServerHandler(io.opentelemetry.api.trace.Tracer tracer,
+		HttpServerHandler otelHttpServerHandler(io.opentelemetry.api.OpenTelemetry openTelemetry,
 				@Nullable @HttpServerRequestParser HttpRequestParser httpServerRequestParser,
 				@Nullable @HttpServerResponseParser HttpResponseParser httpServerResponseParser,
 				ObjectProvider<SkipPatternProvider> skipPatternProvider) {
-			return new OtelHttpServerHandler(tracer, httpServerRequestParser, httpServerResponseParser,
+			return new OtelHttpServerHandler(openTelemetry, httpServerRequestParser, httpServerResponseParser,
 					skipPatternProvider.getIfAvailable(() -> () -> Pattern.compile("")));
 		}
 

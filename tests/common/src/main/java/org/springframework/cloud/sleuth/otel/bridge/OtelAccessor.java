@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.sleuth.otel.bridge;
 
+import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.sdk.trace.data.SpanData;
@@ -42,10 +43,14 @@ public final class OtelAccessor {
 		throw new IllegalStateException("Can't instantiate a utility class");
 	}
 
-	public static Tracer tracer(io.opentelemetry.api.trace.Tracer tracer, CurrentTraceContext currentTraceContext,
+	public static Tracer tracer(OpenTelemetry openTelemetry, CurrentTraceContext currentTraceContext,
 			SleuthBaggageProperties sleuthBaggageProperties, ApplicationEventPublisher publisher) {
-		return new OtelTracer(tracer, publisher, new OtelBaggageManager(currentTraceContext,
+		return new OtelTracer(otelTracer(openTelemetry), publisher, new OtelBaggageManager(currentTraceContext,
 				sleuthBaggageProperties.getRemoteFields(), sleuthBaggageProperties.getTagFields(), publisher));
+	}
+
+	private static io.opentelemetry.api.trace.Tracer otelTracer(OpenTelemetry openTelemetry) {
+		return openTelemetry.getTracer("org.springframework.cloud.sleuth");
 	}
 
 	public static CurrentTraceContext currentTraceContext(ApplicationEventPublisher publisher) {
@@ -61,20 +66,21 @@ public final class OtelAccessor {
 		return OtelTraceContext.fromOtel(spanContext);
 	}
 
-	public static Propagator propagator(ContextPropagators propagators, io.opentelemetry.api.trace.Tracer tracer) {
-		return new OtelPropagator(propagators, tracer);
+	public static Propagator propagator(ContextPropagators propagators, OpenTelemetry openTelemetry) {
+		return new OtelPropagator(propagators, otelTracer(openTelemetry));
 	}
 
-	public static HttpClientHandler httpClientHandler(io.opentelemetry.api.trace.Tracer tracer,
+	public static HttpClientHandler httpClientHandler(io.opentelemetry.api.OpenTelemetry openTelemetry,
 			@Nullable HttpRequestParser httpClientRequestParser, @Nullable HttpResponseParser httpClientResponseParser,
 			SamplerFunction<HttpRequest> samplerFunction) {
-		return new OtelHttpClientHandler(tracer, httpClientRequestParser, httpClientResponseParser, samplerFunction);
+		return new OtelHttpClientHandler(openTelemetry, httpClientRequestParser, httpClientResponseParser,
+				samplerFunction);
 	}
 
-	public static HttpServerHandler httpServerHandler(io.opentelemetry.api.trace.Tracer tracer,
+	public static HttpServerHandler httpServerHandler(io.opentelemetry.api.OpenTelemetry openTelemetry,
 			HttpRequestParser httpServerRequestParser, HttpResponseParser httpServerResponseParser,
 			SkipPatternProvider skipPatternProvider) {
-		return new OtelHttpServerHandler(tracer, httpServerRequestParser, httpServerResponseParser,
+		return new OtelHttpServerHandler(openTelemetry, httpServerRequestParser, httpServerResponseParser,
 				skipPatternProvider);
 	}
 

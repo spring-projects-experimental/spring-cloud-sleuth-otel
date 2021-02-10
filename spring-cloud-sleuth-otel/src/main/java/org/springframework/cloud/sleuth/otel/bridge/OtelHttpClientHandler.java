@@ -19,7 +19,7 @@ package org.springframework.cloud.sleuth.otel.bridge;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
 import io.opentelemetry.context.propagation.TextMapPropagator;
@@ -56,9 +56,9 @@ public class OtelHttpClientHandler extends HttpClientTracer<HttpClientRequest, H
 
 	private final SamplerFunction<HttpRequest> samplerFunction;
 
-	public OtelHttpClientHandler(Tracer tracer, @Nullable HttpRequestParser httpClientRequestParser,
+	public OtelHttpClientHandler(OpenTelemetry openTelemetry, @Nullable HttpRequestParser httpClientRequestParser,
 			@Nullable HttpResponseParser httpClientResponseParser, SamplerFunction<HttpRequest> samplerFunction) {
-		super(tracer);
+		super(openTelemetry);
 		this.httpClientRequestParser = httpClientRequestParser;
 		this.httpClientResponseParser = httpClientResponseParser;
 		this.samplerFunction = samplerFunction;

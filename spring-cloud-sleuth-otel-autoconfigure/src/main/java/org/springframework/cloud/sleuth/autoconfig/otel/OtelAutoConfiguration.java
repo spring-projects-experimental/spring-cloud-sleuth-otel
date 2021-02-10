@@ -30,8 +30,8 @@ import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.SdkTracerProviderBuilder;
+import io.opentelemetry.sdk.trace.SpanLimits;
 import io.opentelemetry.sdk.trace.SpanProcessor;
-import io.opentelemetry.sdk.trace.config.TraceConfig;
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 import io.opentelemetry.sdk.trace.samplers.Sampler;
@@ -93,23 +93,22 @@ public class OtelAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	SdkTracerProvider otelTracerProvider(TraceConfig traceConfig, ObjectProvider<List<SpanProcessor>> spanProcessors,
+	SdkTracerProvider otelTracerProvider(SpanLimits spanLimits, ObjectProvider<List<SpanProcessor>> spanProcessors,
 			SpanExporterCustomizer spanExporterCustomizer, ObjectProvider<List<SpanExporter>> spanExporters,
 			Sampler sampler, Resource resource) {
 		SdkTracerProviderBuilder sdkTracerProviderBuilder = SdkTracerProvider.builder().setResource(resource)
-				.setSampler(sampler).setTraceConfig(traceConfig);
+				.setSampler(sampler).setSpanLimits(spanLimits);
 		List<SpanProcessor> processors = spanProcessors.getIfAvailable(ArrayList::new);
 		processors.addAll(spanExporters.getIfAvailable(ArrayList::new).stream()
 				.map(e -> SimpleSpanProcessor.create(spanExporterCustomizer.customize(e)))
 				.collect(Collectors.toList()));
-
 		processors.forEach(sdkTracerProviderBuilder::addSpanProcessor);
 		return sdkTracerProviderBuilder.build();
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	Resource resource(Environment env) {
+	Resource otelResource(Environment env) {
 		// todo: populate the resource with the right stuff (service.name, etc)
 		// this was the code in the zipkin exporter configuration previously:
 		// env.getProperty("spring.application.name", env.getProperty(
@@ -120,13 +119,12 @@ public class OtelAutoConfiguration {
 		}
 		return Resource.getDefault()
 				.merge(Resource.create(Attributes.of(ResourceAttributes.SERVICE_NAME, applicationName)));
-
 	}
 
 	@Bean
 	@ConditionalOnMissingBean
-	TraceConfig otelTracerConfig(OtelProperties otelProperties) {
-		return TraceConfig.getDefault().toBuilder().setMaxLengthOfAttributeValues(otelProperties.getMaxAttrLength())
+	SpanLimits otelSpanLimits(OtelProperties otelProperties) {
+		return SpanLimits.getDefault().toBuilder().setMaxLengthOfAttributeValues(otelProperties.getMaxAttrLength())
 				.setMaxNumberOfAttributes(otelProperties.getMaxAttrs())
 				.setMaxNumberOfAttributesPerEvent(otelProperties.getMaxEventAttrs())
 				.setMaxNumberOfAttributesPerLink(otelProperties.getMaxLinkAttrs())

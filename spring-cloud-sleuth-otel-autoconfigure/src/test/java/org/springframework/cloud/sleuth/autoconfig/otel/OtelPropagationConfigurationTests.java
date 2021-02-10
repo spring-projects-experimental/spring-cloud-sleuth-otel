@@ -114,9 +114,8 @@ class OtelPropagationConfigurationTests {
 					}
 				});
 		Span spanFromContext = Span.fromContext(extract);
-		assertThat(spanFromContext.getSpanContext().getTraceIdAsHexString())
-				.isEqualTo("ff000000000000000000000000000041");
-		assertThat(spanFromContext.getSpanContext().getSpanIdAsHexString()).isEqualTo("ff00000000000041");
+		assertThat(spanFromContext.getSpanContext().getTraceId()).isEqualTo("ff000000000000000000000000000041");
+		assertThat(spanFromContext.getSpanContext().getSpanId()).isEqualTo("ff00000000000041");
 
 		// Injection
 		Map<String, String> emptyMap = new HashMap<>();
@@ -165,8 +164,8 @@ class CustomPropagator implements TextMapPropagator {
 		if (!spanContext.isValid()) {
 			return;
 		}
-		setter.set(carrier, "myCustomTraceId", spanContext.getTraceIdAsHexString());
-		setter.set(carrier, "myCustomSpanId", spanContext.getSpanIdAsHexString());
+		setter.set(carrier, "myCustomTraceId", spanContext.getTraceId());
+		setter.set(carrier, "myCustomSpanId", spanContext.getSpanId());
 	}
 
 	@Override

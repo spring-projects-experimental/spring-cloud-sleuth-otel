@@ -34,7 +34,7 @@ public class Slf4jSpanProcessor implements SpanProcessor, ApplicationListener {
 
 	@Override
 	public void onStart(Context parent, ReadWriteSpan span) {
-		onStart(span.getSpanContext().getTraceIdAsHexString(), span.getSpanContext().getSpanIdAsHexString());
+		onStart(span.getSpanContext().getTraceId(), span.getSpanContext().getSpanId());
 	}
 
 	private void onStart(String traceId, String spanId) {
@@ -74,8 +74,7 @@ public class Slf4jSpanProcessor implements SpanProcessor, ApplicationListener {
 			log.trace("Got scope changed event [" + event + "]");
 		}
 		if (event.span != null) {
-			onStart(event.span.getSpanContext().getTraceIdAsHexString(),
-					event.span.getSpanContext().getSpanIdAsHexString());
+			onStart(event.span.getSpanContext().getTraceId(), event.span.getSpanContext().getSpanId());
 		}
 	}
 

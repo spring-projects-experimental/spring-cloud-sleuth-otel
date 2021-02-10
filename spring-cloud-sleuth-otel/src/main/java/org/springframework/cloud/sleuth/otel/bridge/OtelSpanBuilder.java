@@ -19,6 +19,8 @@ package org.springframework.cloud.sleuth.otel.bridge;
 import java.util.LinkedList;
 import java.util.List;
 
+import io.opentelemetry.api.trace.SpanKind;
+
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.TraceContext;
 import org.springframework.util.StringUtils;
@@ -86,22 +88,22 @@ class OtelSpanBuilder implements Span.Builder {
 	@Override
 	public Span.Builder kind(Span.Kind spanKind) {
 		if (spanKind == null) {
-			this.delegate.setSpanKind(io.opentelemetry.api.trace.Span.Kind.INTERNAL);
+			this.delegate.setSpanKind(SpanKind.INTERNAL);
 			return this;
 		}
-		io.opentelemetry.api.trace.Span.Kind kind = io.opentelemetry.api.trace.Span.Kind.INTERNAL;
+		SpanKind kind = SpanKind.INTERNAL;
 		switch (spanKind) {
 		case CLIENT:
-			kind = io.opentelemetry.api.trace.Span.Kind.CLIENT;
+			kind = SpanKind.CLIENT;
 			break;
 		case SERVER:
-			kind = io.opentelemetry.api.trace.Span.Kind.SERVER;
+			kind = SpanKind.SERVER;
 			break;
 		case PRODUCER:
-			kind = io.opentelemetry.api.trace.Span.Kind.PRODUCER;
+			kind = SpanKind.PRODUCER;
 			break;
 		case CONSUMER:
-			kind = io.opentelemetry.api.trace.Span.Kind.CONSUMER;
+			kind = SpanKind.CONSUMER;
 			break;
 		}
 		this.delegate.setSpanKind(kind);
