@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Tracer;
@@ -81,14 +80,7 @@ public class OtelAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	OpenTelemetry otel(SdkTracerProvider tracerProvider, ContextPropagators contextPropagators) {
-		// this is super hacky. it would be better to go and eliminate all usage of the
-		// global. That requires some changes upstream in the instrumentation APIs, so for
-		// now, we hack.
-		GlobalOpenTelemetry.resetForTest();
-		OpenTelemetrySdk openTelemetrySdk = OpenTelemetrySdk.builder().setTracerProvider(tracerProvider)
-				.setPropagators(contextPropagators).build();
-		GlobalOpenTelemetry.set(openTelemetrySdk);
-		return openTelemetrySdk;
+		return OpenTelemetrySdk.builder().setTracerProvider(tracerProvider).setPropagators(contextPropagators).build();
 	}
 
 	@Bean
