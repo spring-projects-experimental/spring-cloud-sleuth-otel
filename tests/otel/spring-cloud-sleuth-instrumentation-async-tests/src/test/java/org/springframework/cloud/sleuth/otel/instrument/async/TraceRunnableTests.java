@@ -37,7 +37,7 @@ public class TraceRunnableTests extends org.springframework.cloud.sleuth.instrum
 	@Override
 	protected void assertThatThereIsNoParentId(Span secondSpan) {
 		BDDAssertions.then(secondSpan.context().parentId()).as("saved span as remnant of first span")
-				.isEqualTo(io.opentelemetry.api.trace.Span.getInvalid().getSpanContext().getSpanIdAsHexString());
+				.isEqualTo(io.opentelemetry.api.trace.Span.getInvalid().getSpanContext().getSpanId());
 	}
 
 }

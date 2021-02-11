@@ -19,7 +19,7 @@ package org.springframework.cloud.sleuth.otel.bridge;
 import java.net.URI;
 import java.util.regex.Pattern;
 
-import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
 import io.opentelemetry.context.propagation.TextMapPropagator;
@@ -50,9 +50,9 @@ public class OtelHttpServerHandler
 
 	private final Pattern pattern;
 
-	public OtelHttpServerHandler(Tracer tracer, HttpRequestParser httpServerRequestParser,
+	public OtelHttpServerHandler(OpenTelemetry openTelemetry, HttpRequestParser httpServerRequestParser,
 			HttpResponseParser httpServerResponseParser, SkipPatternProvider skipPatternProvider) {
-		super(tracer);
+		super(openTelemetry);
 		this.httpServerRequestParser = httpServerRequestParser;
 		this.httpServerResponseParser = httpServerResponseParser;
 		this.pattern = skipPatternProvider.skipPattern();

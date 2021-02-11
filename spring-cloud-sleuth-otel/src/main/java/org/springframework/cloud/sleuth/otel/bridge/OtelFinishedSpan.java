@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.sdk.trace.data.EventData;
 import io.opentelemetry.sdk.trace.data.SpanData;
 
 import org.springframework.cloud.sleuth.Span;
@@ -96,7 +98,7 @@ class OtelFinishedSpan implements FinishedSpan {
 
 	@Override
 	public int getRemotePort() {
-		return Integer.valueOf(getTags().get("net.peer.port"));
+		return Integer.parseInt(getTags().get("net.peer.port"));
 	}
 
 	@Override
@@ -107,7 +109,7 @@ class OtelFinishedSpan implements FinishedSpan {
 	@Override
 	public Throwable getError() {
 		Attributes attributes = this.spanData.getEvents().stream().filter(e -> e.getName().equals("exception"))
-				.findFirst().map(e -> e.getAttributes()).orElse(null);
+				.findFirst().map(EventData::getAttributes).orElse(null);
 		if (attributes != null) {
 			return new AssertingThrowable(attributes);
 		}
@@ -116,7 +118,7 @@ class OtelFinishedSpan implements FinishedSpan {
 
 	@Override
 	public Span.Kind getKind() {
-		if (this.spanData.getKind() == io.opentelemetry.api.trace.Span.Kind.INTERNAL) {
+		if (this.spanData.getKind() == SpanKind.INTERNAL) {
 			return null;
 		}
 		return Span.Kind.valueOf(this.spanData.getKind().name());

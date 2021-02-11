@@ -27,10 +27,10 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapPropagator;
-import io.opentelemetry.extension.trace.propagation.AwsXrayPropagator;
+import io.opentelemetry.extension.aws.AwsXrayPropagator;
 import io.opentelemetry.extension.trace.propagation.B3Propagator;
 import io.opentelemetry.extension.trace.propagation.JaegerPropagator;
-import io.opentelemetry.extension.trace.propagation.OtTracerPropagator;
+import io.opentelemetry.extension.trace.propagation.OtTracePropagator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -67,8 +67,8 @@ public class CompositeTextMapPropagator implements TextMapPropagator {
 					beanFactory.getBeanProvider(JaegerPropagator.class).getIfAvailable(JaegerPropagator::getInstance));
 		}
 		if (isOnClasspath("io.opentelemetry.extension.trace.propagation.OtTracerPropagator")) {
-			this.mapping.put(PropagationType.OT_TRACER, beanFactory.getBeanProvider(OtTracerPropagator.class)
-					.getIfAvailable(OtTracerPropagator::getInstance));
+			this.mapping.put(PropagationType.OT_TRACER, beanFactory.getBeanProvider(OtTracePropagator.class)
+					.getIfAvailable(OtTracePropagator::getInstance));
 		}
 		this.mapping.put(PropagationType.W3C, TextMapPropagator.composite(W3CTraceContextPropagator.getInstance(),
 				W3CBaggagePropagator.getInstance()));

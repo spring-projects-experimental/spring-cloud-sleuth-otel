@@ -25,10 +25,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 
 import io.opentelemetry.api.baggage.Baggage;
 import io.opentelemetry.api.baggage.BaggageBuilder;
-import io.opentelemetry.api.baggage.BaggageConsumer;
 import io.opentelemetry.api.baggage.BaggageEntry;
 import io.opentelemetry.api.baggage.BaggageEntryMetadata;
 import io.opentelemetry.context.Context;
@@ -192,7 +192,7 @@ class CompositeBaggage implements io.opentelemetry.api.baggage.Baggage {
 		while (iterator.hasNext()) {
 			Context next = iterator.next();
 			Baggage baggage = Baggage.fromContext(next);
-			baggage.forEach((key, value, metadata) -> map.put(key, new Entry(key, value, metadata)));
+			baggage.forEach((key, value) -> map.put(key, new Entry(key, value.getValue(), value.getMetadata())));
 		}
 
 		return map.values();
@@ -208,8 +208,8 @@ class CompositeBaggage implements io.opentelemetry.api.baggage.Baggage {
 	}
 
 	@Override
-	public void forEach(BaggageConsumer consumer) {
-		this.entries.forEach(entry -> consumer.accept(entry.getKey(), entry.getValue(), entry.getEntryMetadata()));
+	public void forEach(BiConsumer<String, BaggageEntry> consumer) {
+		this.entries.forEach(entry -> consumer.accept(entry.getKey(), entry));
 	}
 
 	@Override
@@ -254,7 +254,7 @@ class Entry implements BaggageEntry {
 	}
 
 	@Override
-	public BaggageEntryMetadata getEntryMetadata() {
+	public BaggageEntryMetadata getMetadata() {
 		return this.entryMetadata;
 	}
 
@@ -278,7 +278,7 @@ class Entry implements BaggageEntry {
 
 	static List<Entry> fromBaggage(Baggage baggage) {
 		List<Entry> list = new ArrayList<>(baggage.size());
-		baggage.forEach((key, value, metadata) -> list.add(new Entry(key, value, metadata)));
+		baggage.forEach((key, value) -> list.add(new Entry(key, value.getValue(), value.getMetadata())));
 		return list;
 	}
 

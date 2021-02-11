@@ -81,7 +81,7 @@ class OtelTraceContext implements TraceContext {
 
 	@Override
 	public String traceId() {
-		return this.delegate.getTraceIdAsHexString();
+		return this.delegate.getTraceId();
 	}
 
 	@Override
@@ -96,7 +96,7 @@ class OtelTraceContext implements TraceContext {
 
 	@Override
 	public String spanId() {
-		return this.delegate.getSpanIdAsHexString();
+		return this.delegate.getSpanId();
 	}
 
 	@Override
