@@ -74,7 +74,6 @@ public class OtelFinishedSpan implements FinishedSpan {
 		if (this.tags.isEmpty()) {
 			this.spanData.getAttributes().forEach((key, value) -> tags.put(key.getKey(), String.valueOf(value)));
 		}
-
 		return this.tags;
 	}
 
@@ -96,7 +95,7 @@ public class OtelFinishedSpan implements FinishedSpan {
 
 	@Override
 	public String getRemoteIp() {
-		return getTags().get("net.peer.name");
+		return getTags().get("net.peer.ip");
 	}
 
 	@Override
