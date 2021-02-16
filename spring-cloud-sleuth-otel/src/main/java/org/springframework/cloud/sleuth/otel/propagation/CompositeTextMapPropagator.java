@@ -16,14 +16,10 @@
 
 package org.springframework.cloud.sleuth.otel.propagation;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.opentelemetry.api.baggage.propagation.W3CBaggagePropagator;
@@ -31,15 +27,14 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapPropagator;
-import io.opentelemetry.extension.trace.propagation.AwsXrayPropagator;
+import io.opentelemetry.extension.aws.AwsXrayPropagator;
 import io.opentelemetry.extension.trace.propagation.B3Propagator;
 import io.opentelemetry.extension.trace.propagation.JaegerPropagator;
-import io.opentelemetry.extension.trace.propagation.OtTracerPropagator;
+import io.opentelemetry.extension.trace.propagation.OtTracePropagator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 
 /**
@@ -72,11 +67,11 @@ public class CompositeTextMapPropagator implements TextMapPropagator {
 					beanFactory.getBeanProvider(JaegerPropagator.class).getIfAvailable(JaegerPropagator::getInstance));
 		}
 		if (isOnClasspath("io.opentelemetry.extension.trace.propagation.OtTracerPropagator")) {
-			this.mapping.put(PropagationType.OT_TRACER, beanFactory.getBeanProvider(OtTracerPropagator.class)
-					.getIfAvailable(OtTracerPropagator::getInstance));
+			this.mapping.put(PropagationType.OT_TRACER, beanFactory.getBeanProvider(OtTracePropagator.class)
+					.getIfAvailable(OtTracePropagator::getInstance));
 		}
-		this.mapping.put(PropagationType.W3C, new MultiTextMapPropagator(
-				Arrays.asList(W3CTraceContextPropagator.getInstance(), W3CBaggagePropagator.getInstance())));
+		this.mapping.put(PropagationType.W3C, TextMapPropagator.composite(W3CTraceContextPropagator.getInstance(),
+				W3CBaggagePropagator.getInstance()));
 		this.mapping.put(PropagationType.CUSTOM, NoopTextMapPropagator.INSTANCE);
 		log.info("Registered the following context propagation types " + this.mapping.keySet());
 	}
@@ -128,50 +123,6 @@ public class CompositeTextMapPropagator implements TextMapPropagator {
 
 		@Override
 		public <C> Context extract(Context context, C carrier, Getter<C> getter) {
-			return context;
-		}
-
-	}
-
-	// Taken from OTel
-	private static final class MultiTextMapPropagator implements TextMapPropagator {
-
-		private final TextMapPropagator[] textPropagators;
-
-		private final List<String> allFields;
-
-		private MultiTextMapPropagator(List<TextMapPropagator> textPropagators) {
-			this.textPropagators = new TextMapPropagator[textPropagators.size()];
-			textPropagators.toArray(this.textPropagators);
-			this.allFields = Collections.unmodifiableList(getAllFields(this.textPropagators));
-		}
-
-		private static List<String> getAllFields(TextMapPropagator[] textPropagators) {
-			Set<String> fields = new LinkedHashSet<>();
-			for (int i = 0; i < textPropagators.length; i++) {
-				fields.addAll(textPropagators[i].fields());
-			}
-
-			return new ArrayList<>(fields);
-		}
-
-		@Override
-		public List<String> fields() {
-			return allFields;
-		}
-
-		@Override
-		public <C> void inject(Context context, @Nullable C carrier, Setter<C> setter) {
-			for (int i = 0; i < textPropagators.length; i++) {
-				textPropagators[i].inject(context, carrier, setter);
-			}
-		}
-
-		@Override
-		public <C> Context extract(Context context, @Nullable C carrier, Getter<C> getter) {
-			for (int i = 0; i < textPropagators.length; i++) {
-				context = textPropagators[i].extract(context, carrier, getter);
-			}
 			return context;
 		}
 

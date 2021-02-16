@@ -73,7 +73,7 @@ public class WavefrontOtelAutoConfiguration {
 
 					@Override
 					public Boolean sampled() {
-						return spanData.isSampled();
+						return spanData.getSpanContext().isSampled();
 					}
 				};
 			}

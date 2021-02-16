@@ -17,7 +17,7 @@
 package org.springframework.cloud.sleuth.autoconfig.otel;
 
 import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.sdk.trace.config.TraceConfig;
+import io.opentelemetry.sdk.trace.SpanLimits;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -48,32 +48,32 @@ public class OtelProperties {
 	/**
 	 * Returns the global default max number of attributes per {@link Span}.
 	 */
-	private int maxAttrs = TraceConfig.getDefault().getMaxNumberOfAttributes();
+	private int maxAttrs = SpanLimits.getDefault().getMaxNumberOfAttributes();
 
 	/**
 	 * Returns the global default max number of events per {@link Span}.
 	 */
-	private int maxEvents = TraceConfig.getDefault().getMaxNumberOfEvents();
+	private int maxEvents = SpanLimits.getDefault().getMaxNumberOfEvents();
 
 	/**
 	 * Returns the global default max number of link entries per {@link Span}.
 	 */
-	private int maxLinks = TraceConfig.getDefault().getMaxNumberOfLinks();
+	private int maxLinks = SpanLimits.getDefault().getMaxNumberOfLinks();
 
 	/**
 	 * Returns the global default max number of attributes per event.
 	 */
-	private int maxEventAttrs = TraceConfig.getDefault().getMaxNumberOfAttributesPerEvent();
+	private int maxEventAttrs = SpanLimits.getDefault().getMaxNumberOfAttributesPerEvent();
 
 	/**
 	 * Returns the global default max number of attributes per link.
 	 */
-	private int maxLinkAttrs = TraceConfig.getDefault().getMaxNumberOfAttributesPerLink();
+	private int maxLinkAttrs = SpanLimits.getDefault().getMaxNumberOfAttributesPerLink();
 
 	/**
 	 * Returns the global default max length of string attribute value in characters.
 	 */
-	private int maxAttrLength = TraceConfig.getDefault().getMaxLengthOfAttributeValues();
+	private int maxAttrLength = SpanLimits.getDefault().getMaxLengthOfAttributeValues();
 
 	public String getInstrumentationName() {
 		return this.instrumentationName;

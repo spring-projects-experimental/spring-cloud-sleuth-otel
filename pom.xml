@@ -67,9 +67,9 @@
 		<spring-cloud-netflix.version>3.0.2-SNAPSHOT</spring-cloud-netflix.version>
 		<spring-cloud-openfeign.version>3.0.2-SNAPSHOT</spring-cloud-openfeign.version>
 		<opentracing.version>0.32.0</opentracing.version>
-		<opentelemetry.version>0.14.1</opentelemetry.version>
-		<!-- From maven local -->
-		<opentelemetry-instrumentation.version>0.14.0</opentelemetry-instrumentation.version>
+		<opentelemetry.version>0.16.0</opentelemetry.version>
+		<opentelemetry.alpha.version>0.16.0-alpha</opentelemetry.alpha.version>
+		<opentelemetry-instrumentation.version>0.16.0</opentelemetry-instrumentation.version>
 		<wavefront.version>2.1.1-SNAPSHOT</wavefront.version>
 		<spring-security-boot-autoconfigure.version>2.3.4.RELEASE</spring-security-boot-autoconfigure.version>
 		<disable.nohttp.checks>false</disable.nohttp.checks>
@@ -242,6 +242,13 @@
 				<scope>import</scope>
 			</dependency>
 			<dependency>
+				<groupId>io.opentelemetry</groupId>
+				<artifactId>opentelemetry-bom-alpha</artifactId>
+				<version>${opentelemetry.alpha.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.springframework.security.oauth.boot</groupId>
 				<artifactId>spring-security-oauth2-autoconfigure</artifactId>
 				<version>${spring-security-boot-autoconfigure.version}</version>
@@ -308,20 +315,14 @@
 
 	<repositories>
 		<repository>
-			<snapshots>
+			<id>open-telemetry-maven-central-snapshots</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<releases>
 				<enabled>false</enabled>
-			</snapshots>
-			<id>bintray-open-telemetry-maven</id>
-			<name>bintray</name>
-			<url>https://dl.bintray.com/open-telemetry/maven</url>
-		</repository>
-		<repository>
+			</releases>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
-			<id>bintray-open-telemetry-maven-snapshot</id>
-			<name>bintray</name>
-			<url>https://oss.jfrog.org/oss-snapshot-local/</url>
 		</repository>
 	</repositories>
 	<pluginRepositories>

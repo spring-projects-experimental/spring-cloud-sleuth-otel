@@ -91,13 +91,13 @@ class OtelBaggageInScope implements BaggageInScope {
 			OtelTraceContext ctx = (OtelTraceContext) context;
 			Context storedCtx = ctx.context();
 			Baggage fromContext = Baggage.fromContext(storedCtx);
-			baggage = fromContext.toBuilder().setParent(current)
-					.put(entry().getKey(), value, entry().getEntryMetadata()).build();
+			baggage = fromContext.toBuilder().setParent(current).put(entry().getKey(), value, entry().getMetadata())
+					.build();
 			current = baggage.storeInContext(current);
 			ctx.updateContext(current);
 		}
 		else {
-			baggage = Baggage.builder().put(entry().getKey(), value, entry().getEntryMetadata()).build();
+			baggage = Baggage.builder().put(entry().getKey(), value, entry().getMetadata()).build();
 		}
 		Context withBaggage = current.with(baggage);
 		this.scope.set(withBaggage.makeCurrent());
@@ -106,7 +106,7 @@ class OtelBaggageInScope implements BaggageInScope {
 		}
 		this.publisher.publishEvent(new BaggageChanged(this, baggage, entry().getKey(), value));
 		Entry previous = entry();
-		this.entry.set(new Entry(previous.getKey(), value, previous.getEntryMetadata()));
+		this.entry.set(new Entry(previous.getKey(), value, previous.getMetadata()));
 		return this;
 	}
 
@@ -123,7 +123,7 @@ class OtelBaggageInScope implements BaggageInScope {
 	public BaggageInScope makeCurrent() {
 		close();
 		Entry entry = entry();
-		Scope scope = Baggage.builder().put(entry.getKey(), entry.getValue(), entry.getEntryMetadata()).build()
+		Scope scope = Baggage.builder().put(entry.getKey(), entry.getValue(), entry.getMetadata()).build()
 				.makeCurrent();
 		this.scope.set(scope);
 		return this;

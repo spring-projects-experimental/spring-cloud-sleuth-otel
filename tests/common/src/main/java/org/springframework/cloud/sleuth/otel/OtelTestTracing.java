@@ -17,19 +17,20 @@
 package org.springframework.cloud.sleuth.otel;
 
 import java.io.Closeable;
+import java.util.List;
 import java.util.regex.Pattern;
 
-import io.opentelemetry.api.DefaultOpenTelemetry;
-import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
-import io.opentelemetry.api.trace.TracerProvider;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.extension.trace.propagation.B3Propagator;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
-import io.opentelemetry.sdk.trace.config.TraceConfig;
+import io.opentelemetry.sdk.trace.data.LinkData;
 import io.opentelemetry.sdk.trace.samplers.Sampler;
-import io.opentelemetry.sdk.trace.spi.SdkTracerProviderFactory;
-import io.opentelemetry.spi.trace.TracerProviderFactory;
+import io.opentelemetry.sdk.trace.samplers.SamplingResult;
 
 import org.springframework.cloud.sleuth.CurrentTraceContext;
 import org.springframework.cloud.sleuth.SamplerFunction;
@@ -50,58 +51,34 @@ import org.springframework.context.ApplicationEventPublisher;
 
 public class OtelTestTracing implements TracerAware, TestTracingAware, TestTracingAwareSupplier, Closeable {
 
-	ArrayListSpanProcessor spanProcessor = new ArrayListSpanProcessor();
+	private final DynamicSampler sampler = new DynamicSampler();
 
-	ContextPropagators contextPropagators = contextPropagators();
+	final ArrayListSpanProcessor spanProcessor = new ArrayListSpanProcessor();
 
-	OpenTelemetry openTelemetry = otel();
+	final ContextPropagators contextPropagators = contextPropagators();
 
-	ContextPropagators defaultContextPropagators = openTelemetry.getPropagators();
-
-	Sampler sampler = Sampler.alwaysOn();
+	final io.opentelemetry.api.OpenTelemetry openTelemetry = initializeOtel();
 
 	HttpRequestParser clientRequestParser;
 
-	io.opentelemetry.api.trace.Tracer tracer = otelTracer();
-
 	CurrentTraceContext currentTraceContext = OtelAccessor.currentTraceContext(publisher());
-
-	io.opentelemetry.api.trace.Tracer otelTracer() {
-		SdkTracerProvider provider = SdkTracerProvider.builder().build();
-		provider.addSpanProcessor(this.spanProcessor);
-		provider.updateActiveTraceConfig(TraceConfig.getDefault().toBuilder().setSampler(this.sampler).build());
-		return provider.get("org.springframework.cloud.sleuth");
-	}
 
 	protected ContextPropagators contextPropagators() {
 		return ContextPropagators.create(B3Propagator.builder().injectMultipleHeaders().build());
 	}
 
-	OpenTelemetry otel() {
-		TracerProviderFactory providerFactory = otelTracerProviderFactory();
-		OpenTelemetry openTelemetry = DefaultOpenTelemetry.builder()
-				.setTracerProvider(otelTracerProvider(providerFactory)).setPropagators(this.contextPropagators).build();
-		GlobalOpenTelemetry.set(openTelemetry);
-		return openTelemetry;
+	OpenTelemetry initializeOtel() {
+		return OpenTelemetrySdk.builder().setTracerProvider(otelTracerProvider())
+				.setPropagators(this.contextPropagators).build();
 	}
 
-	TracerProviderFactory otelTracerProviderFactory() {
-		return new SdkTracerProviderFactory();
-	}
-
-	TracerProvider otelTracerProvider(TracerProviderFactory tracerProviderFactory) {
-		return tracerProviderFactory.create();
-	}
-
-	private void reset() {
-		this.contextPropagators = contextPropagators();
-		this.tracer = otelTracer();
-		this.currentTraceContext = OtelAccessor.currentTraceContext(publisher());
+	SdkTracerProvider otelTracerProvider() {
+		return SdkTracerProvider.builder().addSpanProcessor(spanProcessor).setSampler(sampler).build();
 	}
 
 	@Override
 	public TracerAware sampler(TraceSampler sampler) {
-		this.sampler = sampler == TraceSampler.ON ? Sampler.alwaysOn() : Sampler.alwaysOff();
+		this.sampler.setSamplerChoice(sampler);
 		return this;
 	}
 
@@ -123,7 +100,7 @@ public class OtelTestTracing implements TracerAware, TestTracingAware, TestTraci
 	@Override
 	public void close() {
 		this.spanProcessor.clear();
-		this.sampler = Sampler.alwaysOn();
+		this.sampler.reset();
 	}
 
 	@Override
@@ -133,26 +110,22 @@ public class OtelTestTracing implements TracerAware, TestTracingAware, TestTraci
 
 	@Override
 	public Tracer tracer() {
-		reset();
-		return OtelAccessor.tracer(this.tracer, this.currentTraceContext, new SleuthBaggageProperties(), publisher());
+		return OtelAccessor.tracer(openTelemetry, this.currentTraceContext, new SleuthBaggageProperties(), publisher());
 	}
 
 	@Override
 	public CurrentTraceContext currentTraceContext() {
-		reset();
 		return OtelAccessor.currentTraceContext(publisher());
 	}
 
 	@Override
 	public Propagator propagator() {
-		reset();
-		return OtelAccessor.propagator(this.contextPropagators, this.tracer);
+		return OtelAccessor.propagator(this.contextPropagators, openTelemetry);
 	}
 
 	@Override
 	public HttpServerHandler httpServerHandler() {
-		reset();
-		return OtelAccessor.httpServerHandler(this.tracer, null, null, () -> Pattern.compile(""));
+		return OtelAccessor.httpServerHandler(openTelemetry, null, null, () -> Pattern.compile(""));
 	}
 
 	@Override
@@ -163,8 +136,7 @@ public class OtelTestTracing implements TracerAware, TestTracingAware, TestTraci
 
 	@Override
 	public HttpClientHandler httpClientHandler() {
-		reset();
-		return OtelAccessor.httpClientHandler(this.tracer, this.clientRequestParser, null,
+		return OtelAccessor.httpClientHandler(openTelemetry, this.clientRequestParser, null,
 				SamplerFunction.alwaysSample());
 	}
 
@@ -172,6 +144,35 @@ public class OtelTestTracing implements TracerAware, TestTracingAware, TestTraci
 		return event -> {
 
 		};
+	}
+
+	private static class DynamicSampler implements Sampler {
+
+		private TraceSampler choice = TraceSampler.ON;
+
+		@Override
+		public SamplingResult shouldSample(Context parentContext, String traceId, String name, SpanKind spanKind,
+				Attributes attributes, List<LinkData> parentLinks) {
+			Sampler sampler = Sampler.alwaysOff();
+			if (choice == TraceSampler.ON) {
+				sampler = Sampler.alwaysOn();
+			}
+			return sampler.shouldSample(parentContext, traceId, name, spanKind, attributes, parentLinks);
+		}
+
+		@Override
+		public String getDescription() {
+			return "dynamic test Sampler";
+		}
+
+		public void setSamplerChoice(TraceSampler sampler) {
+			this.choice = sampler;
+		}
+
+		public void reset() {
+			this.choice = TraceSampler.ON;
+		}
+
 	}
 
 }
