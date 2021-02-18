@@ -100,12 +100,18 @@ public class OtelAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	Resource otelResource(Environment env) {
-		// todo: populate the resource with the right stuff (service.name, etc)
-		// this was the code in the zipkin exporter configuration previously:
-		// env.getProperty("spring.application.name", env.getProperty(
-		// "spring.zipkin.service.name", ZipkinSpanExporter.DEFAULT_SERVICE_NAME)
+	Resource otelResource(Environment env, ObjectProvider<List<ResourceCustomizer>> resourceCustomizerProvider) {
 		String applicationName = env.getProperty("spring.application.name");
+		Resource resource = defaultResource(applicationName);
+		List<ResourceCustomizer> resourceCustomizers = resourceCustomizerProvider.getIfAvailable(ArrayList::new);
+		for (ResourceCustomizer customizer : resourceCustomizers) {
+			Resource customized = customizer.customize(resource);
+			resource = resource.merge(customized);
+		}
+		return resource;
+	}
+
+	private Resource defaultResource(String applicationName) {
 		if (applicationName == null) {
 			return Resource.getDefault();
 		}

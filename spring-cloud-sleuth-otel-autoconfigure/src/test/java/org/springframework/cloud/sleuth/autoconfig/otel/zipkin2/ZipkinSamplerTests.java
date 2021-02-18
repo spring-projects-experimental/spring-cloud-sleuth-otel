@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.sleuth.autoconfig.otel.zipkin2;
 
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.sdk.resources.Resource;
 import org.assertj.core.api.BDDAssertions;
 import org.junit.jupiter.api.Test;
 
@@ -42,6 +44,19 @@ public class ZipkinSamplerTests {
 			io.opentelemetry.sdk.trace.samplers.Sampler sampler = context
 					.getBean(io.opentelemetry.sdk.trace.samplers.Sampler.class);
 			BDDAssertions.then(sampler).isNotSameAs(io.opentelemetry.sdk.trace.samplers.Sampler.alwaysOff());
+		});
+	}
+
+	@Test
+	void should_set_service_name_to_zipkin_service_name() {
+		ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+				.withPropertyValues("spring.sleuth.tracer.mode=AUTO", "spring.application.name=foo",
+						"spring.zipkin.service.name=bar")
+				.withConfiguration(AutoConfigurations.of(TestConfig.class));
+
+		contextRunner.run(context -> {
+			Resource resource = context.getBean(Resource.class);
+			BDDAssertions.then(resource.getAttributes().get(AttributeKey.stringKey("service.name"))).isEqualTo("bar");
 		});
 	}
 
