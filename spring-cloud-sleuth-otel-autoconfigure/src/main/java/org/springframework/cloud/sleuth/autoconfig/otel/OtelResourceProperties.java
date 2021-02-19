@@ -21,7 +21,7 @@ import io.opentelemetry.sdk.resources.ResourceProvider;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * Sleuth settings for OpenTelemetry.
+ * Properties for setting OTel resource providers.
  *
  * @author Marcin Grzejszczak
  * @since 3.0.0
