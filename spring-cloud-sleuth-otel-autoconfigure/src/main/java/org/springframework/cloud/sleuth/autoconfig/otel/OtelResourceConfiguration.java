@@ -31,7 +31,7 @@ import org.springframework.context.annotation.Configuration;
  * Auto-configuration} to enable OpenTelemetry exporters.
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(ProcessResource.class)
