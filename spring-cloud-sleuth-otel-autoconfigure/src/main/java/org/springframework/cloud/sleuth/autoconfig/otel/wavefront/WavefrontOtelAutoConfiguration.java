@@ -18,16 +18,17 @@ package org.springframework.cloud.sleuth.autoconfig.otel.wavefront;
 
 import java.util.Collection;
 
+import com.wavefront.spring.autoconfigure.WavefrontAutoConfiguration;
+import com.wavefront.spring.autoconfigure.WavefrontSleuthSpanHandler;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.sleuth.TraceContext;
-import org.springframework.cloud.sleuth.autoconfig.wavefront.WavefrontSleuthAutoConfiguration;
-import org.springframework.cloud.sleuth.autoconfig.wavefront.WavefrontSleuthSpanHandler;
 import org.springframework.cloud.sleuth.otel.bridge.OtelFinishedSpan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,7 +42,8 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(value = { "spring.sleuth.enabled", "spring.sleuth.wavefront.enabled" }, matchIfMissing = true)
-@AutoConfigureAfter(WavefrontSleuthAutoConfiguration.class)
+@ConditionalOnClass(WavefrontSleuthSpanHandler.class)
+@AutoConfigureAfter(WavefrontAutoConfiguration.class)
 public class WavefrontOtelAutoConfiguration {
 
 	@Bean
