@@ -73,7 +73,9 @@ public class CompositeTextMapPropagator implements TextMapPropagator {
 		this.mapping.put(PropagationType.W3C, TextMapPropagator.composite(W3CTraceContextPropagator.getInstance(),
 				W3CBaggagePropagator.getInstance()));
 		this.mapping.put(PropagationType.CUSTOM, NoopTextMapPropagator.INSTANCE);
-		log.info("Registered the following context propagation types " + this.mapping.keySet());
+		if (log.isDebugEnabled()) {
+			log.debug("Registered the following context propagation types " + this.mapping.keySet());
+		}
 	}
 
 	private boolean isOnClasspath(String clazz) {
