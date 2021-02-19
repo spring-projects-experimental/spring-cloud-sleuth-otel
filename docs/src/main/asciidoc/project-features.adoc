@@ -41,10 +41,12 @@ We're providing an Slf4j integration via a `SpanProcessor` that injects to and r
 If it's there on the classpath, we integrate with the `LoggingSpanExporter`.
 You can disable that integration via the `spring.sleuth.otel.log.exporter.enabled=false` property.
 
-[[features-otel-resource-customization]]
-=== OpenTelemetry Resource Customization
+[[features-otel-resource-provider]]
+=== OpenTelemetry ResourceProvider
 
-OpenTelemetry provides a `Resource` abstraction which captures identifying information about the entities for which signals (stats or traces) are reported. If you wish to customize that `Resource` you can register as a bean an implementation of the `ResourceCustomizer` interface.
+OpenTelemetry provides a `Resource` abstraction which captures identifying information about the entities for which signals (stats or traces) are reported. If you wish to provide your own, you can register beans of `ResourceProvider` type.
+
+You can disable the registration of the default `ResourceProvider` beans via the `spring.sleuth.otel.resource.enabled=false` property.
 
 [[features-otel-opentracing]]
 === OpenTelemetry Opentracing
