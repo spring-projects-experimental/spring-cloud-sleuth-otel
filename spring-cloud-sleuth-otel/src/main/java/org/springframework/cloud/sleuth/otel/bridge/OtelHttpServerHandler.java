@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
-import io.opentelemetry.context.propagation.TextMapPropagator;
+import io.opentelemetry.context.propagation.TextMapGetter;
 import io.opentelemetry.instrumentation.api.tracer.HttpServerTracer;
 
 import org.springframework.cloud.sleuth.Span;
@@ -131,8 +131,8 @@ public class OtelHttpServerHandler
 	}
 
 	@Override
-	protected TextMapPropagator.Getter<HttpServerRequest> getGetter() {
-		return new TextMapPropagator.Getter<HttpServerRequest>() {
+	protected TextMapGetter<HttpServerRequest> getGetter() {
+		return new TextMapGetter<HttpServerRequest>() {
 			@Override
 			public Iterable<String> keys(HttpServerRequest carrier) {
 				return carrier.headerNames();

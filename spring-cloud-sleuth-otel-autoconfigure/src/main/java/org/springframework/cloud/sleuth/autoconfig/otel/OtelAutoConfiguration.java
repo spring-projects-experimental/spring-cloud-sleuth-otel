@@ -121,8 +121,7 @@ public class OtelAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	SpanLimits otelSpanLimits(OtelProperties otelProperties) {
-		return SpanLimits.getDefault().toBuilder().setMaxLengthOfAttributeValues(otelProperties.getMaxAttrLength())
-				.setMaxNumberOfAttributes(otelProperties.getMaxAttrs())
+		return SpanLimits.getDefault().toBuilder().setMaxNumberOfAttributes(otelProperties.getMaxAttrs())
 				.setMaxNumberOfAttributesPerEvent(otelProperties.getMaxEventAttrs())
 				.setMaxNumberOfAttributesPerLink(otelProperties.getMaxLinkAttrs())
 				.setMaxNumberOfEvents(otelProperties.getMaxEvents()).setMaxNumberOfLinks(otelProperties.getMaxLinks())

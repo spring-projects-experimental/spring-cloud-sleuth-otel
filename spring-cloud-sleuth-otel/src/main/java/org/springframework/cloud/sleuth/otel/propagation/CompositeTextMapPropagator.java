@@ -26,7 +26,9 @@ import io.opentelemetry.api.baggage.propagation.W3CBaggagePropagator;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.Context;
+import io.opentelemetry.context.propagation.TextMapGetter;
 import io.opentelemetry.context.propagation.TextMapPropagator;
+import io.opentelemetry.context.propagation.TextMapSetter;
 import io.opentelemetry.extension.aws.AwsXrayPropagator;
 import io.opentelemetry.extension.trace.propagation.B3Propagator;
 import io.opentelemetry.extension.trace.propagation.JaegerPropagator;
@@ -59,8 +61,8 @@ public class CompositeTextMapPropagator implements TextMapPropagator {
 					.getIfAvailable(AwsXrayPropagator::getInstance));
 		}
 		if (isOnClasspath("io.opentelemetry.extension.trace.propagation.B3Propagator")) {
-			this.mapping.put(PropagationType.B3,
-					beanFactory.getBeanProvider(B3Propagator.class).getIfAvailable(B3Propagator::getInstance));
+			this.mapping.put(PropagationType.B3, beanFactory.getBeanProvider(B3Propagator.class)
+					.getIfAvailable(B3Propagator::injectingSingleHeader));
 		}
 		if (isOnClasspath("io.opentelemetry.extension.trace.propagation.JaegerPropagator")) {
 			this.mapping.put(PropagationType.JAEGER,
@@ -89,13 +91,13 @@ public class CompositeTextMapPropagator implements TextMapPropagator {
 	}
 
 	@Override
-	public <C> void inject(Context context, C carrier, Setter<C> setter) {
+	public <C> void inject(Context context, C carrier, TextMapSetter<C> setter) {
 		this.types.stream().map(key -> this.mapping.getOrDefault(key, NoopTextMapPropagator.INSTANCE))
 				.forEach(p -> p.inject(context, carrier, setter));
 	}
 
 	@Override
-	public <C> Context extract(Context context, C carrier, Getter<C> getter) {
+	public <C> Context extract(Context context, C carrier, TextMapGetter<C> getter) {
 		for (PropagationType type : this.types) {
 			TextMapPropagator propagator = this.mapping.get(type);
 			if (propagator == null || propagator == NoopTextMapPropagator.INSTANCE) {
@@ -120,11 +122,11 @@ public class CompositeTextMapPropagator implements TextMapPropagator {
 		}
 
 		@Override
-		public <C> void inject(Context context, C carrier, Setter<C> setter) {
+		public <C> void inject(Context context, C carrier, TextMapSetter<C> setter) {
 		}
 
 		@Override
-		public <C> Context extract(Context context, C carrier, Getter<C> getter) {
+		public <C> Context extract(Context context, C carrier, TextMapGetter<C> getter) {
 			return context;
 		}
 

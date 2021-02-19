@@ -22,6 +22,7 @@ import java.util.List;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.ContextPropagators;
+import io.opentelemetry.context.propagation.TextMapGetter;
 import io.opentelemetry.context.propagation.TextMapPropagator;
 
 import org.springframework.cloud.sleuth.Span;
@@ -59,7 +60,7 @@ public class OtelPropagator implements Propagator {
 
 	@Override
 	public <C> Span.Builder extract(C carrier, Getter<C> getter) {
-		Context extracted = this.propagator.extract(Context.current(), carrier, new TextMapPropagator.Getter<C>() {
+		Context extracted = this.propagator.extract(Context.current(), carrier, new TextMapGetter<C>() {
 			@Override
 			public Iterable<String> keys(C carrier) {
 				return fields();
