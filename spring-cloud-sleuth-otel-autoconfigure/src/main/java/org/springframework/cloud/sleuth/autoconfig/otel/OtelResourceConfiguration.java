@@ -16,9 +16,12 @@
 
 package org.springframework.cloud.sleuth.autoconfig.otel;
 
+import java.util.function.Supplier;
+
 import io.opentelemetry.sdk.extension.resources.OsResource;
 import io.opentelemetry.sdk.extension.resources.ProcessResource;
 import io.opentelemetry.sdk.extension.resources.ProcessRuntimeResource;
+import io.opentelemetry.sdk.resources.Resource;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -40,17 +43,17 @@ import org.springframework.context.annotation.Configuration;
 class OtelResourceConfiguration {
 
 	@Bean
-	OtelResourceProvider otelOsResourceProvider() {
+	Supplier<Resource> otelOsResourceProvider() {
 		return OsResource::get;
 	}
 
 	@Bean
-	OtelResourceProvider otelProcessResourceProvider() {
+	Supplier<Resource> otelProcessResourceProvider() {
 		return ProcessResource::get;
 	}
 
 	@Bean
-	OtelResourceProvider otelProcessRuntimeResourceProvider() {
+	Supplier<Resource> otelProcessRuntimeResourceProvider() {
 		return ProcessRuntimeResource::get;
 	}
 

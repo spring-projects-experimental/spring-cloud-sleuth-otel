@@ -18,6 +18,7 @@ package org.springframework.cloud.sleuth.autoconfig.otel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import io.opentelemetry.api.OpenTelemetry;
@@ -98,12 +99,12 @@ public class OtelAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	Resource otelResource(Environment env, ObjectProvider<List<OtelResourceProvider>> resourceProviders) {
+	Resource otelResource(Environment env, ObjectProvider<List<Supplier<Resource>>> resourceProviders) {
 		String applicationName = env.getProperty("spring.application.name");
 		Resource resource = defaultResource(applicationName);
-		List<OtelResourceProvider> resourceCustomizers = resourceProviders.getIfAvailable(ArrayList::new);
-		for (OtelResourceProvider provider : resourceCustomizers) {
-			resource = resource.merge(provider.getResource());
+		List<Supplier<Resource>> resourceCustomizers = resourceProviders.getIfAvailable(ArrayList::new);
+		for (Supplier<Resource> provider : resourceCustomizers) {
+			resource = resource.merge(provider.get());
 		}
 		return resource;
 	}
