@@ -33,13 +33,31 @@ In this section you can read about specific OTel integrations.
 You can choose to use either Sleuth's API or the OpenTelemetry API directly in your code (e.g. either Sleuth's `Tracer` or OpenTelemetry's `Tracer`).
 If you want to use this tracer implementation's API directly please read https://github.com/open-telemetry/opentelemetry-java[their documentation to learn more about it].
 
+[[features-otel-exporters]]
+=== OpenTelemetry Exporters Integration
+
 [[features-otel-logging]]
-=== OpenTelemetry Logging Integration
+==== OpenTelemetry Logging
 
 We're providing an Slf4j integration via a `SpanProcessor` that injects to and removes entries (trace / span ids, baggage, tags etc.) from MDC. You can disable that via the `spring.sleuth.otel.log.slf4j.enabled=false` property.
 
 If it's there on the classpath, we integrate with the `LoggingSpanExporter`.
 You can disable that integration via the `spring.sleuth.otel.log.exporter.enabled=false` property.
+
+[[features-otel-jaeger]]
+==== OpenTelemetry Jaeger Integration
+
+We're providing an out-of-the-box integration with the OTel Jaeger exporter. via the `io.opentelemetry:opentelemetry-exporter-jaeger` dependency.
+
+For configuration options please check the `spring.sleuth.otel.exporter.jaeger` properties in the <<appendix.adoc,appendix>>. To fully override the default configuration please register a bean of `JaegerGrpcSpanExporter` type.
+
+[[features-otel-otlp]]
+==== OpenTelemetry OTLP Integration
+
+We're providing an out-of-the-box integration with the OTel Jaeger exporter. via the `io.opentelemetry:opentelemetry-exporter-otlp` dependency.
+
+For configuration options please check the `spring.sleuth.otel.exporter.otlp` properties in the <<appendix.adoc,appendix>>. To fully override the default configuration please register a bean of `OtlpGrpcSpanExporter` type.
+
 
 [[features-otel-resource-provider]]
 === OpenTelemetry ResourceProvider

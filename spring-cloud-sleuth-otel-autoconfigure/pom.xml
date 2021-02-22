@@ -24,6 +24,9 @@
 	<packaging>jar</packaging>
 	<name>Spring Cloud Sleuth OTel AutoConfigure</name>
 	<description>Spring Cloud Sleuth AutoConfigure</description>
+	<properties>
+		<grpc-netty-shaded.version>1.35.0</grpc-netty-shaded.version>
+	</properties>
 
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
@@ -202,6 +205,16 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
+			<groupId>io.opentelemetry</groupId>
+			<artifactId>opentelemetry-exporter-jaeger</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>io.opentelemetry</groupId>
+			<artifactId>opentelemetry-exporter-otlp</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
 			<groupId>io.zipkin.zipkin2</groupId>
 			<artifactId>zipkin</artifactId>
 			<optional>true</optional>
@@ -285,6 +298,12 @@
 		<dependency>
 			<groupId>com.google.code.findbugs</groupId>
 			<artifactId>jsr305</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.grpc</groupId>
+			<artifactId>grpc-netty-shaded</artifactId>
+			<version>${grpc-netty-shaded.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
