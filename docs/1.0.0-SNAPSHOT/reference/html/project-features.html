@@ -18,8 +18,9 @@
 <li><a href="#features-context-propagation">1. Context Propagation</a></li>
 <li><a href="#features-otel">2. OpenTelemetry Tracer Integration</a>
 <ul class="sectlevel2">
-<li><a href="#features-otel-logging">2.1. OpenTelemetry Logging Integration</a></li>
-<li><a href="#features-otel-opentracing">2.2. OpenTelemetry Opentracing</a></li>
+<li><a href="#features-otel-exporters">2.1. OpenTelemetry Exporters Integration</a></li>
+<li><a href="#features-otel-resource-provider">2.2. OpenTelemetry ResourceProvider</a></li>
+<li><a href="#features-otel-opentracing">2.3. OpenTelemetry Opentracing</a></li>
 </ul>
 </li>
 <li><a href="#features-zipkin">3. Sending Spans to Zipkin</a></li>
@@ -71,7 +72,9 @@ In this section you can read about specific OTel integrations.</p>
 If you want to use this tracer implementation&#8217;s API directly please read <a href="https://github.com/open-telemetry/opentelemetry-java">their documentation to learn more about it</a>.</p>
 </div>
 <div class="sect2">
-<h3 id="features-otel-logging"><a class="anchor" href="#features-otel-logging"></a><a class="link" href="#features-otel-logging">2.1. OpenTelemetry Logging Integration</a></h3>
+<h3 id="features-otel-exporters"><a class="anchor" href="#features-otel-exporters"></a><a class="link" href="#features-otel-exporters">2.1. OpenTelemetry Exporters Integration</a></h3>
+<div class="sect3">
+<h4 id="features-otel-logging"><a class="anchor" href="#features-otel-logging"></a><a class="link" href="#features-otel-logging">2.1.1. OpenTelemetry Logging</a></h4>
 <div class="paragraph">
 <p>We&#8217;re providing an Slf4j integration via a <code>SpanProcessor</code> that injects to and removes entries (trace / span ids, baggage, tags etc.) from MDC. You can disable that via the <code>spring.sleuth.otel.log.slf4j.enabled=false</code> property.</p>
 </div>
@@ -80,8 +83,36 @@ If you want to use this tracer implementation&#8217;s API directly please read <
 You can disable that integration via the <code>spring.sleuth.otel.log.exporter.enabled=false</code> property.</p>
 </div>
 </div>
+<div class="sect3">
+<h4 id="features-otel-jaeger"><a class="anchor" href="#features-otel-jaeger"></a><a class="link" href="#features-otel-jaeger">2.1.2. OpenTelemetry Jaeger Integration</a></h4>
+<div class="paragraph">
+<p>We&#8217;re providing an out-of-the-box integration with the OTel Jaeger exporter. via the <code>io.opentelemetry:opentelemetry-exporter-jaeger</code> dependency.</p>
+</div>
+<div class="paragraph">
+<p>For configuration options please check the <code>spring.sleuth.otel.exporter.jaeger</code> properties in the <a href="#appendix.adoc">appendix</a>. To fully override the default configuration please register a bean of <code>JaegerGrpcSpanExporter</code> type.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="features-otel-otlp"><a class="anchor" href="#features-otel-otlp"></a><a class="link" href="#features-otel-otlp">2.1.3. OpenTelemetry OTLP Integration</a></h4>
+<div class="paragraph">
+<p>We&#8217;re providing an out-of-the-box integration with the OTel Jaeger exporter. via the <code>io.opentelemetry:opentelemetry-exporter-otlp</code> dependency.</p>
+</div>
+<div class="paragraph">
+<p>For configuration options please check the <code>spring.sleuth.otel.exporter.otlp</code> properties in the <a href="#appendix.adoc">appendix</a>. To fully override the default configuration please register a bean of <code>OtlpGrpcSpanExporter</code> type.</p>
+</div>
+</div>
+</div>
 <div class="sect2">
-<h3 id="features-otel-opentracing"><a class="anchor" href="#features-otel-opentracing"></a><a class="link" href="#features-otel-opentracing">2.2. OpenTelemetry Opentracing</a></h3>
+<h3 id="features-otel-resource-provider"><a class="anchor" href="#features-otel-resource-provider"></a><a class="link" href="#features-otel-resource-provider">2.2. OpenTelemetry ResourceProvider</a></h3>
+<div class="paragraph">
+<p>OpenTelemetry provides a <code>Resource</code> abstraction which captures identifying information about the entities for which signals (stats or traces) are reported. If you wish to provide your own, you can register beans of <code>ResourceProvider</code> type.</p>
+</div>
+<div class="paragraph">
+<p>You can disable the registration of the default <code>ResourceProvider</code> beans via the <code>spring.sleuth.otel.resource.enabled=false</code> property.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="features-otel-opentracing"><a class="anchor" href="#features-otel-opentracing"></a><a class="link" href="#features-otel-opentracing">2.3. OpenTelemetry Opentracing</a></h3>
 <div class="paragraph">
 <p>You can integrate with OpenTelemetry and <a href="https://opentracing.io/">OpenTracing</a> via the
 <code>io.opentelemetry:opentelemetry-opentracing-shim</code> bridge.

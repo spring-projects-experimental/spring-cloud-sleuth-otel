@@ -643,8 +643,8 @@ class CustomPropagator implements TextMapPropagator {
         if (!spanContext.isValid()) {
             return;
         }
-        setter.set(carrier, "myCustomTraceId", spanContext.getTraceIdAsHexString());
-        setter.set(carrier, "myCustomSpanId", spanContext.getSpanIdAsHexString());
+        setter.set(carrier, "myCustomTraceId", spanContext.getTraceId());
+        setter.set(carrier, "myCustomSpanId", spanContext.getSpanId());
     }
 
     @Override

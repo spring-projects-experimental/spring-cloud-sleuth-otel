@@ -527,7 +527,9 @@ In this section you can read about specific OTel integrations.</p>
 If you want to use this tracer implementation&#8217;s API directly please read <a href="https://github.com/open-telemetry/opentelemetry-java">their documentation to learn more about it</a>.</p>
 </div>
 <div class="sect3">
-<h4 id="features-otel-logging"><a class="anchor" href="#features-otel-logging"></a><a class="link" href="#features-otel-logging">4.2.1. OpenTelemetry Logging Integration</a></h4>
+<h4 id="features-otel-exporters"><a class="anchor" href="#features-otel-exporters"></a><a class="link" href="#features-otel-exporters">4.2.1. OpenTelemetry Exporters Integration</a></h4>
+<div class="sect4">
+<h5 id="features-otel-logging"><a class="anchor" href="#features-otel-logging"></a><a class="link" href="#features-otel-logging">OpenTelemetry Logging</a></h5>
 <div class="paragraph">
 <p>We&#8217;re providing an Slf4j integration via a <code>SpanProcessor</code> that injects to and removes entries (trace / span ids, baggage, tags etc.) from MDC. You can disable that via the <code>spring.sleuth.otel.log.slf4j.enabled=false</code> property.</p>
 </div>
@@ -536,8 +538,36 @@ If you want to use this tracer implementation&#8217;s API directly please read <
 You can disable that integration via the <code>spring.sleuth.otel.log.exporter.enabled=false</code> property.</p>
 </div>
 </div>
+<div class="sect4">
+<h5 id="features-otel-jaeger"><a class="anchor" href="#features-otel-jaeger"></a><a class="link" href="#features-otel-jaeger">OpenTelemetry Jaeger Integration</a></h5>
+<div class="paragraph">
+<p>We&#8217;re providing an out-of-the-box integration with the OTel Jaeger exporter. via the <code>io.opentelemetry:opentelemetry-exporter-jaeger</code> dependency.</p>
+</div>
+<div class="paragraph">
+<p>For configuration options please check the <code>spring.sleuth.otel.exporter.jaeger</code> properties in the <a href="#appendix.adoc">appendix</a>. To fully override the default configuration please register a bean of <code>JaegerGrpcSpanExporter</code> type.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="features-otel-otlp"><a class="anchor" href="#features-otel-otlp"></a><a class="link" href="#features-otel-otlp">OpenTelemetry OTLP Integration</a></h5>
+<div class="paragraph">
+<p>We&#8217;re providing an out-of-the-box integration with the OTel Jaeger exporter. via the <code>io.opentelemetry:opentelemetry-exporter-otlp</code> dependency.</p>
+</div>
+<div class="paragraph">
+<p>For configuration options please check the <code>spring.sleuth.otel.exporter.otlp</code> properties in the <a href="#appendix.adoc">appendix</a>. To fully override the default configuration please register a bean of <code>OtlpGrpcSpanExporter</code> type.</p>
+</div>
+</div>
+</div>
 <div class="sect3">
-<h4 id="features-otel-opentracing"><a class="anchor" href="#features-otel-opentracing"></a><a class="link" href="#features-otel-opentracing">4.2.2. OpenTelemetry Opentracing</a></h4>
+<h4 id="features-otel-resource-provider"><a class="anchor" href="#features-otel-resource-provider"></a><a class="link" href="#features-otel-resource-provider">4.2.2. OpenTelemetry ResourceProvider</a></h4>
+<div class="paragraph">
+<p>OpenTelemetry provides a <code>Resource</code> abstraction which captures identifying information about the entities for which signals (stats or traces) are reported. If you wish to provide your own, you can register beans of <code>ResourceProvider</code> type.</p>
+</div>
+<div class="paragraph">
+<p>You can disable the registration of the default <code>ResourceProvider</code> beans via the <code>spring.sleuth.otel.resource.enabled=false</code> property.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="features-otel-opentracing"><a class="anchor" href="#features-otel-opentracing"></a><a class="link" href="#features-otel-opentracing">4.2.3. OpenTelemetry Opentracing</a></h4>
 <div class="paragraph">
 <p>You can integrate with OpenTelemetry and <a href="https://opentracing.io/">OpenTracing</a> via the
 <code>io.opentelemetry:opentelemetry-opentracing-shim</code> bridge.
@@ -1177,8 +1207,8 @@ class CustomPropagator implements TextMapPropagator {
         if (!spanContext.isValid()) {
             return;
         }
-        setter.set(carrier, "myCustomTraceId", spanContext.getTraceIdAsHexString());
-        setter.set(carrier, "myCustomSpanId", spanContext.getSpanIdAsHexString());
+        setter.set(carrier, "myCustomTraceId", spanContext.getTraceId());
+        setter.set(carrier, "myCustomSpanId", spanContext.getSpanId());
     }
 
     @Override
@@ -1231,6 +1261,101 @@ Also, you can define your own properties.
 </tr>
 </thead>
 <tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.config.instrumentation-name</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>org.springframework.cloud.spring-cloud-sleuth</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Instrumentation name to be used to find a Tracer.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.config.instrumentation-version</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Instrumentation version to be used to find a Tracer.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.config.max-attr-length</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the global default max length of string attribute value in characters.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.config.max-attrs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the global default max number of attributes per {@link Span}.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.config.max-event-attrs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the global default max number of attributes per event.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.config.max-events</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the global default max number of events per {@link Span}.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.config.max-link-attrs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the global default max number of attributes per link.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.config.max-links</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returns the global default max number of link entries per {@link Span}.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.exporter.jaeger.endpoint</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets the OTLP endpoint to connect to.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.exporter.jaeger.timeout</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Timeout in millis.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.exporter.otlp.endpoint</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sets the OTLP endpoint to connect to.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.exporter.otlp.headers</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Map of headers to be added.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.exporter.otlp.timeout</p></td>
+<td class="tableblock halign-left valign-top"></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Timeout in millis.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.exporter.sleuth-span-filter.enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enables Sleuth span filter.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.log.exporter.enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enable log exporter for OTel.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.log.slf4j.enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>false</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enable slf4j support for OTel.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.propagation.composite-text-map-propagator.enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enable a composite text map propagator that can combine multiple propagation types into a single text map propagator.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.propagation.sleuth-baggage.enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enable propagating baggage in a Sleuth compatible way (baggage key &amp; value pair means e.g. a key &amp; value HTTP pair).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">spring.sleuth.otel.resource.enabled</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>true</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Enables default {@link ResourceProvider} implementations.</p></td>
+</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">spring.zipkin.activemq.message-max-bytes</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>100000</code></p></td>
