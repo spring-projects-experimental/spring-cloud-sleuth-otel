@@ -34,8 +34,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * {@link org.springframework.boot.autoconfigure.EnableAutoConfiguration
- * Auto-configuration} enables reporting to Wavefront.
+ * {@link org.springframework.boot.autoconfigure.EnableAutoConfiguration}
+ * Auto-configuration enables reporting to Wavefront.
  *
  * @author Marcin Grzejszczak
  * @since 1.0.0
