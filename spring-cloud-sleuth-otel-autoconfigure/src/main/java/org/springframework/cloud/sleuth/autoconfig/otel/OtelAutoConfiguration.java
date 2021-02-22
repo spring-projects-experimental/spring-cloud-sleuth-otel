@@ -27,7 +27,6 @@ import io.opentelemetry.api.trace.TracerProvider;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.resources.Resource;
-import io.opentelemetry.sdk.resources.ResourceProvider;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.SdkTracerProviderBuilder;
 import io.opentelemetry.sdk.trace.SpanLimits;
@@ -99,13 +98,12 @@ public class OtelAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	Resource otelResource(Environment env, ObjectProvider<List<ResourceProvider>> resourceProviders) {
+	Resource otelResource(Environment env, ObjectProvider<List<OtelResourceProvider>> resourceProviders) {
 		String applicationName = env.getProperty("spring.application.name");
 		Resource resource = defaultResource(applicationName);
-		List<ResourceProvider> resourceCustomizers = resourceProviders.getIfAvailable(ArrayList::new);
-		for (ResourceProvider provider : resourceCustomizers) {
-			Resource providedResource = provider.create();
-			resource = resource.merge(providedResource);
+		List<OtelResourceProvider> resourceCustomizers = resourceProviders.getIfAvailable(ArrayList::new);
+		for (OtelResourceProvider provider : resourceCustomizers) {
+			resource = resource.merge(provider.getResource());
 		}
 		return resource;
 	}

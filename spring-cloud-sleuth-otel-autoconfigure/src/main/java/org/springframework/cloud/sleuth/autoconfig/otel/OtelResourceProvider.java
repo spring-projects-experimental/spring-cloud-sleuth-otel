@@ -18,28 +18,18 @@ package org.springframework.cloud.sleuth.autoconfig.otel;
 
 import io.opentelemetry.sdk.resources.Resource;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 /**
- * Properties for setting OTel resource providers.
+ * Enables providing additional {@link io.opentelemetry.sdk.resources.Resource} instances
+ * to be merged into the Resource that is injected into the
+ * {@link io.opentelemetry.sdk.OpenTelemetrySdk}.
  *
- * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @author John Watson
  */
-@ConfigurationProperties("spring.sleuth.otel.resource")
-public class OtelResourceProperties {
+public interface OtelResourceProvider {
 
 	/**
-	 * Enables default {@link Resource} implementations.
+	 * @return A {@link Resource} to be merged into the OpenTelemetrySdk Resource.
 	 */
-	private boolean enabled = true;
-
-	public boolean isEnabled() {
-		return this.enabled;
-	}
-
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
+	Resource getResource();
 
 }

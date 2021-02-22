@@ -40,18 +40,18 @@ import org.springframework.context.annotation.Configuration;
 class OtelResourceConfiguration {
 
 	@Bean
-	OsResource otelOsResourceProvider() {
-		return new OsResource();
+	OtelResourceProvider otelOsResourceProvider() {
+		return OsResource::get;
 	}
 
 	@Bean
-	ProcessResource otelProcessResourceProvider() {
-		return new ProcessResource();
+	OtelResourceProvider otelProcessResourceProvider() {
+		return ProcessResource::get;
 	}
 
 	@Bean
-	ProcessRuntimeResource otelProcessRuntimeResourceProvider() {
-		return new ProcessRuntimeResource();
+	OtelResourceProvider otelProcessRuntimeResourceProvider() {
+		return ProcessRuntimeResource::get;
 	}
 
 }
