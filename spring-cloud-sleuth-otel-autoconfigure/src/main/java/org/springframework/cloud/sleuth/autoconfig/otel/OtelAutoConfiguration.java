@@ -27,6 +27,7 @@ import io.opentelemetry.api.trace.TracerProvider;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.resources.Resource;
+import io.opentelemetry.sdk.resources.ResourceProvider;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.SdkTracerProviderBuilder;
 import io.opentelemetry.sdk.trace.SpanLimits;
@@ -71,9 +72,7 @@ import org.springframework.core.env.Environment;
 @EnableConfigurationProperties({ OtelProperties.class, SleuthSpanFilterProperties.class, SleuthBaggageProperties.class,
 		SleuthTracerProperties.class })
 @Import({ OtelBridgeConfiguration.class, OtelPropagationConfiguration.class, TraceConfiguration.class,
-		SleuthAnnotationConfiguration.class })
-// Autoconfigurations in the instrumentation module are set to be configured before
-// BraveAutoConfiguration
+		SleuthAnnotationConfiguration.class, OtelResourceConfiguration.class })
 @AutoConfigureBefore(BraveAutoConfiguration.class)
 public class OtelAutoConfiguration {
 
@@ -100,13 +99,13 @@ public class OtelAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	Resource otelResource(Environment env, ObjectProvider<List<ResourceCustomizer>> resourceCustomizerProvider) {
+	Resource otelResource(Environment env, ObjectProvider<List<ResourceProvider>> resourceProviders) {
 		String applicationName = env.getProperty("spring.application.name");
 		Resource resource = defaultResource(applicationName);
-		List<ResourceCustomizer> resourceCustomizers = resourceCustomizerProvider.getIfAvailable(ArrayList::new);
-		for (ResourceCustomizer customizer : resourceCustomizers) {
-			Resource customized = customizer.customize(resource);
-			resource = resource.merge(customized);
+		List<ResourceProvider> resourceCustomizers = resourceProviders.getIfAvailable(ArrayList::new);
+		for (ResourceProvider provider : resourceCustomizers) {
+			Resource providedResource = provider.create();
+			resource = resource.merge(providedResource);
 		}
 		return resource;
 	}

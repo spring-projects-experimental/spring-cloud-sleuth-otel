@@ -19,7 +19,7 @@ package org.springframework.cloud.sleuth.autoconfig.otel.zipkin2;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.exporter.zipkin.ZipkinSpanExporter;
-import io.opentelemetry.sdk.resources.Resource;
+import io.opentelemetry.sdk.resources.ResourceProvider;
 import io.opentelemetry.semconv.resource.attributes.ResourceAttributes;
 import zipkin2.reporter.Sender;
 
@@ -28,7 +28,6 @@ import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.cloud.sleuth.autoconfig.otel.ResourceCustomizer;
 import org.springframework.cloud.sleuth.autoconfig.zipkin2.ZipkinAutoConfiguration;
 import org.springframework.cloud.sleuth.zipkin2.DefaultZipkinRestTemplateCustomizer;
 import org.springframework.cloud.sleuth.zipkin2.EndpointLocator;
@@ -72,13 +71,17 @@ public class ZipkinOtelAutoConfiguration {
 		}
 
 		@Bean
-		ResourceCustomizer zipkinResourceCustomizer(Environment environment) {
-			return resource -> {
-				String zipkinServiceName = environment.getProperty("spring.zipkin.service.name");
-				if (zipkinServiceName == null) {
-					return resource;
+		ResourceProvider zipkinResourceProvider(Environment environment) {
+			return new ResourceProvider() {
+
+				@Override
+				protected Attributes getAttributes() {
+					String zipkinServiceName = environment.getProperty("spring.zipkin.service.name");
+					if (zipkinServiceName == null) {
+						return Attributes.empty();
+					}
+					return Attributes.of(ResourceAttributes.SERVICE_NAME, zipkinServiceName);
 				}
-				return Resource.create(Attributes.of(ResourceAttributes.SERVICE_NAME, zipkinServiceName));
 			};
 		}
 
