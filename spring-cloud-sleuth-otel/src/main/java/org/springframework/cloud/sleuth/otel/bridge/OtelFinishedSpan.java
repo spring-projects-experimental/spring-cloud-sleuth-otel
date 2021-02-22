@@ -46,7 +46,7 @@ public class OtelFinishedSpan implements FinishedSpan {
 
 	private final Map<String, String> tags = new HashMap<>();
 
-	volatile String linkLocalIp;
+	private volatile String linkLocalIp;
 
 	OtelFinishedSpan(SpanData spanData) {
 		this.spanData = spanData;
