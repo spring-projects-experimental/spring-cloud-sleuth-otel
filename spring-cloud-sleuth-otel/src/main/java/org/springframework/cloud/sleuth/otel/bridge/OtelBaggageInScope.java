@@ -34,7 +34,7 @@ import org.springframework.context.ApplicationEventPublisher;
  * OpenTelemetry implementation of a {@link BaggageInScope}.
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 class OtelBaggageInScope implements BaggageInScope {
 

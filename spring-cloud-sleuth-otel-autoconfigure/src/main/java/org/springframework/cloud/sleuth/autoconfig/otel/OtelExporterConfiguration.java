@@ -42,7 +42,7 @@ import org.springframework.util.StringUtils;
  * Auto-configuration} to enable OpenTelemetry exporters.
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(SpanExporter.class)

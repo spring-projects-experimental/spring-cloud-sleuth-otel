@@ -34,7 +34,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * Stores spans in a queue.
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 public class ArrayListSpanProcessor implements SpanProcessor, SpanExporter {
 

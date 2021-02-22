@@ -62,7 +62,7 @@ import org.springframework.core.env.Environment;
  *
  * @author Marcin Grzejszczak
  * @author John Watson
- * @since 3.0.0
+ * @since 1.0.0
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass({ io.opentelemetry.api.trace.Tracer.class, OtelProperties.class })

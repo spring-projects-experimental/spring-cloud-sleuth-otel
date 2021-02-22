@@ -30,7 +30,7 @@ import org.springframework.cloud.sleuth.exporter.SpanFilter;
  * Composes multiple {@link SpanFilter} into a single {@link SpanExporter}.
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 public class CompositeSpanExporter implements io.opentelemetry.sdk.trace.export.SpanExporter {
 

@@ -36,7 +36,7 @@ import org.springframework.cloud.sleuth.BaggageManager;
  * field means an HTTP header entry).
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 public class BaggageTextMapPropagator implements TextMapPropagator {
 

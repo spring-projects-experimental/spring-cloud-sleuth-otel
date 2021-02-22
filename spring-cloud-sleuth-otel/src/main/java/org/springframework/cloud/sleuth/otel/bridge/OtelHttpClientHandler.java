@@ -43,7 +43,7 @@ import org.springframework.util.StringUtils;
  * OpenTelemetry implementation of a {@link HttpClientHandler}.
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 public class OtelHttpClientHandler extends HttpClientTracer<HttpClientRequest, HttpClientRequest, HttpClientResponse>
 		implements HttpClientHandler {

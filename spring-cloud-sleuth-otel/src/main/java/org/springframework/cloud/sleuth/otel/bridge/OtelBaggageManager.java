@@ -50,7 +50,7 @@ import static java.util.stream.Collectors.toMap;
  * interface cause {@link Tracer} already implements it.
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 public class OtelBaggageManager implements BaggageManager {
 

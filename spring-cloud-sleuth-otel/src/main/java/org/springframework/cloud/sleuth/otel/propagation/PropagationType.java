@@ -20,7 +20,7 @@ package org.springframework.cloud.sleuth.otel.propagation;
  * Supported propagation types.
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 public enum PropagationType {
 

@@ -25,7 +25,7 @@ import org.springframework.cloud.sleuth.http.HttpRequest;
  * Decides if sampling should take place for the given request.
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 public class SkipPatternSampler implements SamplerFunction<HttpRequest> {
 
