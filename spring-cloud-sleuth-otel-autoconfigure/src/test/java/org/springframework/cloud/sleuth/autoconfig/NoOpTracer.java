@@ -30,7 +30,7 @@ import org.springframework.cloud.sleuth.Tracer;
  * A noop implementation. Does nothing.
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 class NoOpTracer implements Tracer {
 

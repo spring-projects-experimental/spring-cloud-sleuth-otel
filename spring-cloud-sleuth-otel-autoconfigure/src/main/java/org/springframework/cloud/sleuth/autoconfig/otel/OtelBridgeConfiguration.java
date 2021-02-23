@@ -64,7 +64,7 @@ import org.springframework.lang.Nullable;
  * Auto-configuration} to enable the bridge between Sleuth API and OpenTelemetry.
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(OpenTelemetry.class)

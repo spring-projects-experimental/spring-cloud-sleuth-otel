@@ -22,7 +22,7 @@ import io.opentelemetry.sdk.trace.export.SpanExporter;
  * Allows customization of a {@link SpanExporter}.
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 public interface SpanExporterCustomizer {
 

@@ -22,7 +22,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * Sleuth settings for OpenTelemetry propagation.
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 @ConfigurationProperties("spring.sleuth.otel.propagation")
 public class OtelPropagationProperties {

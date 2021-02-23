@@ -36,7 +36,7 @@ import org.springframework.context.ApplicationEventPublisher;
  * OpenTelemetry implementation of a {@link Tracer}.
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 public class OtelTracer implements Tracer {
 

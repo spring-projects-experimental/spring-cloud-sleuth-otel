@@ -24,7 +24,7 @@ import org.springframework.cloud.sleuth.SpanCustomizer;
  * OpenTelemetry implementation of a {@link SpanCustomizer}.
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 public class OtelSpanCustomizer implements SpanCustomizer {
 

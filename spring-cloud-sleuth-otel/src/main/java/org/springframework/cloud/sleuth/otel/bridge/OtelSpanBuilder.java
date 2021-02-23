@@ -29,7 +29,7 @@ import org.springframework.util.StringUtils;
  * OpenTelemetry implementation of a {@link Span.Builder}.
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 class OtelSpanBuilder implements Span.Builder {
 

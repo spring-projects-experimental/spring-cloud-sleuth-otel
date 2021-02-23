@@ -41,7 +41,7 @@ import org.springframework.lang.Nullable;
  * OpenTelemetry implementation of a {@link CurrentTraceContext}.
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 public class OtelCurrentTraceContext implements CurrentTraceContext, ContextStorageProvider {
 

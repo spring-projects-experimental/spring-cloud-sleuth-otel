@@ -32,7 +32,7 @@ import org.springframework.cloud.sleuth.propagation.Propagator;
  * OpenTelemetry implementation of a {@link Propagator}.
  *
  * @author Marcin Grzejszczak
- * @since 3.0.0
+ * @since 1.0.0
  */
 public class OtelPropagator implements Propagator {
 
