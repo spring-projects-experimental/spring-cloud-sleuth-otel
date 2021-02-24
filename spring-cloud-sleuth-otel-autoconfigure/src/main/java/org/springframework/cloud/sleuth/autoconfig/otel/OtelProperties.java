@@ -95,7 +95,7 @@ public class OtelProperties {
 		return this.traceIdRatioBased;
 	}
 
-	public void setTraceIdRatioBased(int traceIdRatioBased) {
+	public void setTraceIdRatioBased(double traceIdRatioBased) {
 		this.traceIdRatioBased = traceIdRatioBased;
 	}
 
