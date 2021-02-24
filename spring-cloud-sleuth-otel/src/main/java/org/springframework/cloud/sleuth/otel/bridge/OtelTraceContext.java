@@ -33,7 +33,7 @@ import org.springframework.lang.Nullable;
  * @author Marcin Grzejszczak
  * @since 1.0.0
  */
-class OtelTraceContext implements TraceContext {
+public class OtelTraceContext implements TraceContext {
 
 	final AtomicReference<Context> context;
 
@@ -65,11 +65,11 @@ class OtelTraceContext implements TraceContext {
 		this(span.otelTraceContext.context.get(), span.getSpanContext(), span);
 	}
 
-	static TraceContext fromOtel(SpanContext traceContext) {
+	public static TraceContext fromOtel(SpanContext traceContext) {
 		return new OtelTraceContext(traceContext, null);
 	}
 
-	static Context toOtelContext(TraceContext context) {
+	public static Context toOtelContext(TraceContext context) {
 		if (context instanceof OtelTraceContext) {
 			Span span = ((OtelTraceContext) context).span;
 			if (span != null) {

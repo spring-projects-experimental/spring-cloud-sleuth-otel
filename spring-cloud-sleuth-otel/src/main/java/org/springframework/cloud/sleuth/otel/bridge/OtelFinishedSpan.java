@@ -16,8 +16,11 @@
 
 package org.springframework.cloud.sleuth.otel.bridge;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.util.AbstractMap;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,17 +40,19 @@ import org.springframework.cloud.sleuth.exporter.FinishedSpan;
  * @author Marcin Grzejszczak
  * @since 1.0.0
  */
-class OtelFinishedSpan implements FinishedSpan {
+public class OtelFinishedSpan implements FinishedSpan {
 
 	private final SpanData spanData;
 
 	private final Map<String, String> tags = new HashMap<>();
 
+	private volatile String linkLocalIp;
+
 	OtelFinishedSpan(SpanData spanData) {
 		this.spanData = spanData;
 	}
 
-	static FinishedSpan fromOtel(SpanData span) {
+	public static FinishedSpan fromOtel(SpanData span) {
 		return new OtelFinishedSpan(span);
 	}
 
@@ -71,7 +76,6 @@ class OtelFinishedSpan implements FinishedSpan {
 		if (this.tags.isEmpty()) {
 			this.spanData.getAttributes().forEach((key, value) -> tags.put(key.getKey(), String.valueOf(value)));
 		}
-
 		return this.tags;
 	}
 
@@ -93,7 +97,42 @@ class OtelFinishedSpan implements FinishedSpan {
 
 	@Override
 	public String getRemoteIp() {
-		return getTags().get("net.peer.name");
+		return getTags().get("net.peer.ip");
+	}
+
+	@Override
+	public String getLocalIp() {
+		// taken from Brave
+		// uses synchronized variant of double-checked locking as getting the endpoint can
+		// be expensive
+		if (this.linkLocalIp != null) {
+			return this.linkLocalIp;
+		}
+		synchronized (this) {
+			if (this.linkLocalIp == null) {
+				this.linkLocalIp = produceLinkLocalIp();
+			}
+		}
+		return this.linkLocalIp;
+	}
+
+	private String produceLinkLocalIp() {
+		try {
+			Enumeration<NetworkInterface> nics = NetworkInterface.getNetworkInterfaces();
+			while (nics.hasMoreElements()) {
+				NetworkInterface nic = nics.nextElement();
+				Enumeration<InetAddress> addresses = nic.getInetAddresses();
+				while (addresses.hasMoreElements()) {
+					InetAddress address = addresses.nextElement();
+					if (address.isSiteLocalAddress()) {
+						return address.getHostAddress();
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+		}
+		return null;
 	}
 
 	@Override
