@@ -16,7 +16,7 @@
 
 package org.springframework.cloud.sleuth.autoconfig.otel;
 
-import io.opentelemetry.sdk.resources.ResourceProvider;
+import io.opentelemetry.sdk.resources.Resource;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -30,7 +30,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class OtelResourceProperties {
 
 	/**
-	 * Enables default {@link ResourceProvider} implementations.
+	 * Enables default {@link Resource} implementations.
 	 */
 	private boolean enabled = true;
 

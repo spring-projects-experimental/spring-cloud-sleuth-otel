@@ -22,7 +22,9 @@ import java.util.List;
 
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.ContextPropagators;
+import io.opentelemetry.context.propagation.TextMapGetter;
 import io.opentelemetry.context.propagation.TextMapPropagator;
+import io.opentelemetry.context.propagation.TextMapSetter;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -73,12 +75,12 @@ class OtelPropagationConfiguration {
 			}
 
 			@Override
-			public <C> void inject(Context context, @Nullable C carrier, Setter<C> setter) {
+			public <C> void inject(Context context, @Nullable C carrier, TextMapSetter<C> setter) {
 
 			}
 
 			@Override
-			public <C> Context extract(Context context, @Nullable C carrier, Getter<C> getter) {
+			public <C> Context extract(Context context, @Nullable C carrier, TextMapGetter<C> getter) {
 				return context;
 			}
 		};

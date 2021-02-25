@@ -22,7 +22,7 @@ import java.net.URISyntaxException;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
-import io.opentelemetry.context.propagation.TextMapPropagator;
+import io.opentelemetry.context.propagation.TextMapSetter;
 import io.opentelemetry.instrumentation.api.tracer.HttpClientTracer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -179,7 +179,7 @@ public class OtelHttpClientHandler extends HttpClientTracer<HttpClientRequest, H
 	}
 
 	@Override
-	protected TextMapPropagator.Setter<HttpClientRequest> getSetter() {
+	protected TextMapSetter<HttpClientRequest> getSetter() {
 		return HttpClientRequest::header;
 	}
 

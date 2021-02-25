@@ -28,7 +28,9 @@ import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.api.trace.TraceFlags;
 import io.opentelemetry.api.trace.TraceState;
 import io.opentelemetry.context.Context;
+import io.opentelemetry.context.propagation.TextMapGetter;
 import io.opentelemetry.context.propagation.TextMapPropagator;
+import io.opentelemetry.context.propagation.TextMapSetter;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -101,7 +103,7 @@ class OtelPropagationConfigurationTests {
 
 		// Extraction
 		Context extract = customPropagator.extract(Context.current(), carrier,
-				new TextMapPropagator.Getter<Map<String, String>>() {
+				new TextMapGetter<Map<String, String>>() {
 					@Override
 					public Iterable<String> keys(Map<String, String> carrier) {
 						return carrier.keySet();
@@ -159,7 +161,7 @@ class CustomPropagator implements TextMapPropagator {
 	}
 
 	@Override
-	public <C> void inject(Context context, C carrier, Setter<C> setter) {
+	public <C> void inject(Context context, C carrier, TextMapSetter<C> setter) {
 		SpanContext spanContext = Span.fromContext(context).getSpanContext();
 		if (!spanContext.isValid()) {
 			return;
@@ -169,7 +171,7 @@ class CustomPropagator implements TextMapPropagator {
 	}
 
 	@Override
-	public <C> Context extract(Context context, C carrier, Getter<C> getter) {
+	public <C> Context extract(Context context, C carrier, TextMapGetter<C> getter) {
 		String traceParent = getter.get(carrier, "myCustomTraceId");
 		if (traceParent == null) {
 			return Span.getInvalid().storeInContext(context);

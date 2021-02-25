@@ -33,7 +33,7 @@ public class TracingChannelInterceptorTest
 			this.testTracing = new OtelTestTracing() {
 				@Override
 				protected ContextPropagators contextPropagators() {
-					return ContextPropagators.create(B3Propagator.getInstance());
+					return ContextPropagators.create(B3Propagator.injectingSingleHeader());
 				}
 			};
 		}

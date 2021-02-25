@@ -60,7 +60,7 @@ public class ReactorNettyHttpClientSpringBootTests
 
 		@Bean
 		TextMapPropagator otelTextMapPropagator() {
-			return B3Propagator.getInstance();
+			return B3Propagator.injectingSingleHeader();
 		}
 
 		@Bean

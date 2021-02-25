@@ -64,7 +64,7 @@ public class OtelTestTracing implements TracerAware, TestTracingAware, TestTraci
 	CurrentTraceContext currentTraceContext = OtelAccessor.currentTraceContext(publisher());
 
 	protected ContextPropagators contextPropagators() {
-		return ContextPropagators.create(B3Propagator.builder().injectMultipleHeaders().build());
+		return ContextPropagators.create(B3Propagator.injectingMultiHeaders());
 	}
 
 	OpenTelemetry initializeOtel() {

@@ -23,6 +23,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
 import io.opentelemetry.api.baggage.Baggage;
+import io.opentelemetry.api.baggage.BaggageBuilder;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.context.Context;
@@ -88,7 +89,10 @@ public class OtelCurrentTraceContext implements CurrentTraceContext, ContextStor
 		}
 		SpanFromSpanContext fromContext = new SpanFromSpanContext(((OtelTraceContext) context).span, spanContext,
 				otelTraceContext);
-		Context newContext = old.with(fromContext).with(currentBaggage.toBuilder().setParent(old).build());
+		BaggageBuilder baggageBuilder = currentBaggage.toBuilder();
+		oldBaggage.forEach(
+				(key, baggageEntry) -> baggageBuilder.put(key, baggageEntry.getValue(), baggageEntry.getMetadata()));
+		Context newContext = old.with(fromContext).with(baggageBuilder.build());
 		io.opentelemetry.context.Scope attach = get().attach(newContext);
 		return attach::close;
 	}

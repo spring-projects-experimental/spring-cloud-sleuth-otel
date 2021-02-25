@@ -16,10 +16,12 @@
 
 package org.springframework.cloud.sleuth.autoconfig.otel.zipkin2;
 
+import java.util.function.Supplier;
+
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.exporter.zipkin.ZipkinSpanExporter;
-import io.opentelemetry.sdk.resources.ResourceProvider;
+import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.semconv.resource.attributes.ResourceAttributes;
 import zipkin2.reporter.Sender;
 
@@ -71,17 +73,17 @@ public class ZipkinOtelAutoConfiguration {
 		}
 
 		@Bean
-		ResourceProvider zipkinResourceProvider(Environment environment) {
-			return new ResourceProvider() {
-
-				@Override
-				protected Attributes getAttributes() {
-					String zipkinServiceName = environment.getProperty("spring.zipkin.service.name");
-					if (zipkinServiceName == null) {
-						return Attributes.empty();
-					}
-					return Attributes.of(ResourceAttributes.SERVICE_NAME, zipkinServiceName);
+		Supplier<Resource> zipkinResourceProvider(Environment environment) {
+			return () -> {
+				Attributes attributes;
+				String zipkinServiceName = environment.getProperty("spring.zipkin.service.name");
+				if (zipkinServiceName == null) {
+					attributes = Attributes.empty();
 				}
+				else {
+					attributes = Attributes.of(ResourceAttributes.SERVICE_NAME, zipkinServiceName);
+				}
+				return Resource.create(attributes);
 			};
 		}
 

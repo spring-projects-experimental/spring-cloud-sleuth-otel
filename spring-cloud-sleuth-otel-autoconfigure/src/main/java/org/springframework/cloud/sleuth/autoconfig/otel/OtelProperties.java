@@ -70,11 +70,6 @@ public class OtelProperties {
 	 */
 	private int maxLinkAttrs = SpanLimits.getDefault().getMaxNumberOfAttributesPerLink();
 
-	/**
-	 * Returns the global default max length of string attribute value in characters.
-	 */
-	private int maxAttrLength = SpanLimits.getDefault().getMaxLengthOfAttributeValues();
-
 	public String getInstrumentationName() {
 		return this.instrumentationName;
 	}
@@ -137,14 +132,6 @@ public class OtelProperties {
 
 	public void setMaxLinkAttrs(int maxLinkAttrs) {
 		this.maxLinkAttrs = maxLinkAttrs;
-	}
-
-	public int getMaxAttrLength() {
-		return this.maxAttrLength;
-	}
-
-	public void setMaxAttrLength(int maxAttrLength) {
-		this.maxAttrLength = maxAttrLength;
 	}
 
 }

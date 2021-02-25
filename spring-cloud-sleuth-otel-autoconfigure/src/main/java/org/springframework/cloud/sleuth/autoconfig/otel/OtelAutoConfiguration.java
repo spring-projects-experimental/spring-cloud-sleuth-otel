@@ -18,6 +18,7 @@ package org.springframework.cloud.sleuth.autoconfig.otel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import io.opentelemetry.api.OpenTelemetry;
@@ -27,7 +28,6 @@ import io.opentelemetry.api.trace.TracerProvider;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.resources.Resource;
-import io.opentelemetry.sdk.resources.ResourceProvider;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.SdkTracerProviderBuilder;
 import io.opentelemetry.sdk.trace.SpanLimits;
@@ -99,13 +99,12 @@ public class OtelAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	Resource otelResource(Environment env, ObjectProvider<List<ResourceProvider>> resourceProviders) {
+	Resource otelResource(Environment env, ObjectProvider<List<Supplier<Resource>>> resourceProviders) {
 		String applicationName = env.getProperty("spring.application.name");
 		Resource resource = defaultResource(applicationName);
-		List<ResourceProvider> resourceCustomizers = resourceProviders.getIfAvailable(ArrayList::new);
-		for (ResourceProvider provider : resourceCustomizers) {
-			Resource providedResource = provider.create();
-			resource = resource.merge(providedResource);
+		List<Supplier<Resource>> resourceCustomizers = resourceProviders.getIfAvailable(ArrayList::new);
+		for (Supplier<Resource> provider : resourceCustomizers) {
+			resource = resource.merge(provider.get());
 		}
 		return resource;
 	}
@@ -121,8 +120,7 @@ public class OtelAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	SpanLimits otelSpanLimits(OtelProperties otelProperties) {
-		return SpanLimits.getDefault().toBuilder().setMaxLengthOfAttributeValues(otelProperties.getMaxAttrLength())
-				.setMaxNumberOfAttributes(otelProperties.getMaxAttrs())
+		return SpanLimits.getDefault().toBuilder().setMaxNumberOfAttributes(otelProperties.getMaxAttrs())
 				.setMaxNumberOfAttributesPerEvent(otelProperties.getMaxEventAttrs())
 				.setMaxNumberOfAttributesPerLink(otelProperties.getMaxLinkAttrs())
 				.setMaxNumberOfEvents(otelProperties.getMaxEvents()).setMaxNumberOfLinks(otelProperties.getMaxLinks())

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.opentelemetry.api.baggage.Baggage;
+import io.opentelemetry.api.baggage.BaggageBuilder;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
@@ -91,9 +92,13 @@ class OtelBaggageInScope implements BaggageInScope {
 			OtelTraceContext ctx = (OtelTraceContext) context;
 			Context storedCtx = ctx.context();
 			Baggage fromContext = Baggage.fromContext(storedCtx);
-			baggage = fromContext.toBuilder().setParent(current).put(entry().getKey(), value, entry().getMetadata())
-					.build();
-			current = baggage.storeInContext(current);
+
+			BaggageBuilder newBaggageBuilder = fromContext.toBuilder();
+			Baggage.current().forEach((key, baggageEntry) -> newBaggageBuilder.put(key, baggageEntry.getValue(),
+					baggageEntry.getMetadata()));
+
+			baggage = newBaggageBuilder.put(entry().getKey(), value, entry().getMetadata()).build();
+			current = current.with(baggage);
 			ctx.updateContext(current);
 		}
 		else {
