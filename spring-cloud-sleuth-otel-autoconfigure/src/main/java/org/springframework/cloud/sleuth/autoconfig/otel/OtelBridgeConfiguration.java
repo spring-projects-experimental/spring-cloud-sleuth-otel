@@ -44,7 +44,7 @@ import org.springframework.cloud.sleuth.instrument.web.HttpServerRequestParser;
 import org.springframework.cloud.sleuth.instrument.web.HttpServerResponseParser;
 import org.springframework.cloud.sleuth.instrument.web.SkipPatternProvider;
 import org.springframework.cloud.sleuth.otel.bridge.OtelBaggageManager;
-import org.springframework.cloud.sleuth.otel.bridge.OtelContextWrapper;
+import org.springframework.cloud.sleuth.otel.bridge.OtelCurrentTraceContext;
 import org.springframework.cloud.sleuth.otel.bridge.OtelHttpClientHandler;
 import org.springframework.cloud.sleuth.otel.bridge.OtelHttpServerHandler;
 import org.springframework.cloud.sleuth.otel.bridge.OtelPropagator;
@@ -81,8 +81,8 @@ class OtelBridgeConfiguration {
 	// Both CurrentTraceContext & ContextStorage wrapper
 	@Bean
 	@ConditionalOnMissingBean
-	OtelContextWrapper otelCurrentTraceContext(ApplicationEventPublisher publisher) {
-		return new OtelContextWrapper(publisher);
+	OtelCurrentTraceContext otelCurrentTraceContext(ApplicationEventPublisher publisher) {
+		return new OtelCurrentTraceContext(publisher);
 	}
 
 	@Bean

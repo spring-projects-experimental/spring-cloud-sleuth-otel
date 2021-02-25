@@ -27,7 +27,7 @@ public class Slf4jApplicationListener implements ApplicationListener<Application
 
 	private static final Log log = LogFactory.getLog(Slf4jApplicationListener.class);
 
-	private void onScopeAttached(OtelContextWrapper.ScopeAttached event) {
+	private void onScopeAttached(OtelCurrentTraceContext.ScopeAttached event) {
 		if (log.isTraceEnabled()) {
 			log.trace("Got scope changed event [" + event + "]");
 		}
@@ -37,7 +37,7 @@ public class Slf4jApplicationListener implements ApplicationListener<Application
 		}
 	}
 
-	private void onScopeRestored(OtelContextWrapper.ScopeRestored event) {
+	private void onScopeRestored(OtelCurrentTraceContext.ScopeRestored event) {
 		if (log.isTraceEnabled()) {
 			log.trace("Got scope changed event [" + event + "]");
 		}
@@ -47,7 +47,7 @@ public class Slf4jApplicationListener implements ApplicationListener<Application
 		}
 	}
 
-	private void onScopeClosed(OtelContextWrapper.ScopeClosed event) {
+	private void onScopeClosed(OtelCurrentTraceContext.ScopeClosed event) {
 		if (log.isTraceEnabled()) {
 			log.trace("Got scope closed event [" + event + "]");
 		}
@@ -57,14 +57,14 @@ public class Slf4jApplicationListener implements ApplicationListener<Application
 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
-		if (event instanceof OtelContextWrapper.ScopeAttached) {
-			onScopeAttached((OtelContextWrapper.ScopeAttached) event);
+		if (event instanceof OtelCurrentTraceContext.ScopeAttached) {
+			onScopeAttached((OtelCurrentTraceContext.ScopeAttached) event);
 		}
-		else if (event instanceof OtelContextWrapper.ScopeClosed) {
-			onScopeClosed((OtelContextWrapper.ScopeClosed) event);
+		else if (event instanceof OtelCurrentTraceContext.ScopeClosed) {
+			onScopeClosed((OtelCurrentTraceContext.ScopeClosed) event);
 		}
-		else if (event instanceof OtelContextWrapper.ScopeRestored) {
-			onScopeRestored((OtelContextWrapper.ScopeRestored) event);
+		else if (event instanceof OtelCurrentTraceContext.ScopeRestored) {
+			onScopeRestored((OtelCurrentTraceContext.ScopeRestored) event);
 		}
 	}
 

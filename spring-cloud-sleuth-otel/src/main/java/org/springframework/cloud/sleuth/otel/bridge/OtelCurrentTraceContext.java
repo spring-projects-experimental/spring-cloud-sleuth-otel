@@ -26,8 +26,6 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.ContextStorage;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import org.springframework.cloud.sleuth.CurrentTraceContext;
 import org.springframework.cloud.sleuth.TraceContext;
@@ -38,12 +36,13 @@ import org.springframework.lang.Nullable;
 /**
  * OpenTelemetry implementation of a {@link CurrentTraceContext}.
  *
+ * @author Marcin Grzejszczak
+ * @author John Watson
+ * @since 1.0.0
  */
-public class OtelContextWrapper implements CurrentTraceContext {
+public class OtelCurrentTraceContext implements CurrentTraceContext {
 
-	private static final Log log = LogFactory.getLog(OtelContextWrapper.class);
-
-	public OtelContextWrapper(ApplicationEventPublisher publisher) {
+	public OtelCurrentTraceContext(ApplicationEventPublisher publisher) {
 		ContextStorage.addWrapper(contextStorage -> new ContextStorage() {
 			@Override
 			public io.opentelemetry.context.Scope attach(Context context) {
