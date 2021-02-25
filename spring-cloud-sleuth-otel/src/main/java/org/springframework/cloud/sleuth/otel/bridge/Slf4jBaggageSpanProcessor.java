@@ -124,16 +124,25 @@ public class Slf4jBaggageSpanProcessor implements SpanProcessor, ApplicationList
 		}
 	}
 
-	private void onScopeChanged(OtelCurrentTraceContext.ScopeChanged event) {
+	private void onScopeAttached(OtelContextWrapper.ScopeAttached event) {
 		if (log.isTraceEnabled()) {
-			log.trace("Got scope changed event [" + event + "]");
+			log.trace("Got scope attached event [" + event + "]");
 		}
 		if (event.span != null) {
 			onStart();
 		}
 	}
 
-	private void onScopeClosed(OtelCurrentTraceContext.ScopeClosed event) {
+	private void onScopeRestored(OtelContextWrapper.ScopeRestored event) {
+		if (log.isTraceEnabled()) {
+			log.trace("Got scope restored event [" + event + "]");
+		}
+		if (event.span != null) {
+			onStart();
+		}
+	}
+
+	private void onScopeClosed(OtelContextWrapper.ScopeClosed event) {
 		if (log.isTraceEnabled()) {
 			log.trace("Got scope closed event [" + event + "]");
 		}
@@ -145,11 +154,14 @@ public class Slf4jBaggageSpanProcessor implements SpanProcessor, ApplicationList
 		if (event instanceof OtelBaggageInScope.BaggageChanged) {
 			onBaggageChanged((OtelBaggageInScope.BaggageChanged) event);
 		}
-		else if (event instanceof OtelCurrentTraceContext.ScopeChanged) {
-			onScopeChanged((OtelCurrentTraceContext.ScopeChanged) event);
+		else if (event instanceof OtelContextWrapper.ScopeAttached) {
+			onScopeAttached((OtelContextWrapper.ScopeAttached) event);
 		}
-		else if (event instanceof OtelCurrentTraceContext.ScopeClosed) {
-			onScopeClosed((OtelCurrentTraceContext.ScopeClosed) event);
+		else if (event instanceof OtelContextWrapper.ScopeClosed) {
+			onScopeClosed((OtelContextWrapper.ScopeClosed) event);
+		}
+		else if (event instanceof OtelContextWrapper.ScopeRestored) {
+			onScopeRestored((OtelContextWrapper.ScopeRestored) event);
 		}
 	}
 

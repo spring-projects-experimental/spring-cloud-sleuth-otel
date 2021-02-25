@@ -54,7 +54,7 @@ public final class OtelAccessor {
 	}
 
 	public static CurrentTraceContext currentTraceContext(ApplicationEventPublisher publisher) {
-		return new OtelCurrentTraceContext(publisher);
+		return new OtelContextWrapper(publisher);
 	}
 
 	public static CurrentTraceContext currentTraceContext() {
