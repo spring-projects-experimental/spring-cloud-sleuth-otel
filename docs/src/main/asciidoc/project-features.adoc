@@ -62,9 +62,9 @@ For configuration options please check the `spring.sleuth.otel.exporter.otlp` pr
 [[features-otel-resource-provider]]
 === OpenTelemetry ResourceProvider
 
-OpenTelemetry provides a `Resource` abstraction which captures identifying information about the entities for which signals (stats or traces) are reported. If you wish to provide your own, you can register beans of `ResourceProvider` type.
+OpenTelemetry provides a `Resource` abstraction which captures identifying information about the entities for which signals (stats or traces) are reported. If you wish to provide your own, you can register beans of `Supplier<Resource>` type.
 
-You can disable the registration of the default `ResourceProvider` beans via the `spring.sleuth.otel.resource.enabled=false` property.
+You can disable the registration of the default `Supplier<Resource>` beans via the `spring.sleuth.otel.resource.enabled=false` property.
 
 [[features-otel-opentracing]]
 === OpenTelemetry Opentracing
