@@ -17,6 +17,7 @@
 package org.springframework.cloud.sleuth.autoconfig.otel;
 
 import io.opentelemetry.exporter.jaeger.JaegerGrpcSpanExporter;
+import io.opentelemetry.exporter.jaeger.thrift.JaegerThriftSpanExporter;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
 import org.assertj.core.api.BDDAssertions;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,15 @@ class OtelExporterConfigurationTests {
 	}
 
 	@Test
+	void should_pick_jaeger_thrift_exporter_when_present_on_the_classpath() {
+		ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+				.withClassLoader(new FilteredClassLoader("io.opentelemetry.exporter.otlp"))
+				.withUserConfiguration(OtelExporterConfiguration.class);
+
+		contextRunner.run(context -> BDDAssertions.then(context).hasSingleBean(JaegerThriftSpanExporter.class));
+	}
+
+	@Test
 	void should_pick_otlp_exporter_when_present_on_the_classpath() {
 		ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 				.withClassLoader(new FilteredClassLoader("io.opentelemetry.exporter.jaeger"))
@@ -50,7 +60,8 @@ class OtelExporterConfigurationTests {
 				.withUserConfiguration(OtelExporterConfiguration.class);
 
 		contextRunner.run(context -> BDDAssertions.then(context).hasSingleBean(OtlpGrpcSpanExporter.class)
-				.hasSingleBean(JaegerGrpcSpanExporter.class));
+				.hasSingleBean(JaegerGrpcSpanExporter.class)
+				.hasSingleBean(JaegerThriftSpanExporter.class));
 	}
 
 }

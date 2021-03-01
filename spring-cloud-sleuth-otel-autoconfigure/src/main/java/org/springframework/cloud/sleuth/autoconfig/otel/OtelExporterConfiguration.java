@@ -22,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 
 import io.opentelemetry.exporter.jaeger.JaegerGrpcSpanExporter;
 import io.opentelemetry.exporter.jaeger.JaegerGrpcSpanExporterBuilder;
+import io.opentelemetry.exporter.jaeger.thrift.JaegerThriftSpanExporter;
+import io.opentelemetry.exporter.jaeger.thrift.JaegerThriftSpanExporterBuilder;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporterBuilder;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
@@ -75,6 +77,18 @@ class OtelExporterConfiguration {
 			Long timeout = properties.getJaeger().getTimeout();
 			if (timeout != null) {
 				builder.setTimeout(timeout, TimeUnit.MILLISECONDS);
+			}
+			return builder.build();
+		}
+
+		@Bean
+		@ConditionalOnMissingBean
+		JaegerThriftSpanExporter otelJaegerThriftSpanExporter(OtelExporterProperties properties) {
+			JaegerThriftSpanExporterBuilder builder = JaegerThriftSpanExporter.builder();
+
+			String endpoint = properties.getJaeger().getEndpoint();
+			if (StringUtils.hasText(endpoint)) {
+				builder.setEndpoint(endpoint);
 			}
 			return builder.build();
 		}

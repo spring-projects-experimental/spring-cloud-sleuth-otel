@@ -237,6 +237,11 @@
 		</dependency>
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
+			<artifactId>opentelemetry-exporter-jaeger-thrift</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>io.opentelemetry</groupId>
 			<artifactId>opentelemetry-exporter-otlp</artifactId>
 			<optional>true</optional>
 		</dependency>
