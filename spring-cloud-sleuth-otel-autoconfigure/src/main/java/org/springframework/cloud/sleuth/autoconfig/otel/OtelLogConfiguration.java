@@ -25,8 +25,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.sleuth.autoconfig.SleuthBaggageProperties;
+import org.springframework.cloud.sleuth.otel.bridge.Slf4jApplicationListener;
 import org.springframework.cloud.sleuth.otel.bridge.Slf4jBaggageSpanProcessor;
-import org.springframework.cloud.sleuth.otel.bridge.Slf4jSpanProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -49,8 +49,8 @@ class OtelLogConfiguration {
 
 		@Bean
 		@ConditionalOnMissingBean
-		Slf4jSpanProcessor otelSlf4jSpanProcessor() {
-			return new Slf4jSpanProcessor();
+		Slf4jApplicationListener otelSlf4jApplicationListener() {
+			return new Slf4jApplicationListener();
 		}
 
 		@Bean

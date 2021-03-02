@@ -78,7 +78,7 @@ class OtelBridgeConfiguration {
 				sleuthBaggageProperties.getRemoteFields(), sleuthBaggageProperties.getTagFields(), publisher));
 	}
 
-	// Both CurrentTraceContext & ContextStorageProvider
+	// Both CurrentTraceContext & ContextStorage wrapper
 	@Bean
 	@ConditionalOnMissingBean
 	OtelCurrentTraceContext otelCurrentTraceContext(ApplicationEventPublisher publisher) {

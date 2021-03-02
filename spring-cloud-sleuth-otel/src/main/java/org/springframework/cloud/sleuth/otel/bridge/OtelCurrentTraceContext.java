@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.sleuth.otel.bridge;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -28,9 +26,6 @@ import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.ContextStorage;
-import io.opentelemetry.context.ContextStorageProvider;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import org.springframework.cloud.sleuth.CurrentTraceContext;
 import org.springframework.cloud.sleuth.TraceContext;
@@ -42,18 +37,34 @@ import org.springframework.lang.Nullable;
  * OpenTelemetry implementation of a {@link CurrentTraceContext}.
  *
  * @author Marcin Grzejszczak
+ * @author John Watson
  * @since 1.0.0
  */
-public class OtelCurrentTraceContext implements CurrentTraceContext, ContextStorageProvider {
-
-	private static final Log log = LogFactory.getLog(OtelCurrentTraceContext.class);
-
-	private final ApplicationEventPublisher publisher;
-
-	private final ContextStorageProvider delegate = ContextStorage::get;
+public class OtelCurrentTraceContext implements CurrentTraceContext {
 
 	public OtelCurrentTraceContext(ApplicationEventPublisher publisher) {
-		this.publisher = publisher;
+		ContextStorage.addWrapper(contextStorage -> new ContextStorage() {
+			@Override
+			public io.opentelemetry.context.Scope attach(Context context) {
+				Span currentSpan = Span.fromContextOrNull(Context.current());
+				io.opentelemetry.context.Scope scope = contextStorage.attach(context);
+				if (scope == io.opentelemetry.context.Scope.noop()) {
+					return scope;
+				}
+				Span attachingSpan = Span.fromContext(context);
+				publisher.publishEvent(new ScopeAttached(this, attachingSpan));
+				return () -> {
+					scope.close();
+					publisher.publishEvent(new ScopeClosed(this));
+					publisher.publishEvent(new ScopeRestored(this, currentSpan));
+				};
+			}
+
+			@Override
+			public Context current() {
+				return contextStorage.current();
+			}
+		});
 	}
 
 	@Override
@@ -76,31 +87,34 @@ public class OtelCurrentTraceContext implements CurrentTraceContext, ContextStor
 		}
 		Context current = Context.current();
 		Context old = otelTraceContext.context();
+
 		Span currentSpan = Span.fromContext(current);
 		Span oldSpan = Span.fromContext(otelTraceContext.context());
 		SpanContext spanContext = otelTraceContext.delegate;
 		boolean sameSpan = currentSpan.getSpanContext().equals(oldSpan.getSpanContext())
 				&& currentSpan.getSpanContext().equals(spanContext);
+		SpanFromSpanContext fromContext = new SpanFromSpanContext(((OtelTraceContext) context).span, spanContext,
+				otelTraceContext);
+
 		Baggage currentBaggage = Baggage.fromContext(current);
 		Baggage oldBaggage = Baggage.fromContext(old);
 		boolean sameBaggage = sameBaggage(currentBaggage, oldBaggage);
+
 		if (sameSpan && sameBaggage) {
 			return io.opentelemetry.context.Scope::noop;
 		}
-		SpanFromSpanContext fromContext = new SpanFromSpanContext(((OtelTraceContext) context).span, spanContext,
-				otelTraceContext);
+
 		BaggageBuilder baggageBuilder = currentBaggage.toBuilder();
 		oldBaggage.forEach(
 				(key, baggageEntry) -> baggageBuilder.put(key, baggageEntry.getValue(), baggageEntry.getMetadata()));
-		Context newContext = old.with(fromContext).with(baggageBuilder.build());
-		io.opentelemetry.context.Scope attach = get().attach(newContext);
+		Baggage updatedBaggage = baggageBuilder.build();
+
+		io.opentelemetry.context.Scope attach = old.with(fromContext).with(updatedBaggage).makeCurrent();
 		return attach::close;
 	}
 
 	private boolean sameBaggage(Baggage currentBaggage, Baggage oldBaggage) {
-		Set<Entry> entries = new HashSet<>(Entry.fromBaggage(currentBaggage));
-		entries.removeAll(Entry.fromBaggage(oldBaggage));
-		return entries.isEmpty();
+		return currentBaggage.equals(oldBaggage);
 	}
 
 	@Override
@@ -110,54 +124,28 @@ public class OtelCurrentTraceContext implements CurrentTraceContext, ContextStor
 
 	@Override
 	public <C> Callable<C> wrap(Callable<C> task) {
-		return get().current().wrap(task);
+		return Context.current().wrap(task);
 	}
 
 	@Override
 	public Runnable wrap(Runnable task) {
-		return get().current().wrap(task);
+		return Context.current().wrap(task);
 	}
 
 	@Override
 	public Executor wrap(Executor delegate) {
-		return get().current().wrap(delegate);
+		return Context.current().wrap(delegate);
 	}
 
 	@Override
 	public ExecutorService wrap(ExecutorService delegate) {
-		return get().current().wrap(delegate);
+		return Context.current().wrap(delegate);
 	}
 
-	@Override
-	public ContextStorage get() {
-		ContextStorage threadLocalStorage = this.delegate.get();
-		return new ContextStorage() {
-			@Override
-			public io.opentelemetry.context.Scope attach(Context toAttach) {
-				io.opentelemetry.context.Scope scope = threadLocalStorage.attach(toAttach);
-				Span currentSpan = Span.fromContext(Context.current());
-				if (scope != io.opentelemetry.context.Scope.noop()) {
-					Span fromContext = Span.fromContext(toAttach);
-					publisher.publishEvent(new ScopeChanged(this, fromContext));
-				}
-				return () -> {
-					publisher.publishEvent(new OtelCurrentTraceContext.ScopeClosed(this));
-					publisher.publishEvent(new ScopeChanged(this, currentSpan));
-					scope.close();
-				};
-			}
-
-			@Override
-			public Context current() {
-				return threadLocalStorage.current();
-			}
-		};
-	}
-
-	static class ScopeChanged extends ApplicationEvent {
+	static class ScopeAttached extends ApplicationEvent {
 
 		/**
-		 * Span corresponding to the changed scope. Might be {@code null}.
+		 * Span corresponding to the attached scope. Might be {@code null}.
 		 */
 		final Span span;
 
@@ -167,9 +155,39 @@ public class OtelCurrentTraceContext implements CurrentTraceContext, ContextStor
 		 * the event is associated (never {@code null})
 		 * @param span corresponding trace context
 		 */
-		ScopeChanged(Object source, @Nullable Span span) {
+		ScopeAttached(Object source, @Nullable Span span) {
 			super(source);
 			this.span = span;
+		}
+
+		@Override
+		public String toString() {
+			return "ScopeAttached{span=" + span + "}";
+		}
+
+	}
+
+	static class ScopeRestored extends ApplicationEvent {
+
+		/**
+		 * Span corresponding to the scope being restored. Might be {@code null}.
+		 */
+		final Span span;
+
+		/**
+		 * Create a new {@code ApplicationEvent}.
+		 * @param source the object on which the event initially occurred or with which
+		 * the event is associated (never {@code null})
+		 * @param span corresponding trace context
+		 */
+		ScopeRestored(Object source, @Nullable Span span) {
+			super(source);
+			this.span = span;
+		}
+
+		@Override
+		public String toString() {
+			return "ScopeRestored{span=" + span + "}";
 		}
 
 	}
