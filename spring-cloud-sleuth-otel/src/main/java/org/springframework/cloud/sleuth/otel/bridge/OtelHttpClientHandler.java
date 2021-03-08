@@ -24,6 +24,7 @@ import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
 import io.opentelemetry.context.propagation.TextMapSetter;
 import io.opentelemetry.instrumentation.api.tracer.HttpClientTracer;
+import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -100,9 +101,9 @@ public class OtelHttpClientHandler extends HttpClientTracer<HttpClientRequest, H
 			if (span.isRecording()) {
 				String remoteIp = request.remoteIp();
 				if (StringUtils.hasText(remoteIp)) {
-					span.setAttribute("net.peer.ip", remoteIp);
+					span.setAttribute(SemanticAttributes.NET_PEER_IP, remoteIp);
 				}
-				span.setAttribute("net.peer.port", request.remotePort());
+				span.setAttribute(SemanticAttributes.NET_PEER_PORT, request.remotePort());
 			}
 			return OtelSpan.fromOtel(span);
 		}
@@ -117,6 +118,10 @@ public class OtelHttpClientHandler extends HttpClientTracer<HttpClientRequest, H
 		}
 		String path = httpClientRequest.path();
 		if (path != null) {
+			// TODO: OpenTelemetry uses "http.route" as the semantic convention here (See
+			// SemanticAttributes.HTTP_ROUTE)
+			// If we change this, though, tests break; will need to update tests to
+			// account for it.
 			span.setAttribute("http.path", path);
 		}
 	}

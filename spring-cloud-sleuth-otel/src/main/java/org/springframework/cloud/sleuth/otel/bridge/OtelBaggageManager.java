@@ -208,7 +208,7 @@ class CompositeBaggage implements io.opentelemetry.api.baggage.Baggage {
 	}
 
 	@Override
-	public void forEach(BiConsumer<String, BaggageEntry> consumer) {
+	public void forEach(BiConsumer<? super String, ? super BaggageEntry> consumer) {
 		this.entries.forEach(entry -> consumer.accept(entry.getKey(), entry));
 	}
 
