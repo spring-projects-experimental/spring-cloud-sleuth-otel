@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import io.opentelemetry.api.baggage.Baggage;
 import io.opentelemetry.api.baggage.propagation.W3CBaggagePropagator;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
@@ -105,7 +106,8 @@ public class CompositeTextMapPropagator implements TextMapPropagator {
 			}
 			Context extractedContext = propagator.extract(context, carrier, getter);
 			Span span = Span.fromContextOrNull(extractedContext);
-			if (span != null) {
+			Baggage baggage = Baggage.fromContextOrNull(extractedContext);
+			if (span != null || baggage != null) {
 				return extractedContext;
 			}
 		}
