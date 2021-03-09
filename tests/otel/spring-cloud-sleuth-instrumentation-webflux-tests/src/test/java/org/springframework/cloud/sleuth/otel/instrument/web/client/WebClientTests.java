@@ -32,6 +32,11 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 public class WebClientTests
 		extends org.springframework.cloud.sleuth.instrument.web.client.integration.sampled.WebClientTests {
 
+	@Override
+	protected String pathKey() {
+		return "http.route";
+	}
+
 	@Configuration(proxyBeanMethods = false)
 	static class Config {
 

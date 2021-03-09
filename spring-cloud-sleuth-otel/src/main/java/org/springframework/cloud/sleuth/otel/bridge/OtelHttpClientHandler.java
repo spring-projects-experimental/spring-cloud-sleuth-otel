@@ -118,11 +118,7 @@ public class OtelHttpClientHandler extends HttpClientTracer<HttpClientRequest, H
 		}
 		String path = httpClientRequest.path();
 		if (path != null) {
-			// TODO: OpenTelemetry uses "http.route" as the semantic convention here (See
-			// SemanticAttributes.HTTP_ROUTE)
-			// If we change this, though, tests break; will need to update tests to
-			// account for it.
-			span.setAttribute("http.path", path);
+			span.setAttribute(SemanticAttributes.HTTP_ROUTE, path);
 		}
 	}
 
