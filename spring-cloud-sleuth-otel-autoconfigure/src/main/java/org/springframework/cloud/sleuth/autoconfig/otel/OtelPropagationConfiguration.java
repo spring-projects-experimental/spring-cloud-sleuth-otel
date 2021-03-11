@@ -33,6 +33,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.sleuth.BaggageManager;
 import org.springframework.cloud.sleuth.autoconfig.SleuthBaggageProperties;
+import org.springframework.cloud.sleuth.otel.bridge.BaggageTaggingSpanProcessor;
 import org.springframework.cloud.sleuth.otel.propagation.BaggageTextMapPropagator;
 import org.springframework.cloud.sleuth.otel.propagation.CompositeTextMapPropagator;
 import org.springframework.cloud.sleuth.otel.propagation.PropagationType;
@@ -105,6 +106,17 @@ class OtelPropagationConfiguration {
 		@Bean
 		TextMapPropagator baggageTextMapPropagator(SleuthBaggageProperties properties, BaggageManager baggageManager) {
 			return new BaggageTextMapPropagator(properties.getRemoteFields(), baggageManager);
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@ConditionalOnProperty(name = "spring.sleuth.baggage.tag-fields")
+	static class BaggageTaggingConfiguration {
+
+		@Bean
+		BaggageTaggingSpanProcessor baggageTaggingSpanProcessor(SleuthBaggageProperties properties) {
+			return new BaggageTaggingSpanProcessor(properties.getTagFields());
 		}
 
 	}
