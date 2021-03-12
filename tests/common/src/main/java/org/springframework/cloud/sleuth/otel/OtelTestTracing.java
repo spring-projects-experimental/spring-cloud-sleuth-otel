@@ -142,7 +142,6 @@ public class OtelTestTracing implements TracerAware, TestTracingAware, TestTraci
 
 	ApplicationEventPublisher publisher() {
 		return event -> {
-
 		};
 	}
 

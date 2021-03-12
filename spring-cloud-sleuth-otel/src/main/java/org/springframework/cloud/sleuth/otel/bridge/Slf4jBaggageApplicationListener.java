@@ -16,7 +16,10 @@
 
 package org.springframework.cloud.sleuth.otel.bridge;
 
-import io.opentelemetry.api.trace.Span;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import io.opentelemetry.api.baggage.Baggage;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.slf4j.MDC;
@@ -24,18 +27,26 @@ import org.slf4j.MDC;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
-public class Slf4jApplicationListener implements ApplicationListener<ApplicationEvent> {
+public class Slf4jBaggageApplicationListener implements ApplicationListener<ApplicationEvent> {
 
-	private static final Log log = LogFactory.getLog(Slf4jApplicationListener.class);
+	private static final Log log = LogFactory.getLog(Slf4jBaggageApplicationListener.class);
+
+	private final List<String> lowerCaseCorrelationFields;
+
+	private final List<String> correlationFields;
+
+	public Slf4jBaggageApplicationListener(List<String> correlationFields) {
+		this.lowerCaseCorrelationFields = correlationFields.stream().map(String::toLowerCase)
+				.collect(Collectors.toList());
+		this.correlationFields = correlationFields;
+	}
 
 	private void onScopeAttached(OtelCurrentTraceContext.ScopeAttached event) {
 		if (log.isTraceEnabled()) {
-			log.trace("Got scope changed event [" + event + "]");
+			log.trace("Got scope attached event [" + event + "]");
 		}
-		Span span = event.getSpan();
-		if (span != null) {
-			MDC.put("traceId", span.getSpanContext().getTraceId());
-			MDC.put("spanId", span.getSpanContext().getSpanId());
+		if (event.getBaggage() != null) {
+			putEntriesIntoMdc(event.getBaggage());
 		}
 	}
 
@@ -43,19 +54,24 @@ public class Slf4jApplicationListener implements ApplicationListener<Application
 		if (log.isTraceEnabled()) {
 			log.trace("Got scope restored event [" + event + "]");
 		}
-		Span span = event.getSpan();
-		if (span != null) {
-			MDC.put("traceId", span.getSpanContext().getTraceId());
-			MDC.put("spanId", span.getSpanContext().getSpanId());
+		if (event.getBaggage() != null) {
+			putEntriesIntoMdc(event.getBaggage());
 		}
+	}
+
+	private void putEntriesIntoMdc(Baggage baggage) {
+		baggage.forEach((key, baggageEntry) -> {
+			if (lowerCaseCorrelationFields.contains(key.toLowerCase())) {
+				MDC.put(key, baggageEntry.getValue());
+			}
+		});
 	}
 
 	private void onScopeClosed(OtelCurrentTraceContext.ScopeClosed event) {
 		if (log.isTraceEnabled()) {
 			log.trace("Got scope closed event [" + event + "]");
 		}
-		MDC.remove("traceId");
-		MDC.remove("spanId");
+		correlationFields.forEach(MDC::remove);
 	}
 
 	@Override

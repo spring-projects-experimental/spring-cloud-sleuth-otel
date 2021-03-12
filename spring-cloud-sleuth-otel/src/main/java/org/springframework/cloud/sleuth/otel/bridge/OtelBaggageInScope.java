@@ -28,8 +28,6 @@ import io.opentelemetry.context.Scope;
 import org.springframework.cloud.sleuth.BaggageInScope;
 import org.springframework.cloud.sleuth.CurrentTraceContext;
 import org.springframework.cloud.sleuth.TraceContext;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
 
 /**
  * OpenTelemetry implementation of a {@link BaggageInScope}.
@@ -43,8 +41,6 @@ class OtelBaggageInScope implements BaggageInScope {
 
 	private final CurrentTraceContext currentTraceContext;
 
-	private final ApplicationEventPublisher publisher;
-
 	private final List<String> tagFields;
 
 	private final AtomicReference<Entry> entry = new AtomicReference<>();
@@ -52,10 +48,9 @@ class OtelBaggageInScope implements BaggageInScope {
 	private final AtomicReference<Scope> scope = new AtomicReference<>();
 
 	OtelBaggageInScope(OtelBaggageManager otelBaggageManager, CurrentTraceContext currentTraceContext,
-			ApplicationEventPublisher publisher, List<String> tagFields, Entry entry) {
+			List<String> tagFields, Entry entry) {
 		this.otelBaggageManager = otelBaggageManager;
 		this.currentTraceContext = currentTraceContext;
-		this.publisher = publisher;
 		this.tagFields = tagFields;
 		this.entry.set(entry);
 	}
@@ -109,7 +104,6 @@ class OtelBaggageInScope implements BaggageInScope {
 		if (this.tagFields.stream().map(String::toLowerCase).anyMatch(s -> s.equals(entry().getKey()))) {
 			currentSpan.setAttribute(entry().getKey(), value);
 		}
-		this.publisher.publishEvent(new BaggageChanged(this, baggage, entry().getKey(), value));
 		Entry previous = entry();
 		this.entry.set(new Entry(previous.getKey(), value, previous.getMetadata()));
 		return this;
@@ -141,37 +135,6 @@ class OtelBaggageInScope implements BaggageInScope {
 			this.scope.set(null);
 			scope.close();
 		}
-	}
-
-	static class BaggageChanged extends ApplicationEvent {
-
-		/**
-		 * Baggage with the new entry.
-		 */
-		Baggage baggage;
-
-		/**
-		 * Baggage entry name.
-		 */
-		String name;
-
-		/**
-		 * Baggage entry value.
-		 */
-		String value;
-
-		BaggageChanged(OtelBaggageInScope source, Baggage baggage, String name, String value) {
-			super(source);
-			this.baggage = baggage;
-			this.name = name;
-			this.value = value;
-		}
-
-		@Override
-		public String toString() {
-			return "BaggageChanged{" + "name='" + name + '\'' + ", value='" + value + '\'' + '}';
-		}
-
 	}
 
 }
