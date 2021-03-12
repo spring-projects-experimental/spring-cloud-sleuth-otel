@@ -19,7 +19,11 @@ package org.springframework.cloud.sleuth.otel.bridge;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.ContextStorage;
+import io.opentelemetry.sdk.testing.context.SettableContextStorageProvider;
 import io.opentelemetry.sdk.trace.samplers.Sampler;
+import org.junit.jupiter.api.BeforeEach;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -32,6 +36,7 @@ import org.springframework.cloud.sleuth.baggage.multiple.DemoApplication;
 import org.springframework.cloud.sleuth.exporter.FinishedSpan;
 import org.springframework.cloud.sleuth.otel.OtelTestSpanHandler;
 import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,25 +59,49 @@ public class MultipleHopsIntegrationTests
 	@Autowired
 	DemoApplication demoApplication;
 
+	@Autowired
+	ApplicationEventPublisher publisher;
+
 	// TODO: Why do we have empty names here
 	@Override
 	protected void assertSpanNames() {
 		then(this.spans).extracting(FinishedSpan::getName).containsAll(asList("HTTP GET", "handle", "send"));
 	}
 
+	@BeforeEach
+	void setUp() {
+		// manually set a context storage that doesn't use the standard default wrappers,
+		// so we can test that baggage
+		// changes get emitted as events properly.
+		ContextStorage defaultStorage = ContextStorage.defaultStorage();
+		SettableContextStorageProvider.setContextStorage(new ContextStorage() {
+			@Override
+			public io.opentelemetry.context.Scope attach(Context context) {
+				Context currentContext = Context.current();
+				io.opentelemetry.context.Scope scope = defaultStorage.attach(context);
+				if (scope == io.opentelemetry.context.Scope.noop()) {
+					return scope;
+				}
+				publisher.publishEvent(new OtelCurrentTraceContext.ScopeAttached(this, context));
+				return () -> {
+					scope.close();
+					publisher.publishEvent(new OtelCurrentTraceContext.ScopeClosed(this));
+					publisher.publishEvent(new OtelCurrentTraceContext.ScopeRestored(this, currentContext));
+				};
+			}
+
+			@Override
+			public Context current() {
+				return defaultStorage.current();
+			}
+		});
+	}
+
 	@Override
 	protected void assertBaggage(Span initialSpan) {
-		// TODO: This isn't asserting that there are any items in the baggageChanged. If
-		// you try to assert that it's not empty, the test will pass in isolation, but not
-		// if there are other tests that create the ContextStorage wrapper before this one
-		// is able to (See OtelCurrentTraceContext). opentelemetry-java needs to provide a
-		// method to reset the ContextStorage wrappers for tests, since they are currently
-		// statically initialized, and can only be initialized once. Once that feature is
-		// available (hopefully in 1.1.0), we can add a setup method to the test that will
-		// clear out the wrappers before running the test cases.
 		then(this.myBaggageChangedListener.baggageChanged).as("All have request ID")
 				.filteredOn(b -> b.getBaggage() != null)
-				.filteredOn(b -> b.getBaggage().getEntryValue(REQUEST_ID) != null)
+				.filteredOn(b -> b.getBaggage().getEntryValue(REQUEST_ID) != null).isNotEmpty()
 				.allMatch(event -> "f4308d05-2228-4468-80f6-92a8377ba193"
 						.equals(event.getBaggage().getEntryValue(REQUEST_ID)));
 		then(this.demoApplication.getBaggageValue()).isEqualTo("FO");
