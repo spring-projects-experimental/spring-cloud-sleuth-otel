@@ -28,7 +28,7 @@ public class Slf4jApplicationListener implements ApplicationListener<Application
 
 	private static final Log log = LogFactory.getLog(Slf4jApplicationListener.class);
 
-	private void onScopeAttached(OtelCurrentTraceContext.ScopeAttached event) {
+	private void onScopeAttached(EventPublishingContextWrapper.ScopeAttachedEvent event) {
 		if (log.isTraceEnabled()) {
 			log.trace("Got scope changed event [" + event + "]");
 		}
@@ -39,7 +39,7 @@ public class Slf4jApplicationListener implements ApplicationListener<Application
 		}
 	}
 
-	private void onScopeRestored(OtelCurrentTraceContext.ScopeRestored event) {
+	private void onScopeRestored(EventPublishingContextWrapper.ScopeRestoredEvent event) {
 		if (log.isTraceEnabled()) {
 			log.trace("Got scope restored event [" + event + "]");
 		}
@@ -50,7 +50,7 @@ public class Slf4jApplicationListener implements ApplicationListener<Application
 		}
 	}
 
-	private void onScopeClosed(OtelCurrentTraceContext.ScopeClosed event) {
+	private void onScopeClosed(EventPublishingContextWrapper.ScopeClosedEvent event) {
 		if (log.isTraceEnabled()) {
 			log.trace("Got scope closed event [" + event + "]");
 		}
@@ -60,14 +60,14 @@ public class Slf4jApplicationListener implements ApplicationListener<Application
 
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
-		if (event instanceof OtelCurrentTraceContext.ScopeAttached) {
-			onScopeAttached((OtelCurrentTraceContext.ScopeAttached) event);
+		if (event instanceof EventPublishingContextWrapper.ScopeAttachedEvent) {
+			onScopeAttached((EventPublishingContextWrapper.ScopeAttachedEvent) event);
 		}
-		else if (event instanceof OtelCurrentTraceContext.ScopeClosed) {
-			onScopeClosed((OtelCurrentTraceContext.ScopeClosed) event);
+		else if (event instanceof EventPublishingContextWrapper.ScopeClosedEvent) {
+			onScopeClosed((EventPublishingContextWrapper.ScopeClosedEvent) event);
 		}
-		else if (event instanceof OtelCurrentTraceContext.ScopeRestored) {
-			onScopeRestored((OtelCurrentTraceContext.ScopeRestored) event);
+		else if (event instanceof EventPublishingContextWrapper.ScopeRestoredEvent) {
+			onScopeRestored((EventPublishingContextWrapper.ScopeRestoredEvent) event);
 		}
 	}
 

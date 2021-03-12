@@ -19,7 +19,6 @@ package org.springframework.cloud.sleuth.otel.bridge;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import io.opentelemetry.context.Context;
 import io.opentelemetry.context.ContextStorage;
 import io.opentelemetry.sdk.testing.context.SettableContextStorageProvider;
 import io.opentelemetry.sdk.trace.samplers.Sampler;
@@ -71,30 +70,9 @@ public class MultipleHopsIntegrationTests
 	@BeforeEach
 	void setUp() {
 		// manually set a context storage that doesn't use the standard default wrappers,
-		// so we can test that baggage
-		// changes get emitted as events properly.
-		ContextStorage defaultStorage = ContextStorage.defaultStorage();
-		SettableContextStorageProvider.setContextStorage(new ContextStorage() {
-			@Override
-			public io.opentelemetry.context.Scope attach(Context context) {
-				Context currentContext = Context.current();
-				io.opentelemetry.context.Scope scope = defaultStorage.attach(context);
-				if (scope == io.opentelemetry.context.Scope.noop()) {
-					return scope;
-				}
-				publisher.publishEvent(new OtelCurrentTraceContext.ScopeAttached(this, context));
-				return () -> {
-					scope.close();
-					publisher.publishEvent(new OtelCurrentTraceContext.ScopeClosed(this));
-					publisher.publishEvent(new OtelCurrentTraceContext.ScopeRestored(this, currentContext));
-				};
-			}
-
-			@Override
-			public Context current() {
-				return defaultStorage.current();
-			}
-		});
+		// so we can test that baggage changes get emitted as events properly.
+		SettableContextStorageProvider
+				.setContextStorage(new EventPublishingContextWrapper(publisher).apply(ContextStorage.defaultStorage()));
 	}
 
 	@Override
@@ -129,17 +107,17 @@ public class MultipleHopsIntegrationTests
 
 	}
 
-}
+	static class MyBaggageChangedListener implements ApplicationListener<ApplicationEvent> {
 
-class MyBaggageChangedListener implements ApplicationListener<ApplicationEvent> {
+		Queue<EventPublishingContextWrapper.ScopeAttachedEvent> baggageChanged = new LinkedBlockingQueue<>();
 
-	Queue<OtelCurrentTraceContext.ScopeAttached> baggageChanged = new LinkedBlockingQueue<>();
-
-	@Override
-	public void onApplicationEvent(ApplicationEvent event) {
-		if (event instanceof OtelCurrentTraceContext.ScopeAttached) {
-			this.baggageChanged.add((OtelCurrentTraceContext.ScopeAttached) event);
+		@Override
+		public void onApplicationEvent(ApplicationEvent event) {
+			if (event instanceof EventPublishingContextWrapper.ScopeAttachedEvent) {
+				this.baggageChanged.add((EventPublishingContextWrapper.ScopeAttachedEvent) event);
+			}
 		}
+
 	}
 
 }

@@ -25,13 +25,9 @@ import io.opentelemetry.api.baggage.BaggageBuilder;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.context.Context;
-import io.opentelemetry.context.ContextStorage;
 
 import org.springframework.cloud.sleuth.CurrentTraceContext;
 import org.springframework.cloud.sleuth.TraceContext;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.lang.Nullable;
 
 /**
  * OpenTelemetry implementation of a {@link CurrentTraceContext}.
@@ -41,30 +37,6 @@ import org.springframework.lang.Nullable;
  * @since 1.0.0
  */
 public class OtelCurrentTraceContext implements CurrentTraceContext {
-
-	public OtelCurrentTraceContext(ApplicationEventPublisher publisher) {
-		ContextStorage.addWrapper(contextStorage -> new ContextStorage() {
-			@Override
-			public io.opentelemetry.context.Scope attach(Context context) {
-				Context currentContext = Context.current();
-				io.opentelemetry.context.Scope scope = contextStorage.attach(context);
-				if (scope == io.opentelemetry.context.Scope.noop()) {
-					return scope;
-				}
-				publisher.publishEvent(new ScopeAttached(this, context));
-				return () -> {
-					scope.close();
-					publisher.publishEvent(new ScopeClosed(this));
-					publisher.publishEvent(new ScopeRestored(this, currentContext));
-				};
-			}
-
-			@Override
-			public Context current() {
-				return contextStorage.current();
-			}
-		});
-	}
 
 	@Override
 	public TraceContext context() {
@@ -139,85 +111,6 @@ public class OtelCurrentTraceContext implements CurrentTraceContext {
 	@Override
 	public ExecutorService wrap(ExecutorService delegate) {
 		return Context.current().wrap(delegate);
-	}
-
-	static class ScopeAttached extends ApplicationEvent {
-
-		/**
-		 * Span corresponding to the attached scope. Might be {@code null}.
-		 */
-		final Context context;
-
-		/**
-		 * Create a new {@code ApplicationEvent}.
-		 * @param source the object on which the event initially occurred or with which
-		 * the event is associated (never {@code null})
-		 * @param context corresponding trace context
-		 */
-		ScopeAttached(Object source, @Nullable Context context) {
-			super(source);
-			this.context = context;
-		}
-
-		Span getSpan() {
-			return Span.fromContextOrNull(context);
-		}
-
-		Baggage getBaggage() {
-			return Baggage.fromContextOrNull(context);
-		}
-
-		@Override
-		public String toString() {
-			return "ScopeAttached{context: [span: " + getSpan() + "] [baggage: " + getBaggage() + "]}";
-		}
-
-	}
-
-	static class ScopeRestored extends ApplicationEvent {
-
-		/**
-		 * Span corresponding to the scope being restored. Might be {@code null}.
-		 */
-		final Context context;
-
-		/**
-		 * Create a new {@code ApplicationEvent}.
-		 * @param source the object on which the event initially occurred or with which
-		 * the event is associated (never {@code null})
-		 * @param context corresponding trace context
-		 */
-		ScopeRestored(Object source, @Nullable Context context) {
-			super(source);
-			this.context = context;
-		}
-
-		Span getSpan() {
-			return Span.fromContextOrNull(context);
-		}
-
-		Baggage getBaggage() {
-			return Baggage.fromContextOrNull(context);
-		}
-
-		@Override
-		public String toString() {
-			return "ScopeRestored{context: [span: " + getSpan() + "] [baggage: " + getBaggage() + "]}";
-		}
-
-	}
-
-	static class ScopeClosed extends ApplicationEvent {
-
-		/**
-		 * Create a new {@code ApplicationEvent}.
-		 * @param source the object on which the event initially occurred or with which
-		 * the event is associated (never {@code null})
-		 */
-		ScopeClosed(Object source) {
-			super(source);
-		}
-
 	}
 
 }

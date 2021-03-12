@@ -19,6 +19,7 @@ package org.springframework.cloud.sleuth.autoconfig.otel;
 import java.util.regex.Pattern;
 
 import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.context.ContextStorage;
 import io.opentelemetry.context.propagation.ContextPropagators;
 
 import org.springframework.beans.factory.ObjectProvider;
@@ -43,6 +44,7 @@ import org.springframework.cloud.sleuth.instrument.web.HttpClientSampler;
 import org.springframework.cloud.sleuth.instrument.web.HttpServerRequestParser;
 import org.springframework.cloud.sleuth.instrument.web.HttpServerResponseParser;
 import org.springframework.cloud.sleuth.instrument.web.SkipPatternProvider;
+import org.springframework.cloud.sleuth.otel.bridge.EventPublishingContextWrapper;
 import org.springframework.cloud.sleuth.otel.bridge.OtelBaggageManager;
 import org.springframework.cloud.sleuth.otel.bridge.OtelCurrentTraceContext;
 import org.springframework.cloud.sleuth.otel.bridge.OtelHttpClientHandler;
@@ -78,11 +80,12 @@ class OtelBridgeConfiguration {
 				sleuthBaggageProperties.getRemoteFields(), sleuthBaggageProperties.getTagFields(), publisher));
 	}
 
-	// Both CurrentTraceContext & ContextStorage wrapper
+	// Both CurrentTraceContext & application of a ContextStorage wrapper
 	@Bean
 	@ConditionalOnMissingBean
 	OtelCurrentTraceContext otelCurrentTraceContext(ApplicationEventPublisher publisher) {
-		return new OtelCurrentTraceContext(publisher);
+		ContextStorage.addWrapper(new EventPublishingContextWrapper(publisher));
+		return new OtelCurrentTraceContext();
 	}
 
 	@Bean

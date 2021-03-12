@@ -72,7 +72,7 @@ public class OtelTracer implements Tracer {
 		if (span == null) {
 			// remove any existing span/baggage data from the current state of anything
 			// that might be holding on to it.
-			this.publisher.publishEvent(new OtelCurrentTraceContext.ScopeClosed(this));
+			this.publisher.publishEvent(new EventPublishingContextWrapper.ScopeClosedEvent(this));
 			return io.opentelemetry.api.trace.Span.getInvalid();
 		}
 		return ((OtelSpan) span).delegate;
