@@ -142,7 +142,7 @@ public class OtelTestTracing implements TracerAware, TestTracingAware, TestTraci
 
 	ApplicationEventPublisher publisher() {
 		return event -> {
-
+			System.out.println("empty publisher event = " + event);
 		};
 	}
 

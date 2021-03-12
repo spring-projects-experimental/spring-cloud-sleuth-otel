@@ -137,7 +137,7 @@ public class OtelBaggageManager implements BaggageManager {
 	}
 
 	private BaggageInScope otelBaggage(Entry entry) {
-		return new OtelBaggageInScope(this, this.currentTraceContext, this.publisher, this.tagFields, entry);
+		return new OtelBaggageInScope(this, this.currentTraceContext, this.tagFields, entry);
 	}
 
 	@Override
@@ -157,7 +157,7 @@ public class OtelBaggageManager implements BaggageManager {
 				.anyMatch(s -> s.equals(name.toLowerCase()));
 		BaggageEntryMetadata entryMetadata = BaggageEntryMetadata.create(propagationString(remoteField));
 		Entry entry = new Entry(name, value, entryMetadata);
-		return new OtelBaggageInScope(this, this.currentTraceContext, this.publisher, this.tagFields, entry);
+		return new OtelBaggageInScope(this, this.currentTraceContext, this.tagFields, entry);
 	}
 
 	private String propagationString(boolean remoteField) {

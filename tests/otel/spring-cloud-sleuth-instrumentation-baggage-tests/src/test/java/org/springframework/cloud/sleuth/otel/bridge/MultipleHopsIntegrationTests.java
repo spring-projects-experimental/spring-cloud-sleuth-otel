@@ -31,6 +31,7 @@ import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.baggage.multiple.DemoApplication;
 import org.springframework.cloud.sleuth.exporter.FinishedSpan;
 import org.springframework.cloud.sleuth.otel.OtelTestSpanHandler;
+import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,9 +62,19 @@ public class MultipleHopsIntegrationTests
 
 	@Override
 	protected void assertBaggage(Span initialSpan) {
+		// TODO: This isn't asserting that there are any items in the baggageChanged. If
+		// you try to assert that it's not empty, the test will pass in isolation, but not
+		// if there are other tests that create the ContextStorage wrapper before this one
+		// is able to (See OtelCurrentTraceContext). opentelemetry-java needs to provide a
+		// method to reset the ContextStorage wrappers for tests, since they are currently
+		// statically initialized, and can only be initialized once. Once that feature is
+		// available (hopefully in 1.1.0), we can add a setup method to the test that will
+		// clear out the wrappers before running the test cases.
 		then(this.myBaggageChangedListener.baggageChanged).as("All have request ID")
-				.filteredOn(b -> b.name.equals(REQUEST_ID))
-				.allMatch(event -> "f4308d05-2228-4468-80f6-92a8377ba193".equals(event.value));
+				.filteredOn(b -> b.getBaggage() != null)
+				.filteredOn(b -> b.getBaggage().getEntryValue(REQUEST_ID) != null)
+				.allMatch(event -> "f4308d05-2228-4468-80f6-92a8377ba193"
+						.equals(event.getBaggage().getEntryValue(REQUEST_ID)));
 		then(this.demoApplication.getBaggageValue()).isEqualTo("FO");
 	}
 
@@ -91,13 +102,15 @@ public class MultipleHopsIntegrationTests
 
 }
 
-class MyBaggageChangedListener implements ApplicationListener<OtelBaggageInScope.BaggageChanged> {
+class MyBaggageChangedListener implements ApplicationListener<ApplicationEvent> {
 
-	Queue<OtelBaggageInScope.BaggageChanged> baggageChanged = new LinkedBlockingQueue<>();
+	Queue<OtelCurrentTraceContext.ScopeAttached> baggageChanged = new LinkedBlockingQueue<>();
 
 	@Override
-	public void onApplicationEvent(OtelBaggageInScope.BaggageChanged event) {
-		this.baggageChanged.add(event);
+	public void onApplicationEvent(ApplicationEvent event) {
+		if (event instanceof OtelCurrentTraceContext.ScopeAttached) {
+			this.baggageChanged.add((OtelCurrentTraceContext.ScopeAttached) event);
+		}
 	}
 
 }

@@ -46,17 +46,16 @@ public class OtelCurrentTraceContext implements CurrentTraceContext {
 		ContextStorage.addWrapper(contextStorage -> new ContextStorage() {
 			@Override
 			public io.opentelemetry.context.Scope attach(Context context) {
-				Span currentSpan = Span.fromContextOrNull(Context.current());
+				Context currentContext = Context.current();
 				io.opentelemetry.context.Scope scope = contextStorage.attach(context);
 				if (scope == io.opentelemetry.context.Scope.noop()) {
 					return scope;
 				}
-				Span attachingSpan = Span.fromContext(context);
-				publisher.publishEvent(new ScopeAttached(this, attachingSpan));
+				publisher.publishEvent(new ScopeAttached(this, context));
 				return () -> {
 					scope.close();
 					publisher.publishEvent(new ScopeClosed(this));
-					publisher.publishEvent(new ScopeRestored(this, currentSpan));
+					publisher.publishEvent(new ScopeRestored(this, currentContext));
 				};
 			}
 
@@ -147,22 +146,30 @@ public class OtelCurrentTraceContext implements CurrentTraceContext {
 		/**
 		 * Span corresponding to the attached scope. Might be {@code null}.
 		 */
-		final Span span;
+		final Context context;
 
 		/**
 		 * Create a new {@code ApplicationEvent}.
 		 * @param source the object on which the event initially occurred or with which
 		 * the event is associated (never {@code null})
-		 * @param span corresponding trace context
+		 * @param context corresponding trace context
 		 */
-		ScopeAttached(Object source, @Nullable Span span) {
+		ScopeAttached(Object source, @Nullable Context context) {
 			super(source);
-			this.span = span;
+			this.context = context;
+		}
+
+		Span getSpan() {
+			return Span.fromContextOrNull(context);
+		}
+
+		Baggage getBaggage() {
+			return Baggage.fromContextOrNull(context);
 		}
 
 		@Override
 		public String toString() {
-			return "ScopeAttached{span=" + span + "}";
+			return "ScopeAttached{context: [span: " + getSpan() + "] [baggage: " + getBaggage() + "]}";
 		}
 
 	}
@@ -172,22 +179,30 @@ public class OtelCurrentTraceContext implements CurrentTraceContext {
 		/**
 		 * Span corresponding to the scope being restored. Might be {@code null}.
 		 */
-		final Span span;
+		final Context context;
 
 		/**
 		 * Create a new {@code ApplicationEvent}.
 		 * @param source the object on which the event initially occurred or with which
 		 * the event is associated (never {@code null})
-		 * @param span corresponding trace context
+		 * @param context corresponding trace context
 		 */
-		ScopeRestored(Object source, @Nullable Span span) {
+		ScopeRestored(Object source, @Nullable Context context) {
 			super(source);
-			this.span = span;
+			this.context = context;
+		}
+
+		Span getSpan() {
+			return Span.fromContextOrNull(context);
+		}
+
+		Baggage getBaggage() {
+			return Baggage.fromContextOrNull(context);
 		}
 
 		@Override
 		public String toString() {
-			return "ScopeRestored{span=" + span + "}";
+			return "ScopeRestored{context: [span: " + getSpan() + "] [baggage: " + getBaggage() + "]}";
 		}
 
 	}
