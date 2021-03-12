@@ -141,7 +141,8 @@ public class OtelTestTracing implements TracerAware, TestTracingAware, TestTraci
 	}
 
 	ApplicationEventPublisher publisher() {
-		return event -> {};
+		return event -> {
+		};
 	}
 
 	private static class DynamicSampler implements Sampler {
