@@ -97,14 +97,12 @@ public class OtelHttpClientHandler extends HttpClientTracer<HttpClientRequest, H
 
 	private Span span(HttpClientRequest request, Context context) {
 		try (Scope scope = context.makeCurrent()) {
-			io.opentelemetry.api.trace.Span span = io.opentelemetry.api.trace.Span.fromContext(context);
-			if (span.isRecording()) {
-				String remoteIp = request.remoteIp();
-				if (StringUtils.hasText(remoteIp)) {
-					span.setAttribute(SemanticAttributes.NET_PEER_IP, remoteIp);
-				}
-				span.setAttribute(SemanticAttributes.NET_PEER_PORT, request.remotePort());
+			io.opentelemetry.api.trace.Span span = io.opentelemetry.api.trace.Span.current();
+			String remoteIp = request.remoteIp();
+			if (StringUtils.hasText(remoteIp)) {
+				span.setAttribute(SemanticAttributes.NET_PEER_IP, remoteIp);
 			}
+			span.setAttribute(SemanticAttributes.NET_PEER_PORT, request.remotePort());
 			return OtelSpan.fromOtel(span);
 		}
 	}
@@ -133,24 +131,24 @@ public class OtelHttpClientHandler extends HttpClientTracer<HttpClientRequest, H
 
 	@Override
 	public void handleReceive(HttpClientResponse response, Span span) {
-		if (OtelSpan.toOtel(span).equals(io.opentelemetry.api.trace.Span.getInvalid())) {
+		io.opentelemetry.api.trace.Span otelSpan = OtelSpan.toOtel(span);
+		if (otelSpan.equals(io.opentelemetry.api.trace.Span.getInvalid())) {
 			if (log.isDebugEnabled()) {
-				log.debug("Not doing anything cause the span is invalid");
+				log.debug("Not doing anything because the span is invalid");
 			}
 			return;
 		}
-		io.opentelemetry.api.trace.Span otel = OtelSpan.toOtel(span);
 		if (response.error() != null) {
 			if (log.isDebugEnabled()) {
-				log.debug("There was an error, will finish span [" + otel + "] exceptionally");
+				log.debug("There was an error, will finish span [" + otelSpan + "] exceptionally");
 			}
-			endExceptionally(otel.storeInContext(Context.current()), response, response.error());
+			endExceptionally(Context.current().with(otelSpan), response, response.error());
 		}
 		else {
 			if (log.isDebugEnabled()) {
-				log.debug("There was no error, will finish span [" + otel + "] in a standard way");
+				log.debug("There was no error, will finish span [" + otelSpan + "] in a standard way");
 			}
-			end(otel.storeInContext(Context.current()), response);
+			end(Context.current().with(otelSpan), response);
 		}
 	}
 

@@ -53,13 +53,8 @@ public final class OtelAccessor {
 		return openTelemetry.getTracer("org.springframework.cloud.sleuth");
 	}
 
-	public static CurrentTraceContext currentTraceContext(ApplicationEventPublisher publisher) {
-		return new OtelCurrentTraceContext(publisher);
-	}
-
 	public static CurrentTraceContext currentTraceContext() {
-		return currentTraceContext(event -> {
-		});
+		return new OtelCurrentTraceContext();
 	}
 
 	public static TraceContext traceContext(SpanContext spanContext) {

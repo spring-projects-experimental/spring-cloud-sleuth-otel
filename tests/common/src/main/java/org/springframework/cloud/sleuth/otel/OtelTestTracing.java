@@ -61,7 +61,7 @@ public class OtelTestTracing implements TracerAware, TestTracingAware, TestTraci
 
 	HttpRequestParser clientRequestParser;
 
-	CurrentTraceContext currentTraceContext = OtelAccessor.currentTraceContext(publisher());
+	CurrentTraceContext currentTraceContext = OtelAccessor.currentTraceContext();
 
 	protected ContextPropagators contextPropagators() {
 		return ContextPropagators.create(B3Propagator.injectingMultiHeaders());
@@ -115,7 +115,7 @@ public class OtelTestTracing implements TracerAware, TestTracingAware, TestTraci
 
 	@Override
 	public CurrentTraceContext currentTraceContext() {
-		return OtelAccessor.currentTraceContext(publisher());
+		return OtelAccessor.currentTraceContext();
 	}
 
 	@Override

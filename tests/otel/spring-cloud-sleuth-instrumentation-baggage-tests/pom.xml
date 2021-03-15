@@ -104,6 +104,10 @@
 			<!-- Kotlin... -->
 			<version>4.8.0</version>
 		</dependency>
+		<dependency>
+			<groupId>io.opentelemetry</groupId>
+			<artifactId>opentelemetry-sdk-testing</artifactId>
+		</dependency>
 	</dependencies>
 
 </project>
