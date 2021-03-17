@@ -24,6 +24,7 @@ import io.opentelemetry.context.propagation.ContextPropagators;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.sleuth.CurrentTraceContext;
 import org.springframework.cloud.sleuth.SamplerFunction;
@@ -101,6 +102,12 @@ class OtelBridgeConfiguration {
 		return new SpanExporterCustomizer() {
 
 		};
+	}
+
+	@Bean
+	@ConditionalOnProperty(value = "spring.sleuth.otel.multiple-tracers-analyzer-enabled", matchIfMissing = true)
+	OtelMultipleTracersAnalyzer otelMultipleTracersAnalyzer() {
+		return new OtelMultipleTracersAnalyzer();
 	}
 
 	@Configuration(proxyBeanMethods = false)
