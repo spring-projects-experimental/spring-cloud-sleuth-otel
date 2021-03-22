@@ -1,6 +1,2 @@
-# Auto Configuration
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.springframework.cloud.sleuth.autoconfig.TraceNoOpAutoConfiguration
-
 org.springframework.boot.autoconfigure.AutoConfigurationImportFilter=\
 org.springframework.cloud.sleuth.autoconfig.otel.MultipleTracerAutoConfigurationsDetectorFilter

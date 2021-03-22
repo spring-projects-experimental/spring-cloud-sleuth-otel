@@ -1,6 +1,12 @@
 {
   "properties": [
     {
+      "name": "spring.sleuth.otel.multiple-tracer-configs-detector-enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable detection of autoconfiguration for multiple tracers (i.e.: Brave and OTel); only one of them should be used.",
+      "defaultValue": true
+    },
+    {
       "name": "spring.sleuth.otel.propagation.sleuth-baggage.enabled",
       "type": "java.lang.Boolean",
       "description": "Enable propagating baggage in a Sleuth compatible way (baggage key & value pair means e.g. a key & value HTTP pair).",
