@@ -17,6 +17,7 @@
 |spring.sleuth.otel.exporter.sleuth-span-filter.enabled | `true` | Enables Sleuth span filter.
 |spring.sleuth.otel.log.exporter.enabled | `false` | Enable log exporter for OTel.
 |spring.sleuth.otel.log.slf4j.enabled | `false` | Enable slf4j support for OTel.
+|spring.sleuth.otel.multiple-tracer-configs-detector-enabled | `true` | Enable detection of autoconfiguration for multiple tracers (i.e.: Brave and OTel); only one of them should be used.
 |spring.sleuth.otel.propagation.composite-text-map-propagator.enabled | `true` | Enable a composite text map propagator that can combine multiple propagation types into a single text map propagator.
 |spring.sleuth.otel.propagation.sleuth-baggage.enabled | `true` | Enable propagating baggage in a Sleuth compatible way (baggage key & value pair means e.g. a key & value HTTP pair).
 |spring.sleuth.otel.resource.enabled | `true` | Enables default {@link Resource} implementations.

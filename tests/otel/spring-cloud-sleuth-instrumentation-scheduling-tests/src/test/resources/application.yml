@@ -3,3 +3,5 @@ logging.level.com.netflix.discovery.InstanceInfoReplicator: ERROR
 logging.level.org.springframework.cloud.sleuth.brave.instrument.web.client.feign: TRACE
 
 spring.sleuth.scheduled.skipPattern: "^org.*TestBeanWithScheduledMethodToBeIgnored$"
+
+spring.sleuth.otel.multiple-tracer-configs-detector-enabled: false
