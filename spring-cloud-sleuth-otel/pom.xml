@@ -28,7 +28,7 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-sleuth-otel-parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.0-M6</version>
 		<relativePath>..</relativePath>
 	</parent>
 
