@@ -29,8 +29,8 @@ import org.springframework.context.annotation.Configuration;
  * @author Jonatan Ivanov
  * @since 1.0.0
  */
-@Configuration
-@ConditionalOnClass(name = "org.springframework.cloud.sleuth.autoconfig.brave.BraveAutoConfiguration")
+@Configuration(proxyBeanMethods = false)
+@ConditionalOnClass(name = "brave.Tracer")
 @ConditionalOnProperty(
 		value = { "spring.sleuth.enabled", "spring.sleuth.otel.multiple-tracer-configs-detector-enabled" },
 		matchIfMissing = true)

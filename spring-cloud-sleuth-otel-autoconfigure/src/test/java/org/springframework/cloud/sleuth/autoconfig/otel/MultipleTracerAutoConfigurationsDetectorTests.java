@@ -24,21 +24,11 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class MultipleTracerAutoConfigurationsDetectorTest {
-
-	@Test
-	void should_fail_when_brave_and_otel_autoconfig_is_on_the_classpath() {
-		new ApplicationContextRunner()
-				.withConfiguration(AutoConfigurations.of(MultipleTracerAutoConfigurationsDetector.class))
-				.run(context -> assertThat(context.getStartupFailure()).hasRootCauseInstanceOf(
-						MultipleTracerAutoConfigurationsDetector.MultipleTracersFoundException.class));
-	}
+class MultipleTracerAutoConfigurationsDetectorTests {
 
 	@Test
 	void should_not_fail_when_brave_autoconfig_is_not_on_the_classpath() {
-		new ApplicationContextRunner()
-				.withClassLoader(new FilteredClassLoader(
-						"org.springframework.cloud.sleuth.autoconfig.brave.BraveAutoConfiguration"))
+		new ApplicationContextRunner().withClassLoader(new FilteredClassLoader("brave.Tracer"))
 				.withConfiguration(AutoConfigurations.of(MultipleTracerAutoConfigurationsDetector.class))
 				.run(context -> assertThat(context).hasNotFailed());
 	}

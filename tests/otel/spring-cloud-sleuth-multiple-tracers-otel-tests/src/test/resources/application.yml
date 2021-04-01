@@ -1,0 +1,1 @@
+spring.sleuth.otel.multiple-tracer-configs-detector-enabled: false
