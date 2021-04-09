@@ -5,7 +5,3 @@ org.springframework.cloud.sleuth.autoconfig.otel.MultipleTracerAutoConfiguration
 org.springframework.cloud.sleuth.autoconfig.otel.instrument.opentracing.OtelOpentracingAutoConfiguration,\
 org.springframework.cloud.sleuth.autoconfig.otel.zipkin2.ZipkinOtelAutoConfiguration,\
 org.springframework.cloud.sleuth.autoconfig.otel.wavefront.WavefrontOtelAutoConfiguration
-# Environment Post Processor
-org.springframework.boot.env.EnvironmentPostProcessor=\
-org.springframework.cloud.sleuth.autoconfig.TraceEnvironmentPostProcessor,\
-org.springframework.cloud.sleuth.autoconfig.instrument.web.client.TraceGatewayEnvironmentPostProcessor
