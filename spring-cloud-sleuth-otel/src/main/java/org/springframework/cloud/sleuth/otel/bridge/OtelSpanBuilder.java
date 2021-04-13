@@ -33,6 +33,8 @@ import org.springframework.util.StringUtils;
  */
 class OtelSpanBuilder implements Span.Builder {
 
+	static final String REMOTE_SERVICE_NAME_KEY = "peer.service";
+
 	private final io.opentelemetry.api.trace.SpanBuilder delegate;
 
 	private final List<String> annotations = new LinkedList<>();
@@ -112,7 +114,7 @@ class OtelSpanBuilder implements Span.Builder {
 
 	@Override
 	public Span.Builder remoteServiceName(String remoteServiceName) {
-		this.delegate.setAttribute("peer.service", remoteServiceName);
+		this.delegate.setAttribute(REMOTE_SERVICE_NAME_KEY, remoteServiceName);
 		return this;
 	}
 
