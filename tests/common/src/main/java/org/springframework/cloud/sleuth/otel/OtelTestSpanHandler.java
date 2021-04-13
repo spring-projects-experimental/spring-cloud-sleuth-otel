@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import io.opentelemetry.context.Context;
@@ -29,6 +30,8 @@ import io.opentelemetry.sdk.trace.ReadableSpan;
 import io.opentelemetry.sdk.trace.SpanProcessor;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
+import org.awaitility.Awaitility;
+import zipkin2.reporter.AwaitableCallback;
 
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.exporter.FinishedSpan;
@@ -61,8 +64,10 @@ public class OtelTestSpanHandler implements TestSpanHandler, SpanProcessor, Span
 
 	@Override
 	public FinishedSpan takeRemoteSpan(Span.Kind kind) {
-		return reportedSpans().stream().filter(s -> s.getKind().name().equals(kind.name())).findFirst()
-				.orElseThrow(() -> new AssertionError("No span with kind [" + kind.name() + "] found."));
+		AtomicReference<FinishedSpan> span = new AtomicReference<>();
+		Awaitility.await().untilAsserted(() -> span.set(reportedSpans().stream().filter(s -> s.getKind().name().equals(kind.name())).findFirst()
+				.orElseThrow(() -> new AssertionError("No span with kind [" + kind.name() + "] found."))));
+		return span.get();
 	}
 
 	@Override
