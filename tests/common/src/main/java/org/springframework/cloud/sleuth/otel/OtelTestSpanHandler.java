@@ -31,7 +31,6 @@ import io.opentelemetry.sdk.trace.SpanProcessor;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 import org.awaitility.Awaitility;
-import zipkin2.reporter.AwaitableCallback;
 
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.exporter.FinishedSpan;
