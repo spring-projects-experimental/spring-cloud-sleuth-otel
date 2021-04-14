@@ -64,8 +64,10 @@ public class OtelTestSpanHandler implements TestSpanHandler, SpanProcessor, Span
 	@Override
 	public FinishedSpan takeRemoteSpan(Span.Kind kind) {
 		AtomicReference<FinishedSpan> span = new AtomicReference<>();
-		Awaitility.await().untilAsserted(() -> span.set(reportedSpans().stream().filter(s -> s.getKind().name().equals(kind.name())).findFirst()
-				.orElseThrow(() -> new AssertionError("No span with kind [" + kind.name() + "] found."))));
+		Awaitility.await()
+				.untilAsserted(() -> span.set(reportedSpans().stream()
+						.filter(s -> s.getKind().name().equals(kind.name())).findFirst()
+						.orElseThrow(() -> new AssertionError("No span with kind [" + kind.name() + "] found."))));
 		return span.get();
 	}
 
