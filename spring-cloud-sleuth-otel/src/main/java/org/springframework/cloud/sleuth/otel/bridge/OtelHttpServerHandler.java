@@ -20,6 +20,7 @@ import java.net.URI;
 import java.util.regex.Pattern;
 
 import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.trace.SpanBuilder;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
 import io.opentelemetry.context.propagation.TextMapGetter;
@@ -91,21 +92,23 @@ public class OtelHttpServerHandler
 	}
 
 	@Override
-	protected void onConnectionAndRequest(io.opentelemetry.api.trace.Span span, HttpServerRequest connection,
-			HttpServerRequest request) {
-		super.onConnectionAndRequest(span, connection, request);
-		if (this.httpServerRequestParser != null) {
-			Span fromOtel = OtelSpan.fromOtel(span);
-			this.httpServerRequestParser.parse(request, fromOtel.context(), fromOtel);
+	public Context startSpan(HttpServerRequest connection, HttpServerRequest request, HttpServerRequest storage,
+			String spanName, long startTimestamp) {
+		Context context = super.startSpan(connection, request, storage, spanName, startTimestamp);
+		if (httpServerRequestParser != null) {
+			io.opentelemetry.api.trace.Span otelSpan = io.opentelemetry.api.trace.Span.fromContext(context);
+			Span fromOtel = OtelSpan.fromOtel(otelSpan);
+			this.httpServerRequestParser.parse(connection, fromOtel.context(), fromOtel);
 		}
+		return context;
 	}
 
 	@Override
-	protected void onRequest(io.opentelemetry.api.trace.Span span, HttpServerRequest request) {
-		super.onRequest(span, request);
+	protected void onRequest(SpanBuilder spanBuilder, HttpServerRequest request) {
+		super.onRequest(spanBuilder, request);
 		String path = request.path();
 		if (StringUtils.hasText(path)) {
-			span.setAttribute("http.path", path);
+			spanBuilder.setAttribute("http.path", path);
 		}
 	}
 
