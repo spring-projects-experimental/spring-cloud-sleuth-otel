@@ -24,6 +24,7 @@ import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
 import io.opentelemetry.context.propagation.TextMapSetter;
 import io.opentelemetry.instrumentation.api.tracer.HttpClientTracer;
+import io.opentelemetry.instrumentation.api.tracer.net.NetPeerAttributes;
 import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,10 +60,26 @@ public class OtelHttpClientHandler extends HttpClientTracer<HttpClientRequest, H
 
 	public OtelHttpClientHandler(OpenTelemetry openTelemetry, @Nullable HttpRequestParser httpClientRequestParser,
 			@Nullable HttpResponseParser httpClientResponseParser, SamplerFunction<HttpRequest> samplerFunction) {
-		super(openTelemetry);
+		super(openTelemetry, new NetPeerAttributes());
 		this.httpClientRequestParser = httpClientRequestParser;
 		this.httpClientResponseParser = httpClientResponseParser;
 		this.samplerFunction = samplerFunction;
+	}
+
+	@Override
+	public Context startSpan(Context parentContext, HttpClientRequest request, HttpClientRequest carrier,
+			long startTimeNanos) {
+		Context context = super.startSpan(parentContext, request, carrier, startTimeNanos);
+		io.opentelemetry.api.trace.Span span = io.opentelemetry.api.trace.Span.fromContext(context);
+		if (this.httpClientRequestParser != null) {
+			Span fromOtel = OtelSpan.fromOtel(span);
+			this.httpClientRequestParser.parse(request, fromOtel.context(), fromOtel);
+		}
+		String path = request.path();
+		if (path != null) {
+			span.setAttribute(SemanticAttributes.HTTP_ROUTE, path);
+		}
+		return context;
 	}
 
 	@Override
@@ -104,19 +121,6 @@ public class OtelHttpClientHandler extends HttpClientTracer<HttpClientRequest, H
 			}
 			span.setAttribute(SemanticAttributes.NET_PEER_PORT, request.remotePort());
 			return OtelSpan.fromOtel(span);
-		}
-	}
-
-	@Override
-	protected void onRequest(io.opentelemetry.api.trace.Span span, HttpClientRequest httpClientRequest) {
-		super.onRequest(span, httpClientRequest);
-		if (this.httpClientRequestParser != null) {
-			Span fromOtel = OtelSpan.fromOtel(span);
-			this.httpClientRequestParser.parse(httpClientRequest, fromOtel.context(), fromOtel);
-		}
-		String path = httpClientRequest.path();
-		if (path != null) {
-			span.setAttribute(SemanticAttributes.HTTP_ROUTE, path);
 		}
 	}
 
