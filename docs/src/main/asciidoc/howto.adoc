@@ -207,6 +207,7 @@ dependencies {
     }
     implementation "org.springframework.cloud:spring-cloud-sleuth-otel-autoconfigure"
     implementation "org.springframework.cloud:spring-cloud-sleuth-zipkin"
+    implementation "io.opentelemetry:opentelemetry-exporter-zipkin"
 }
 
 repositories {
