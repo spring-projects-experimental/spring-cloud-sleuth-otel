@@ -54,11 +54,7 @@ For configuration options please check the `spring.sleuth.otel.exporter.jaeger` 
 [[features-otel-otlp]]
 ==== OpenTelemetry OTLP Integration
 
-<<<<<<< HEAD
 We're providing an out-of-the-box integration with the OTel OTLP gRPC exporter. via the `io.opentelemetry:opentelemetry-exporter-otlp` dependency.
-=======
-We're providing an out-of-the-box integration with the OTel gRPC exporter. via the `io.opentelemetry:opentelemetry-exporter-otlp` dependency.
->>>>>>> upstream/master
 
 For configuration options please check the `spring.sleuth.otel.exporter.otlp` properties in the <<appendix.adoc,appendix>>. To fully override the default configuration please register a bean of `OtlpGrpcSpanExporter` type.
 
