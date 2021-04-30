@@ -568,7 +568,7 @@ spring.zipkin.sender.type: activemq
 To use the provided defaults you can set the `spring.sleuth.propagation.type` property.
 The value can be a list in which case you will propagate more tracing headers.
 
-For OpenTelemetry we support `AWS`, `B3`, `JAEGER`, `W3C`, `OT_TRACER` and `W3C` propagation types.
+For OpenTelemetry we support `AWS`, `B3`, `JAEGER`, `OT_TRACER` and `W3C` propagation types.
 
 If you want to provide a custom propagation mechanism set the `spring.sleuth.propagation.type` property to `CUSTOM` and implement your own bean (`Propagation.Factory` for Brave and `TextMapPropagator` for OpenTelemetry).
 Below you can find the examples:
