@@ -28,7 +28,7 @@ They provide solutions to the most common questions.
 If you are starting out with {project-full-name}, try one of the https://spring.io/guides[guides].
 * Ask a question.
 We monitor https://stackoverflow.com[stackoverflow.com] for questions tagged with https://stackoverflow.com/tags/{project-name}[`{project-name}`].
-* Report bugs with {project-full-name} at https://github.com/spring-cloud/{project-name}/issues.
+* Report bugs with {project-full-name} at https://github.com/spring-cloud-incubator/{project-name}/issues.
 * Chat with us at http://https://gitter.im/spring-cloud/{project-name}[{project-full-name} Gitter]
 
 NOTE: All of {project-full-name} is open source, including the documentation.
