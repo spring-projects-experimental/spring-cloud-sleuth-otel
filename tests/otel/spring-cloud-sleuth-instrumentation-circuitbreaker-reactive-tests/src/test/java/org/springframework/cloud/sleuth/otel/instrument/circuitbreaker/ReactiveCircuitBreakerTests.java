@@ -19,7 +19,6 @@ package org.springframework.cloud.sleuth.otel.instrument.circuitbreaker;
 import io.opentelemetry.api.common.AttributeKey;
 import org.assertj.core.api.BDDAssertions;
 
-import org.springframework.cloud.sleuth.brave.BraveTestTracing;
 import org.springframework.cloud.sleuth.exporter.FinishedSpan;
 import org.springframework.cloud.sleuth.otel.OtelTestTracing;
 import org.springframework.cloud.sleuth.otel.bridge.OtelFinishedSpan;
