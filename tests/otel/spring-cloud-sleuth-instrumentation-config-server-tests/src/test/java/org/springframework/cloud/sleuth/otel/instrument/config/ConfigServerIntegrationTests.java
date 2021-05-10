@@ -16,11 +16,11 @@
 
 package org.springframework.cloud.sleuth.otel.instrument.config;
 
-import brave.sampler.Sampler;
+import io.opentelemetry.sdk.trace.samplers.Sampler;
 
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.sleuth.brave.BraveTestSpanHandler;
-import org.springframework.cloud.sleuth.test.TestSpanHandler;
+import org.springframework.cloud.sleuth.otel.OtelTestSpanHandler;
+import org.springframework.cloud.sleuth.otel.bridge.ArrayListSpanProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,18 +34,13 @@ public class ConfigServerIntegrationTests
 	static class Config {
 
 		@Bean
-		TestSpanHandler testSpanHandlerSupplier(brave.test.TestSpanHandler testSpanHandler) {
-			return new BraveTestSpanHandler(testSpanHandler);
+		OtelTestSpanHandler testSpanHandlerSupplier() {
+			return new OtelTestSpanHandler(new ArrayListSpanProcessor());
 		}
 
 		@Bean
 		Sampler alwaysSampler() {
-			return Sampler.ALWAYS_SAMPLE;
-		}
-
-		@Bean
-		brave.test.TestSpanHandler braveTestSpanHandler() {
-			return new brave.test.TestSpanHandler();
+			return Sampler.alwaysOn();
 		}
 
 	}
