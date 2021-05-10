@@ -349,16 +349,6 @@
 			</snapshots>
 		</repository>
 	</repositories>
-	<pluginRepositories>
-		<pluginRepository>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<id>bintray-open-telemetry-maven</id>
-			<name>bintray-plugins</name>
-			<url>https://dl.bintray.com/open-telemetry/maven</url>
-		</pluginRepository>
-	</pluginRepositories>
 
 	<profiles>
 		<profile>
