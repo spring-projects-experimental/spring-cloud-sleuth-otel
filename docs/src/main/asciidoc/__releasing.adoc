@@ -48,7 +48,7 @@ $ otelVersion="1.0.0-M8" && ./mvnw versions:set-scm-tag -DnewTag="${otelVersion}
 ```bash
 $ ./mvnw clean install -Pdocs -pl docs
 $ export otelVersion="1.0.0-M8"
-$ temporaryDir="/tmp/sleuth-otel"  && rm -rf "${temporaryDir}" && mkdir -p "${temporaryDir}" && cp -r docs/target/generated-docs/* "${temporaryDir}" && git checkout gh-pages && git reset --hard origin/gh-pages && rm -rf "${temporaryDir}/docs/${otelVersion}" && mkdir "${temporaryDir}/docs/${otelVersion}" && cp -rf "${temporaryDir}"/* "${temporaryDir}/docs/${otelVersion}" && git add . && git commit -m "Updated site" && git push origin gh-pages
+$ temporaryDir="/tmp/sleuth-otel"  && rm -rf "${temporaryDir}" && mkdir -p "${temporaryDir}" && cp -r docs/target/generated-docs/* "${temporaryDir}" && git checkout gh-pages && git reset --hard origin/gh-pages && rm -rf "docs/${otelVersion}" && mkdir -p "docs/${otelVersion}" && cp -rf "${temporaryDir}"/* "docs/${otelVersion}/" && pushd docs && rm current && ln -s "${otelVersion}" current && git add . && git commit -m "Updated site" && git push origin gh-pages
 ```
 
 === Go back to snapshots
