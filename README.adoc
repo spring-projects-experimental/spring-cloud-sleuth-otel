@@ -412,7 +412,7 @@ Go to root project's `pom.xml` and update the properties to point to proper depe
 ===  Update the project versions
 
 ```bash
-$ otelVersion="1.0.0-M8" && ./mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && pushd spring-cloud-sleuth-otel-dependencies && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd
+$ otelVersion="1.0.0-M8" && ./mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && pushd spring-cloud-sleuth-otel-dependencies && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd && pushd benchmarks && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd
 ```
 
 IMPORTANT: Notice that we have to update the `otel-dependencies` module manually.
