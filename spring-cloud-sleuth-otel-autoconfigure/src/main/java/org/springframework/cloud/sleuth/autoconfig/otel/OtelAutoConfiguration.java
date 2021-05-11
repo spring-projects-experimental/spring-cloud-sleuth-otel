@@ -18,6 +18,7 @@ package org.springframework.cloud.sleuth.autoconfig.otel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -32,6 +33,8 @@ import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.SdkTracerProviderBuilder;
 import io.opentelemetry.sdk.trace.SpanLimits;
 import io.opentelemetry.sdk.trace.SpanProcessor;
+import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
+import io.opentelemetry.sdk.trace.export.BatchSpanProcessorBuilder;
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 import io.opentelemetry.sdk.trace.samplers.Sampler;
@@ -41,6 +44,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.sleuth.autoconfig.SleuthAnnotationConfiguration;
@@ -70,7 +74,7 @@ import org.springframework.core.env.Environment;
 @ConditionalOnProperty(value = "spring.sleuth.enabled", matchIfMissing = true)
 @ConditionalOnMissingBean(org.springframework.cloud.sleuth.Tracer.class)
 @EnableConfigurationProperties({ OtelProperties.class, SleuthSpanFilterProperties.class, SleuthBaggageProperties.class,
-		SleuthTracerProperties.class })
+		SleuthTracerProperties.class, OtelProcessorProperties.class })
 @Import({ OtelBridgeConfiguration.class, OtelPropagationConfiguration.class, TraceConfiguration.class,
 		SleuthAnnotationConfiguration.class, OtelResourceConfiguration.class })
 @AutoConfigureBefore(BraveAutoConfiguration.class)
@@ -86,15 +90,54 @@ public class OtelAutoConfiguration {
 	@ConditionalOnMissingBean
 	SdkTracerProvider otelTracerProvider(SpanLimits spanLimits, ObjectProvider<List<SpanProcessor>> spanProcessors,
 			SpanExporterCustomizer spanExporterCustomizer, ObjectProvider<List<SpanExporter>> spanExporters,
-			Sampler sampler, Resource resource) {
+			Sampler sampler, Resource resource, SpanProcessorProvider spanProcessorProvider) {
 		SdkTracerProviderBuilder sdkTracerProviderBuilder = SdkTracerProvider.builder().setResource(resource)
 				.setSampler(sampler).setSpanLimits(spanLimits);
 		List<SpanProcessor> processors = spanProcessors.getIfAvailable(ArrayList::new);
 		processors.addAll(spanExporters.getIfAvailable(ArrayList::new).stream()
-				.map(e -> SimpleSpanProcessor.create(spanExporterCustomizer.customize(e)))
+				.map(e -> spanProcessorProvider.toSpanProcessor(spanExporterCustomizer.customize(e)))
 				.collect(Collectors.toList()));
 		processors.forEach(sdkTracerProviderBuilder::addSpanProcessor);
 		return sdkTracerProviderBuilder.build();
+	}
+
+	@Bean
+	@ConditionalOnClass(name = "io.opentelemetry.api.metrics.GlobalMeterProvider")
+	@ConditionalOnMissingBean
+	SpanProcessorProvider otelBatchSpanProcessorProvider(OtelProcessorProperties otelProcessorProperties) {
+		return new SpanProcessorProvider() {
+			@Override
+			public SpanProcessor toSpanProcessor(SpanExporter spanExporter) {
+				BatchSpanProcessorBuilder builder = BatchSpanProcessor.builder(spanExporter);
+				setBuilderProperties(otelProcessorProperties, builder);
+				return builder.build();
+			}
+
+			private void setBuilderProperties(OtelProcessorProperties otelProcessorProperties,
+					BatchSpanProcessorBuilder builder) {
+				if (otelProcessorProperties.getBatch().getExporterTimeout() != null) {
+					builder.setExporterTimeout(otelProcessorProperties.getBatch().getExporterTimeout(),
+							TimeUnit.MILLISECONDS);
+				}
+				if (otelProcessorProperties.getBatch().getMaxExportBatchSize() != null) {
+					builder.setMaxExportBatchSize(otelProcessorProperties.getBatch().getMaxExportBatchSize());
+				}
+				if (otelProcessorProperties.getBatch().getMaxQueueSize() != null) {
+					builder.setMaxQueueSize(otelProcessorProperties.getBatch().getMaxQueueSize());
+				}
+				if (otelProcessorProperties.getBatch().getScheduleDelay() != null) {
+					builder.setScheduleDelay(otelProcessorProperties.getBatch().getScheduleDelay(),
+							TimeUnit.MILLISECONDS);
+				}
+			}
+		};
+	}
+
+	@Bean
+	@ConditionalOnMissingClass("io.opentelemetry.api.metrics.GlobalMeterProvider")
+	@ConditionalOnMissingBean
+	SpanProcessorProvider otelSimpleSpanProcessorProvider() {
+		return SimpleSpanProcessor::create;
 	}
 
 	@Bean
