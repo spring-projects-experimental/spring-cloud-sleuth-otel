@@ -1,0 +1,65 @@
+=== Bump the versions of all the dependencies
+
+Go to root project's `pom.xml` and update the properties to point to proper dependency versions.
+
+===  Update the project versions
+
+```bash
+$ otelVersion="1.0.0-M8" && ./mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && pushd spring-cloud-sleuth-otel-dependencies && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd && pushd benchmarks && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd
+```
+
+IMPORTANT: Notice that we have to update some modules manually.
+
+=== Build the project
+
+IMPORTANT: Remember to add a proper profile. `milestone` for milestones / release candidates, `central` for GA versions. No profile is required for snapshots.
+
+```bash
+$ ./mvnw clean install -Pmilestone
+```
+
+or
+
+```bash
+$ ./mvnw clean install -Pcentral
+```
+
+=== Upload the artifacts
+
+```bash
+$ ./mvnw deploy -Pmilestone
+```
+
+or
+
+```bash
+$ ./mvnw deploy -Pcentral
+```
+
+=== Commit and tag
+
+```bash
+$ ./mvnw versions:commit
+$ otelVersion="1.0.0-M8" && ./mvnw versions:set-scm-tag -DnewTag="${otelVersion}"
+```
+
+=== Generate and update the docs
+
+```bash
+$ ./mvnw clean install -Pdocs -pl docs
+$ export otelVersion="1.0.0-M8"
+$ temporaryDir="/tmp/sleuth-otel"  && rm -rf "${temporaryDir}" && mkdir -p "${temporaryDir}" && cp -r docs/target/generated-docs/* "${temporaryDir}" && git checkout gh-pages && git reset --hard origin/gh-pages && rm -rf "docs/${otelVersion}" && mkdir -p "docs/${otelVersion}" && cp -rf "${temporaryDir}"/* "docs/${otelVersion}/" && pushd docs && rm current && ln -s "${otelVersion}" current && git add . && git commit -m "Updated site" && git push origin gh-pages
+```
+
+=== Go back to snapshots
+
+```bash
+$ otelVersion="1.0.0-SNAPSHOT" && ./mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && pushd spring-cloud-sleuth-otel-dependencies && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd
+```
+
+=== Commit and push tags
+
+```bash
+$ ./mvnw versions:commit
+$ git push origin --tags
+```
