@@ -124,7 +124,6 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>1.3.1</version>
 					<executions>
 						<execution>
 							<id>enforce-java</id>
@@ -136,6 +135,10 @@
 									<requireJavaVersion>
 										<version>${maven.compiler.testTarget}</version>
 									</requireJavaVersion>
+									<requireReleaseDeps>
+										<onlyWhenRelease>true</onlyWhenRelease>
+										<message>No Snapshots Allowed!</message>
+									</requireReleaseDeps>
 								</rules>
 							</configuration>
 						</execution>
