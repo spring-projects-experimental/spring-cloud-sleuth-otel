@@ -74,6 +74,7 @@ import org.springframework.lang.Nullable;
 class OtelBridgeConfiguration {
 
 	@Bean
+	@ConditionalOnMissingBean
 	Tracer otelTracerBridge(io.opentelemetry.api.trace.Tracer tracer, ApplicationEventPublisher publisher,
 			CurrentTraceContext currentTraceContext, SleuthBaggageProperties sleuthBaggageProperties) {
 		return new OtelTracer(tracer, publisher, new OtelBaggageManager(currentTraceContext,
@@ -89,11 +90,13 @@ class OtelBridgeConfiguration {
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	SpanCustomizer otelSpanCustomizer() {
 		return new OtelSpanCustomizer();
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	Propagator otelPropagator(ContextPropagators contextPropagators, io.opentelemetry.api.trace.Tracer tracer) {
 		return new OtelPropagator(contextPropagators, tracer);
 	}
@@ -112,6 +115,7 @@ class OtelBridgeConfiguration {
 	static class TraceOtelHttpBridgeConfiguration {
 
 		@Bean
+		@ConditionalOnMissingBean
 		HttpClientHandler otelHttpClientHandler(io.opentelemetry.api.OpenTelemetry openTelemetry,
 				@Nullable @HttpClientRequestParser HttpRequestParser httpClientRequestParser,
 				@Nullable @HttpClientResponseParser HttpResponseParser httpClientResponseParser,
@@ -121,6 +125,7 @@ class OtelBridgeConfiguration {
 		}
 
 		@Bean
+		@ConditionalOnMissingBean
 		HttpServerHandler otelHttpServerHandler(io.opentelemetry.api.OpenTelemetry openTelemetry,
 				@Nullable @HttpServerRequestParser HttpRequestParser httpServerRequestParser,
 				@Nullable @HttpServerResponseParser HttpResponseParser httpServerResponseParser,
