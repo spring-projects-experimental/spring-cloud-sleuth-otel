@@ -25,6 +25,7 @@ import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.SpanCustomizer;
 import org.springframework.cloud.sleuth.TraceContext;
 import org.springframework.cloud.sleuth.Tracer;
+import org.springframework.cloud.sleuth.docs.AssertingSpan;
 import org.springframework.context.ApplicationEventPublisher;
 
 /**
@@ -60,7 +61,7 @@ public class OtelTracer implements Tracer {
 	@Override
 	public SpanInScope withSpan(Span span) {
 		io.opentelemetry.api.trace.Span delegate = delegate(span);
-		return new OtelSpanInScope((OtelSpan) span, delegate);
+		return new OtelSpanInScope(AssertingSpan.unwrap(span), delegate);
 	}
 
 	private io.opentelemetry.api.trace.Span delegate(Span span) {
@@ -70,7 +71,7 @@ public class OtelTracer implements Tracer {
 			this.publisher.publishEvent(new EventPublishingContextWrapper.ScopeClosedEvent(this));
 			return io.opentelemetry.api.trace.Span.getInvalid();
 		}
-		return ((OtelSpan) span).delegate;
+		return ((OtelSpan) AssertingSpan.unwrap(span)).delegate;
 	}
 
 	@Override

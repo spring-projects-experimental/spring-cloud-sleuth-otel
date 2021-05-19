@@ -23,6 +23,7 @@ import io.opentelemetry.context.Context;
 
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.TraceContext;
+import org.springframework.cloud.sleuth.docs.AssertingSpan;
 
 /**
  * OpenTelemetry implementation of a {@link Span}.
@@ -53,7 +54,7 @@ class OtelSpan implements Span {
 	}
 
 	static io.opentelemetry.api.trace.Span toOtel(Span span) {
-		return ((OtelSpan) span).delegate;
+		return ((OtelSpan) AssertingSpan.unwrap(span)).delegate;
 	}
 
 	static Span fromOtel(io.opentelemetry.api.trace.Span span) {
@@ -133,10 +134,14 @@ class OtelSpan implements Span {
 		if (this == o) {
 			return true;
 		}
-		if (o == null || getClass() != o.getClass()) {
+		Object unwrapped = o;
+		if (o instanceof AssertingSpan) {
+			unwrapped = ((AssertingSpan) o).getDelegate();
+		}
+		if (unwrapped == null || getClass() != unwrapped.getClass()) {
 			return false;
 		}
-		OtelSpan otelSpan = (OtelSpan) o;
+		OtelSpan otelSpan = (OtelSpan) unwrapped;
 		return Objects.equals(this.delegate, otelSpan.delegate);
 	}
 
