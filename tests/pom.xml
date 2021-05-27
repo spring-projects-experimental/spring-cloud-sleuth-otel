@@ -24,8 +24,8 @@
 
 	<artifactId>spring-cloud-sleuth-otel-tests-parent</artifactId>
 	<packaging>pom</packaging>
-	<name>Spring Cloud Sleuth OTel Tests</name>
-	<description>Spring Cloud Sleuth OTel Tests</description>
+	<name>Spring Cloud Sleuth OTel Tests Parent</name>
+	<description>Spring Cloud Sleuth OTel Tests Parent</description>
 
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
