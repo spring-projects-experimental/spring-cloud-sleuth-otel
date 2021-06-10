@@ -43,4 +43,5 @@ public class R2dbcIntegrationTests extends org.springframework.cloud.sleuth.inst
 		}
 
 	}
+
 }
