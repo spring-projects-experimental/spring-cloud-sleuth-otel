@@ -56,6 +56,10 @@ public class OtelFinishedSpan implements FinishedSpan {
 		return new OtelFinishedSpan(span);
 	}
 
+	public static SpanData toOtel(FinishedSpan span) {
+		return ((OtelFinishedSpan) span).spanData;
+	}
+
 	@Override
 	public String getName() {
 		return this.spanData.getName();

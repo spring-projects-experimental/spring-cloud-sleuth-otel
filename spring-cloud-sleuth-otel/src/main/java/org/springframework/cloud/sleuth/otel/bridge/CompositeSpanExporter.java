@@ -25,6 +25,7 @@ import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 
 import org.springframework.cloud.sleuth.exporter.SpanFilter;
+import org.springframework.cloud.sleuth.exporter.SpanReporter;
 
 /**
  * Composes multiple {@link SpanFilter} into a single {@link SpanExporter}.
@@ -38,14 +39,20 @@ public class CompositeSpanExporter implements io.opentelemetry.sdk.trace.export.
 
 	private final List<SpanFilter> filters;
 
-	public CompositeSpanExporter(io.opentelemetry.sdk.trace.export.SpanExporter delegate, List<SpanFilter> filters) {
+	private final List<SpanReporter> reporters;
+
+	public CompositeSpanExporter(SpanExporter delegate, List<SpanFilter> filters, List<SpanReporter> reporters) {
 		this.delegate = delegate;
 		this.filters = filters;
+		this.reporters = reporters;
 	}
 
 	@Override
 	public CompletableResultCode export(Collection<SpanData> spans) {
-		return this.delegate.export(spans.stream().filter(this::shouldProcess).collect(Collectors.toList()));
+		return this.delegate.export(spans.stream().filter(this::shouldProcess).map(spanData -> {
+			this.reporters.forEach(reporter -> reporter.report(OtelFinishedSpan.fromOtel(spanData)));
+			return spanData;
+		}).collect(Collectors.toList()));
 	}
 
 	private boolean shouldProcess(SpanData span) {
