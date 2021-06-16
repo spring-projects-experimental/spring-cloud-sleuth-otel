@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.sleuth.autoconfig.otel.actuate;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,12 +47,7 @@ class OtelOtlpFinishedSpanWriter implements FinishedSpanWriter<byte[]> {
 			// We can safely assume that there's only 1 TracerProvider so the list will
 			// contain 1 element
 			ResourceSpans resources = resourceSpans.get(0);
-			try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
-				return resources.toByteArray();
-			}
-			catch (IOException e) {
-				throw new IllegalStateException(e);
-			}
+			return resources.toByteArray();
 		}
 		return null;
 	}
