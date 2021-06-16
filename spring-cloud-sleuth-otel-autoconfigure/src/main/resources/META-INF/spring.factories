@@ -2,6 +2,7 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 org.springframework.cloud.sleuth.autoconfig.otel.OtelAutoConfiguration,\
 org.springframework.cloud.sleuth.autoconfig.otel.MultipleTracerAutoConfigurationsDetector,\
+org.springframework.cloud.sleuth.autoconfig.otel.actuate.TraceSleuthOtelActuatorAutoConfiguration,\
 org.springframework.cloud.sleuth.autoconfig.otel.instrument.opentracing.OtelOpentracingAutoConfiguration,\
 org.springframework.cloud.sleuth.autoconfig.otel.zipkin2.ZipkinOtelAutoConfiguration,\
 org.springframework.cloud.sleuth.autoconfig.otel.wavefront.WavefrontOtelAutoConfiguration
