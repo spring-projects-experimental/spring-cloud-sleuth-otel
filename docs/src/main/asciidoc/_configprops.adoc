@@ -1,28 +1,30 @@
 |===
 |Name | Default | Description
 
-|spring.sleuth.otel.config.instrumentation-name |  | Instrumentation name to be used to find a Tracer.
+|spring.sleuth.otel.config.instrumentation-name | `org.springframework.cloud.spring-cloud-sleuth` | Instrumentation name to be used to find a Tracer.
 |spring.sleuth.otel.config.instrumentation-version |  | Instrumentation version to be used to find a Tracer.
-|spring.sleuth.otel.config.max-attrs |  | Returns the global default max number of attributes per {@link Span}.
-|spring.sleuth.otel.config.max-event-attrs |  | Returns the global default max number of attributes per event.
-|spring.sleuth.otel.config.max-events |  | Returns the global default max number of events per {@link Span}.
-|spring.sleuth.otel.config.max-link-attrs |  | Returns the global default max number of attributes per link.
-|spring.sleuth.otel.config.max-links |  | Returns the global default max number of link entries per {@link Span}.
-|spring.sleuth.otel.config.trace-id-ratio-based |  | Sets the global default {@code Sampler} value.
+|spring.sleuth.otel.config.max-attrs | `0` | Returns the global default max number of attributes per {@link Span}.
+|spring.sleuth.otel.config.max-event-attrs | `0` | Returns the global default max number of attributes per event.
+|spring.sleuth.otel.config.max-events | `0` | Returns the global default max number of events per {@link Span}.
+|spring.sleuth.otel.config.max-link-attrs | `0` | Returns the global default max number of attributes per link.
+|spring.sleuth.otel.config.max-links | `0` | Returns the global default max number of link entries per {@link Span}.
+|spring.sleuth.otel.config.trace-id-ratio-based | `0.1` | Sets the global default {@code Sampler} value.
 |spring.sleuth.otel.exporter.jaeger.endpoint |  | Sets the Jaeger endpoint to connect to.
 |spring.sleuth.otel.exporter.jaeger.timeout |  | Timeout in millis.
 |spring.sleuth.otel.exporter.otlp.endpoint |  | Sets the OTLP endpoint to connect to.
 |spring.sleuth.otel.exporter.otlp.headers |  | Map of headers to be added.
 |spring.sleuth.otel.exporter.otlp.timeout |  | Timeout in millis.
-|spring.sleuth.otel.exporter.sleuth-span-filter.enabled |  | Enables Sleuth span filter.
-|spring.sleuth.otel.log.exporter.enabled |  | Enable log exporter for OTel.
-|spring.sleuth.otel.log.slf4j.enabled |  | Enable slf4j support for OTel.
+|spring.sleuth.otel.exporter.sleuth-span-filter.enabled | `true` | Enables Sleuth span filter.
+|spring.sleuth.otel.log.exporter.enabled | `false` | Enable log exporter for OTel.
+|spring.sleuth.otel.log.slf4j.enabled | `false` | Enable slf4j support for OTel.
+|spring.sleuth.otel.multiple-tracer-configs-detector-enabled | `true` | Enable detection of autoconfiguration for multiple tracers (i.e.: Brave and OTel); only one of them should be used.
 |spring.sleuth.otel.processor.batch.exporter-timeout |  | Exporter timeout in millis.
 |spring.sleuth.otel.processor.batch.max-export-batch-size |  | Max export batch size.
 |spring.sleuth.otel.processor.batch.max-queue-size |  | Max queue size.
 |spring.sleuth.otel.processor.batch.schedule-delay |  | Schedule delay in millis.
-|spring.sleuth.otel.propagation.sleuth-baggage.enabled |  | Enables default B3 Sleuth Baggage propagation. This will be automatically turned on when B3 propagation type gets picked.
-|spring.sleuth.otel.resource.enabled |  | Enables default {@link Resource} implementations.
+|spring.sleuth.otel.propagation.composite-text-map-propagator.enabled | `true` | Enable a composite text map propagator that can combine multiple propagation types into a single text map propagator.
+|spring.sleuth.otel.propagation.sleuth-baggage.enabled | `true` | Enable propagating baggage in a Sleuth compatible way (baggage key & value pair means e.g. a key & value HTTP pair).
+|spring.sleuth.otel.resource.enabled | `true` | Enables default {@link Resource} implementations.
 |spring.zipkin.activemq.message-max-bytes | `100000` | Maximum number of bytes for a given message with spans sent to Zipkin over ActiveMQ.
 |spring.zipkin.activemq.queue | `zipkin` | Name of the ActiveMQ queue where spans should be sent to Zipkin.
 |spring.zipkin.kafka.topic | `zipkin` | Name of the Kafka topic where spans should be sent to Zipkin.

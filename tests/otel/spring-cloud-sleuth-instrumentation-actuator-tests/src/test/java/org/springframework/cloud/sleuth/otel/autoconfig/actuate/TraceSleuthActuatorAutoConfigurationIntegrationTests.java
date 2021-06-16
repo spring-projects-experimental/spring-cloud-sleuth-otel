@@ -16,21 +16,58 @@
 
 package org.springframework.cloud.sleuth.otel.autoconfig.actuate;
 
+import java.util.stream.Collectors;
+
+import io.opentelemetry.proto.trace.v1.ResourceSpans;
+import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.sdk.trace.samplers.Sampler;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.sleuth.brave.BraveTestSpanHandler;
 import org.springframework.cloud.sleuth.otel.OtelTestSpanHandler;
 import org.springframework.cloud.sleuth.otel.bridge.ArrayListSpanProcessor;
-import org.springframework.cloud.sleuth.test.TestSpanHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.web.servlet.ResultMatcher;
+
+import static org.assertj.core.api.BDDAssertions.then;
 
 @SpringBootTest
 @ContextConfiguration(classes = TraceSleuthActuatorAutoConfigurationIntegrationTests.Config.class)
 public class TraceSleuthActuatorAutoConfigurationIntegrationTests extends
 		org.springframework.cloud.sleuth.autoconfig.actuate.TraceSleuthActuatorAutoConfigurationIntegrationTests {
+
+	@AfterEach
+	void cleanup() {
+		bufferingSpanReporter.drainFinishedSpans();
+	}
+
+	@Test
+	void tracesOtlpSnapshot() throws Exception {
+		tracesSnapshot(protobuf(), otlpBody());
+	}
+
+	@Test
+	void tracesOtlp() throws Exception {
+		traces(protobuf(), otlpBody());
+	}
+
+	ResultMatcher otlpBody() {
+		return result -> {
+			byte[] contentAsByteArray = result.getResponse().getContentAsByteArray();
+			ResourceSpans resourceSpans = ResourceSpans.parseFrom(contentAsByteArray);
+			then(resourceSpans.getInstrumentationLibrarySpansCount()).isEqualTo(1);
+			then(resourceSpans.getInstrumentationLibrarySpans(0).getSpansList().stream().map(Span::getName)
+					.collect(Collectors.toList())).containsExactlyInAnyOrder("first", "second", "third");
+		};
+	}
+
+	private MediaType protobuf() {
+		return MediaType.parseMediaType("application/x-protobuf");
+	}
 
 	@Configuration(proxyBeanMethods = false)
 	static class Config {

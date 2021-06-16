@@ -64,7 +64,6 @@ class OtelPropagationConfiguration {
 		if (mapPropagators.isEmpty()) {
 			return noOpContextPropagator();
 		}
-
 		return ContextPropagators.create(TextMapPropagator.composite(mapPropagators));
 	}
 

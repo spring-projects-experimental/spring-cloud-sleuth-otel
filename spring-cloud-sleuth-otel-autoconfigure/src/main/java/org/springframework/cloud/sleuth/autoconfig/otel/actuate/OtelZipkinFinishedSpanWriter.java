@@ -19,11 +19,8 @@ package org.springframework.cloud.sleuth.autoconfig.otel.actuate;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.opentelemetry.exporter.zipkin.ZipkinSpanExporter;
 import io.opentelemetry.sdk.trace.data.SpanData;
-import io.opentracing.tag.Tags;
 import zipkin2.Call;
 import zipkin2.codec.Encoding;
 import zipkin2.reporter.Sender;
@@ -31,16 +28,15 @@ import zipkin2.reporter.Sender;
 import org.springframework.cloud.sleuth.autoconfig.actuate.FinishedSpanWriter;
 import org.springframework.cloud.sleuth.autoconfig.actuate.TextOutputFormat;
 import org.springframework.cloud.sleuth.exporter.FinishedSpan;
-import org.springframework.cloud.sleuth.exporter.SpanReporter;
 import org.springframework.cloud.sleuth.otel.bridge.OtelFinishedSpan;
 
 /**
- * A {@link SpanReporter} that buffers finished spans.
+ * Converts the {@link FinishedSpan}s into Zipkin JSONs.
  *
  * @author Marcin Grzejszczak
- * @since 3.1.0
+ * @since 1.1.0
  */
-class OtelFinishedSpanWriter implements FinishedSpanWriter {
+class OtelZipkinFinishedSpanWriter implements FinishedSpanWriter<String> {
 
 	@Override
 	public String write(TextOutputFormat format, List<FinishedSpan> spans) {
@@ -53,7 +49,6 @@ class OtelFinishedSpanWriter implements FinishedSpanWriter {
 		}
 		return null;
 	}
-
 
 	static class ArraySender extends Sender {
 
@@ -76,8 +71,10 @@ class OtelFinishedSpanWriter implements FinishedSpanWriter {
 
 		@Override
 		public Call<Void> sendSpans(List<byte[]> encodedSpans) {
-				this.convertedJson = '[' + encodedSpans.stream().map(String::new).collect(Collectors.joining(",")) + ']';
+			this.convertedJson = '[' + encodedSpans.stream().map(String::new).collect(Collectors.joining(",")) + ']';
 			return Call.create(null);
 		}
+
 	}
+
 }

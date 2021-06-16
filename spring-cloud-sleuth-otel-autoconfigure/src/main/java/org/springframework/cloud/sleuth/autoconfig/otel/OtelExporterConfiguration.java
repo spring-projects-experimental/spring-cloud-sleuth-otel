@@ -54,11 +54,13 @@ class OtelExporterConfiguration {
 
 	@Bean
 	@ConditionalOnProperty(value = "spring.sleuth.otel.exporter.sleuth-span-filter.enabled", matchIfMissing = true)
-	SpanExporterCustomizer sleuthSpanFilterConverter(ObjectProvider<List<SpanFilter>> spanFilters, ObjectProvider<List<SpanReporter>> reporters) {
+	SpanExporterCustomizer sleuthSpanFilterConverter(ObjectProvider<List<SpanFilter>> spanFilters,
+			ObjectProvider<List<SpanReporter>> reporters) {
 		return new SpanExporterCustomizer() {
 			@Override
 			public SpanExporter customize(SpanExporter spanExporter) {
-				return new CompositeSpanExporter(spanExporter, spanFilters.getIfAvailable(ArrayList::new), reporters.getIfAvailable(ArrayList::new));
+				return new CompositeSpanExporter(spanExporter, spanFilters.getIfAvailable(ArrayList::new),
+						reporters.getIfAvailable(ArrayList::new));
 			}
 		};
 	}
