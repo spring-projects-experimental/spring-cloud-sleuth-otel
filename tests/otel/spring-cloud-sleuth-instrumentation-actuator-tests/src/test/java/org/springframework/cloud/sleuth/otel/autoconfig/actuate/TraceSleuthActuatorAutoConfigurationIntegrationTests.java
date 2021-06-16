@@ -55,7 +55,7 @@ public class TraceSleuthActuatorAutoConfigurationIntegrationTests extends
 		traces(protobuf(), otlpBody());
 	}
 
-	ResultMatcher otlpBody() {
+	private ResultMatcher otlpBody() {
 		return result -> {
 			byte[] contentAsByteArray = result.getResponse().getContentAsByteArray();
 			ResourceSpans resourceSpans = ResourceSpans.parseFrom(contentAsByteArray);
