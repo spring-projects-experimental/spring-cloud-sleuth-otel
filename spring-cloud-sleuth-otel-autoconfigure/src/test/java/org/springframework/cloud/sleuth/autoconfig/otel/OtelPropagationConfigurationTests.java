@@ -51,7 +51,7 @@ class OtelPropagationConfigurationTests {
 		runner.run(context -> {
 			assertThat(context).hasNotFailed();
 			CompositeTextMapPropagator propagator = context.getBean(CompositeTextMapPropagator.class);
-			assertThat(propagator.fields()).contains("X-B3-TraceId");
+			assertThat(propagator.fields()).contains("b3");
 		});
 	}
 
@@ -64,7 +64,7 @@ class OtelPropagationConfigurationTests {
 		runner.run(context -> {
 			assertThat(context).hasNotFailed();
 			CompositeTextMapPropagator propagator = context.getBean(CompositeTextMapPropagator.class);
-			assertThat(propagator.fields()).doesNotContain("X-B3-TraceId").contains("traceparent");
+			assertThat(propagator.fields()).doesNotContain("b3").contains("traceparent");
 		});
 	}
 
@@ -77,7 +77,7 @@ class OtelPropagationConfigurationTests {
 		runner.run(context -> {
 			assertThat(context).hasNotFailed();
 			CompositeTextMapPropagator propagator = context.getBean(CompositeTextMapPropagator.class);
-			assertThat(propagator.fields()).contains("X-B3-TraceId", "traceparent");
+			assertThat(propagator.fields()).contains("b3", "traceparent");
 		});
 	}
 
@@ -91,8 +91,7 @@ class OtelPropagationConfigurationTests {
 		runner.run(context -> {
 			assertThat(context).hasNotFailed();
 			CompositeTextMapPropagator propagator = context.getBean(CompositeTextMapPropagator.class);
-			assertThat(propagator.fields()).doesNotContain("myCustomTraceId", "myCustomSpanId", "X-B3-TraceId",
-					"traceparent");
+			assertThat(propagator.fields()).doesNotContain("myCustomTraceId", "myCustomSpanId", "b3", "traceparent");
 		});
 	}
 
