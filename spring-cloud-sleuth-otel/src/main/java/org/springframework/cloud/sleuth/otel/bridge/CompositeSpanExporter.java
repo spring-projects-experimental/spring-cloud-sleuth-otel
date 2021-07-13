@@ -49,8 +49,8 @@ public class CompositeSpanExporter implements io.opentelemetry.sdk.trace.export.
 	}
 
 	private boolean shouldProcess(SpanData span) {
-		for (SpanFilter exporter : this.filters) {
-			if (!exporter.isExportable(OtelFinishedSpan.fromOtel(span))) {
+		for (SpanFilter filter : this.filters) {
+			if (!filter.isExportable(OtelFinishedSpan.fromOtel(span))) {
 				return false;
 			}
 		}
