@@ -18,11 +18,6 @@ package org.springframework.cloud.sleuth.otel.bridge;
 
 import java.util.Map;
 
-import io.opentelemetry.api.trace.SpanContext;
-import io.opentelemetry.context.Scope;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.springframework.cloud.sleuth.BaggageInScope;
 import org.springframework.cloud.sleuth.BaggageManager;
 import org.springframework.cloud.sleuth.ScopedSpan;
@@ -30,6 +25,7 @@ import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.SpanCustomizer;
 import org.springframework.cloud.sleuth.TraceContext;
 import org.springframework.cloud.sleuth.Tracer;
+import org.springframework.cloud.sleuth.docs.AssertingSpan;
 import org.springframework.context.ApplicationEventPublisher;
 
 /**
@@ -65,7 +61,7 @@ public class OtelTracer implements Tracer {
 	@Override
 	public SpanInScope withSpan(Span span) {
 		io.opentelemetry.api.trace.Span delegate = delegate(span);
-		return new OtelSpanInScope((OtelSpan) span, delegate);
+		return new OtelSpanInScope(AssertingSpan.unwrap(span), delegate);
 	}
 
 	private io.opentelemetry.api.trace.Span delegate(Span span) {
@@ -75,7 +71,7 @@ public class OtelTracer implements Tracer {
 			this.publisher.publishEvent(new EventPublishingContextWrapper.ScopeClosedEvent(this));
 			return io.opentelemetry.api.trace.Span.getInvalid();
 		}
-		return ((OtelSpan) span).delegate;
+		return ((OtelSpan) AssertingSpan.unwrap(span)).delegate;
 	}
 
 	@Override
@@ -109,6 +105,11 @@ public class OtelTracer implements Tracer {
 	}
 
 	@Override
+	public TraceContext.Builder traceContextBuilder() {
+		return new OtelTraceContextBuilder();
+	}
+
+	@Override
 	public Map<String, String> getAllBaggage() {
 		return this.otelBaggageManager.getAllBaggage();
 	}
@@ -131,35 +132,6 @@ public class OtelTracer implements Tracer {
 	@Override
 	public BaggageInScope createBaggage(String name, String value) {
 		return this.otelBaggageManager.createBaggage(name, value);
-	}
-
-}
-
-class OtelSpanInScope implements Tracer.SpanInScope {
-
-	private static final Log log = LogFactory.getLog(OtelSpanInScope.class);
-
-	final Scope delegate;
-
-	final OtelSpan sleuthSpan;
-
-	final io.opentelemetry.api.trace.Span otelSpan;
-
-	final SpanContext spanContext;
-
-	OtelSpanInScope(OtelSpan sleuthSpan, io.opentelemetry.api.trace.Span otelSpan) {
-		this.sleuthSpan = sleuthSpan;
-		this.otelSpan = otelSpan;
-		this.delegate = otelSpan.makeCurrent();
-		this.spanContext = otelSpan.getSpanContext();
-	}
-
-	@Override
-	public void close() {
-		if (log.isTraceEnabled()) {
-			log.trace("Will close scope for trace context [" + this.spanContext + "]");
-		}
-		this.delegate.close();
 	}
 
 }

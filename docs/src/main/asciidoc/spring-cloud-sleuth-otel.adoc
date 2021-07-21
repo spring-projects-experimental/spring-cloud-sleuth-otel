@@ -1,1 +1,1 @@
-index.htmladoc
+include::_index.adoc[]

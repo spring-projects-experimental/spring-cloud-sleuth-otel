@@ -24,13 +24,13 @@
 
 	<artifactId>spring-cloud-sleuth-otel-tests-parent</artifactId>
 	<packaging>pom</packaging>
-	<name>Spring Cloud Sleuth OTel Tests</name>
-	<description>Spring Cloud Sleuth OTel Tests</description>
+	<name>Spring Cloud Sleuth OTel Tests Parent</name>
+	<description>Spring Cloud Sleuth OTel Tests Parent</description>
 
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-sleuth-otel-parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.1.0-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 

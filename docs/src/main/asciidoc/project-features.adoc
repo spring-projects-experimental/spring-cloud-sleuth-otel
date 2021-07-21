@@ -81,6 +81,13 @@ Regardless of the chosen tracer implementation it's enough to add `spring-cloud-
 You can choose whether to do that via HTTP or messaging.
 You can read more about how to do that in "<<howto.adoc#how-to-set-up-sleuth-with-otel-zipkin-messaging,how to section>>".
 
+[[features-traces-actuator]]
+== Traces Actuator Endpoint
+
+Spring Cloud Sleuth comes with a `traces` Actuator endpoint that can store finished spans. The endpoint can be queried either via an HTTP Get method to simply retrieve the list of stored spans or via HTTP Post method to retrieve the list and clear it.
+
+In order to represent the OTel spans in a Zipkin format you need to add the `io.opentelemetry:opentelemetry-exporter-zipkin` to the classpath. To represent the spans in an OTLP format you need to add `io.opentelemetry:opentelemetry-exporter-otlp-common` to the classpath.
+
 [[features-whats-next]]
 == What to Read Next
 

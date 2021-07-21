@@ -37,6 +37,11 @@ public class WebClientTests
 		return "http.route";
 	}
 
+	@Override
+	protected String templatedName() {
+		return "HTTP GET";
+	}
+
 	@Configuration(proxyBeanMethods = false)
 	static class Config {
 

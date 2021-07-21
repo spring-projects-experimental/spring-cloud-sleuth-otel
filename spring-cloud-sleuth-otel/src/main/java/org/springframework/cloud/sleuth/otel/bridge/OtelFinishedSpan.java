@@ -56,6 +56,10 @@ public class OtelFinishedSpan implements FinishedSpan {
 		return new OtelFinishedSpan(span);
 	}
 
+	public static SpanData toOtel(FinishedSpan span) {
+		return ((OtelFinishedSpan) span).spanData;
+	}
+
 	@Override
 	public String getName() {
 		return this.spanData.getName();
@@ -173,10 +177,13 @@ public class OtelFinishedSpan implements FinishedSpan {
 		return "SpanDataToReportedSpan{" + "spanData=" + spanData + ", tags=" + tags + '}';
 	}
 
-	static class AssertingThrowable extends Throwable {
+	/**
+	 * {@link Throwable} with attributes.
+	 */
+	public static class AssertingThrowable extends Throwable {
 
 		/**
-		 * Attritbues set on the span.
+		 * Attributes set on the span.
 		 */
 		public final Attributes attributes;
 

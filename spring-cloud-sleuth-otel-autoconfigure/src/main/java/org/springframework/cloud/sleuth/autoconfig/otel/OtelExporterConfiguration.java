@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.sleuth.autoconfig.otel;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -26,11 +27,13 @@ import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporterBuilder;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.sleuth.exporter.SpanFilter;
+import org.springframework.cloud.sleuth.exporter.SpanReporter;
 import org.springframework.cloud.sleuth.otel.bridge.CompositeSpanExporter;
 import org.springframework.cloud.sleuth.otel.bridge.SpanExporterCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -51,11 +54,13 @@ class OtelExporterConfiguration {
 
 	@Bean
 	@ConditionalOnProperty(value = "spring.sleuth.otel.exporter.sleuth-span-filter.enabled", matchIfMissing = true)
-	SpanExporterCustomizer sleuthSpanFilterConverter(List<SpanFilter> spanFilters) {
+	SpanExporterCustomizer sleuthSpanFilterConverter(ObjectProvider<List<SpanFilter>> spanFilters,
+			ObjectProvider<List<SpanReporter>> reporters) {
 		return new SpanExporterCustomizer() {
 			@Override
 			public SpanExporter customize(SpanExporter spanExporter) {
-				return new CompositeSpanExporter(spanExporter, spanFilters);
+				return new CompositeSpanExporter(spanExporter, spanFilters.getIfAvailable(ArrayList::new),
+						reporters.getIfAvailable(ArrayList::new));
 			}
 		};
 	}
