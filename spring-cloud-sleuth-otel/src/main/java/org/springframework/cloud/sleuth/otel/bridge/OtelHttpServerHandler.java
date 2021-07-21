@@ -124,7 +124,7 @@ public class OtelHttpServerHandler
 	}
 
 	@Override
-	protected String peerHostIP(HttpServerRequest request) {
+	protected String peerHostIp(HttpServerRequest request) {
 		return toUri(request).getHost();
 	}
 
