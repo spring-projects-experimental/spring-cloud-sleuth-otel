@@ -27,7 +27,8 @@ import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(classes = TraceCustomHandlerParserPostHandleWebIntegrationTests.Config.class)
-public class TraceCustomHandlerParserPostHandleWebIntegrationTests extends org.springframework.cloud.sleuth.instrument.web.TraceCustomHandlerParserPostHandleWebIntegrationTests {
+public class TraceCustomHandlerParserPostHandleWebIntegrationTests
+		extends org.springframework.cloud.sleuth.instrument.web.TraceCustomHandlerParserPostHandleWebIntegrationTests {
 
 	@Configuration(proxyBeanMethods = false)
 	static class Config {
