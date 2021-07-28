@@ -56,7 +56,8 @@ class CompositeTextMapPropagatorTest {
 
 	@Test
 	void should_map_propagaotr_string_class_names_to_actual_classes() {
-		CompositeTextMapPropagator propagator = new CompositeTextMapPropagator(new StaticListableBeanFactory(), Collections.emptyList());
+		CompositeTextMapPropagator propagator = new CompositeTextMapPropagator(new StaticListableBeanFactory(),
+				Collections.emptyList());
 
 		SoftAssertions softly = new SoftAssertions();
 		softly.assertThat(propagator.awsClass()).isEqualTo(AwsXrayPropagator.class.getName());
