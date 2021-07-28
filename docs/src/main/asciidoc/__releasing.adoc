@@ -27,20 +27,19 @@ $ ./mvnw clean install -Pcentral
 === Upload the artifacts
 
 ```bash
-$ ./mvnw deploy -Pmilestone
+$ ./mvnw deploy -Pmilestone -DskipTests
 ```
 
 or
 
 ```bash
-$ ./mvnw deploy -Pcentral
+$ ./mvnw deploy -Pcentral -DskipTests
 ```
 
 === Commit and tag
 
 ```bash
-$ ./mvnw versions:commit
-$ otelVersion="1.0.0-M8" && ./mvnw versions:set-scm-tag -DnewTag="${otelVersion}"
+$ otelVersion="1.0.0-M8" && git commit -am "Bumped versions for the ${otelVersion} release" && git tag "v${otelVersion}"
 ```
 
 === Generate and update the docs
@@ -54,12 +53,12 @@ $ temporaryDir="/tmp/sleuth-otel"  && rm -rf "${temporaryDir}" && mkdir -p "${te
 === Go back to snapshots
 
 ```bash
-$ otelVersion="1.0.0-SNAPSHOT" && ./mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && pushd spring-cloud-sleuth-otel-dependencies && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd
+$ otelVersion="1.0.0-SNAPSHOT" && ./mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && pushd spring-cloud-sleuth-otel-dependencies && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd && pushd benchmarks && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd
 ```
 
 === Commit and push tags
 
 ```bash
-$ ./mvnw versions:commit
+$ git commit -am "Going back to snapshots after the release"
 $ git push origin --tags
 ```

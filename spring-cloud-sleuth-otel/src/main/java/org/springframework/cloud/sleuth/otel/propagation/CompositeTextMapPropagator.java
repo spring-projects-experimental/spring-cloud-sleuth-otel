@@ -57,19 +57,19 @@ public class CompositeTextMapPropagator implements TextMapPropagator {
 
 	public CompositeTextMapPropagator(BeanFactory beanFactory, List<PropagationType> types) {
 		this.types = types;
-		if (isOnClasspath("io.opentelemetry.extension.trace.propagation.AwsXRayPropagator")) {
+		if (isOnClasspath(awsClass())) {
 			this.mapping.put(PropagationType.AWS, beanFactory.getBeanProvider(AwsXrayPropagator.class)
 					.getIfAvailable(AwsXrayPropagator::getInstance));
 		}
-		if (isOnClasspath("io.opentelemetry.extension.trace.propagation.B3Propagator")) {
+		if (isOnClasspath(b3Class())) {
 			this.mapping.put(PropagationType.B3, beanFactory.getBeanProvider(B3Propagator.class)
 					.getIfAvailable(B3Propagator::injectingSingleHeader));
 		}
-		if (isOnClasspath("io.opentelemetry.extension.trace.propagation.JaegerPropagator")) {
+		if (isOnClasspath(jaegerClass())) {
 			this.mapping.put(PropagationType.JAEGER,
 					beanFactory.getBeanProvider(JaegerPropagator.class).getIfAvailable(JaegerPropagator::getInstance));
 		}
-		if (isOnClasspath("io.opentelemetry.extension.trace.propagation.OtTracerPropagator")) {
+		if (isOnClasspath(otClass())) {
 			this.mapping.put(PropagationType.OT_TRACER, beanFactory.getBeanProvider(OtTracePropagator.class)
 					.getIfAvailable(OtTracePropagator::getInstance));
 		}
@@ -79,6 +79,22 @@ public class CompositeTextMapPropagator implements TextMapPropagator {
 		if (log.isDebugEnabled()) {
 			log.debug("Registered the following context propagation types " + this.mapping.keySet());
 		}
+	}
+
+	String otClass() {
+		return "io.opentelemetry.extension.trace.propagation.OtTracePropagator";
+	}
+
+	String jaegerClass() {
+		return "io.opentelemetry.extension.trace.propagation.JaegerPropagator";
+	}
+
+	String b3Class() {
+		return "io.opentelemetry.extension.trace.propagation.B3Propagator";
+	}
+
+	String awsClass() {
+		return "io.opentelemetry.extension.aws.AwsXrayPropagator";
 	}
 
 	private boolean isOnClasspath(String clazz) {
