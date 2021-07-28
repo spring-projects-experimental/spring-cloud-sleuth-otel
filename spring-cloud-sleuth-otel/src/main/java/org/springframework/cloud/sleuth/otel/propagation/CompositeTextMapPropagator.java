@@ -57,7 +57,7 @@ public class CompositeTextMapPropagator implements TextMapPropagator {
 
 	public CompositeTextMapPropagator(BeanFactory beanFactory, List<PropagationType> types) {
 		this.types = types;
-		if (isOnClasspath("io.opentelemetry.extension.trace.propagation.AwsXRayPropagator")) {
+		if (isOnClasspath("io.opentelemetry.extension.aws.AwsXRayPropagator")) {
 			this.mapping.put(PropagationType.AWS, beanFactory.getBeanProvider(AwsXrayPropagator.class)
 					.getIfAvailable(AwsXrayPropagator::getInstance));
 		}
