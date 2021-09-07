@@ -72,7 +72,7 @@
 		<opentracing.version>0.32.0</opentracing.version>
 		<opentelemetry.version>1.5.0</opentelemetry.version>
 		<opentelemetry.alpha.version>1.5.0-alpha</opentelemetry.alpha.version>
-		<opentelemetry-instrumentation.version>1.5.1-alpha</opentelemetry-instrumentation.version>
+		<opentelemetry-instrumentation.version>1.5.3-alpha</opentelemetry-instrumentation.version>
 		<wavefront.version>2.2.0</wavefront.version>
 		<spring-security-boot-autoconfigure.version>2.3.4.RELEASE</spring-security-boot-autoconfigure.version>
 		<disable.nohttp.checks>false</disable.nohttp.checks>
