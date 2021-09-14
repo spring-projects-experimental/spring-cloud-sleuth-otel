@@ -212,6 +212,11 @@
 			<artifactId>opentelemetry-exporter-otlp-common</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>io.opentelemetry</groupId>
+			<artifactId>opentelemetry-proto</artifactId>
+			<optional>true</optional>
+		</dependency>
 
 		<!-- Zipkin -->
 		<dependency>
