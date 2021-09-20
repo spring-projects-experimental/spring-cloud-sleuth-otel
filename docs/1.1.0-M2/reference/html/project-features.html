@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.10">
+<title>Spring Cloud Sleuth OTel Features</title>
+<link rel="stylesheet" href="css/spring.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+.hidden {
+	display: none;
+}
+
+.switch {
+	border-width: 1px 1px 0 1px;
+	border-style: solid;
+	border-color: #7a2518;
+	display: inline-block;
+}
+
+.switch--item {
+	padding: 10px;
+	background-color: #ffffff;
+	color: #7a2518;
+	display: inline-block;
+	cursor: pointer;
+}
+
+.switch--item:not(:first-child) {
+	border-width: 0 0 0 1px;
+	border-style: solid;
+	border-color: #7a2518;
+}
+
+.switch--item.selected {
+	background-color: #7a2519;
+	color: #ffffff;
+}
+
+</style>
+<script type="text/javascript">
+function addBlockSwitches() {
+	for (var primary of document.querySelectorAll('.primary')) {
+		var switchItem = createSwitchItem(primary, createBlockSwitch(primary));
+		switchItem.item.classList.add("selected");
+		var title = primary.querySelector('.title')
+		title.remove();
+	}
+	for (var secondary of document.querySelectorAll('.secondary')) {
+		var primary = findPrimary(secondary);
+		if (primary === null) {
+			console.error("Found secondary block with no primary sibling");
+		}
+		else {
+			var switchItem = createSwitchItem(secondary, primary.querySelector('.switch'));
+			switchItem.content.classList.add("hidden");
+			primary.append(switchItem.content);
+			secondary.remove();
+		}
+	}
+}
+
+function createElementFromHtml(html) {
+	var template = document.createElement('template');
+    template.innerHTML = html;
+    return template.content.firstChild;
+}
+
+function createBlockSwitch(primary) {
+    var blockSwitch = createElementFromHtml('<div class="switch"></div>');
+    primary.prepend(blockSwitch)
+	return blockSwitch;
+}
+
+function findPrimary(secondary) {
+	var candidate = secondary.previousElementSibling;
+	while (candidate != null && !candidate.classList.contains('primary')) {
+		candidate = candidate.previousElementSibling;
+	}
+	return candidate;
+}
+
+function createSwitchItem(block, blockSwitch) {
+	var blockName = block.querySelector('.title').textContent;
+	var content = block.querySelectorAll('.content').item(0);
+	var colist = nextSibling(block, '.colist');
+	if (colist != null) {
+		content.append(colist);
+	}
+	var item = createElementFromHtml('<div class="switch--item">' + blockName + '</div>');
+	item.dataset.blockName = blockName;
+	content.dataset.blockName = blockName;
+	blockSwitch.append(item);
+	return {'item': item, 'content': content};
+}
+
+function nextSibling(element, selector) {
+	var sibling = element.nextElementSibling;
+	while (sibling) {
+		if (sibling.matches(selector)) {
+			return sibling;
+		}
+		sibling = sibling.nextElementSibling;
+	}
+}
+
+function globalSwitch() {
+	document.querySelectorAll(".switch--item").forEach(function(item) {
+		var blockId = blockIdForSwitchItem(item);
+		var handler = function(event) {
+			selectedText = event.target.textContent;
+			window.localStorage.setItem(blockId, selectedText);
+			for (var switchItem of document.querySelectorAll(".switch--item")) {
+				if (blockIdForSwitchItem(switchItem) === blockId && switchItem.textContent === selectedText) {
+					select(switchItem);
+				}
+			}
+		}
+		item.addEventListener("click", handler);
+		if (item.textContent === window.localStorage.getItem(blockId)) {
+			select(item);
+		}
+	});
+}
+
+function select(selected) {
+	for (var child of selected.parentNode.children) {
+		child.classList.remove("selected");
+	}
+	selected.classList.add("selected");
+	for (var child of selected.parentNode.parentNode.children) {
+		if (child.classList.contains("content")) {
+			if (selected.dataset.blockName === child.dataset.blockName) {
+				child.classList.remove("hidden");
+			}
+			else {
+				child.classList.add("hidden");
+			}
+		}
+	}	
+}
+
+function blockIdForSwitchItem(item) {
+	idComponents = []
+	for (var switchItem of item.parentNode.querySelectorAll(".switch--item")) {
+		idComponents.push(switchItem.textContent.toLowerCase());
+	}
+	return idComponents.sort().join("-")
+}
+
+window.onload = function() {
+	addBlockSwitches();
+	globalSwitch();
+};
+
+</script>
+
+</head>
+<body id="project-features" class="book toc2 toc-left">
+<div id="header">
+<h1>Spring Cloud Sleuth OTel Features</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#features-context-propagation">1. Context Propagation</a></li>
+<li><a href="#features-otel">2. OpenTelemetry Tracer Integration</a>
+<ul class="sectlevel2">
+<li><a href="#features-otel-exporters">2.1. OpenTelemetry Exporters Integration</a></li>
+<li><a href="#features-otel-resource-provider">2.2. OpenTelemetry ResourceProvider</a></li>
+<li><a href="#features-otel-opentracing">2.3. OpenTelemetry Opentracing</a></li>
+</ul>
+</li>
+<li><a href="#features-zipkin">3. Sending Spans to Zipkin</a></li>
+<li><a href="#features-traces-actuator">4. Traces Actuator Endpoint</a></li>
+<li><a href="#features-whats-next">5. What to Read Next</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section dives into the details of Spring Cloud Sleuth OTel.
+Here you can learn about the key features that you may want to use and customize.
+If you have not already done so, you might want to read the "<a href="getting-started.html#getting-started">getting-started.html</a>" and "<a href="using.html#using">using.html</a>" sections, so that you have a good grounding in the basics.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="features-context-propagation"><a class="anchor" href="#features-context-propagation"></a><a class="link" href="#features-context-propagation">1. Context Propagation</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Traces connect from service to service using header propagation.
+The default format is <a href="https://github.com/openzipkin/b3-propagation">B3</a>.
+Similar to data formats, you can configure alternate header formats also, provided trace and span IDs are compatible with B3. Most notably, this means the trace ID and span IDs are lower-case hex, not UUIDs.
+Besides trace identifiers, other properties (Baggage) can also be passed along with the request.
+Remote Baggage must be predefined, but is flexible otherwise.</p>
+</div>
+<div class="paragraph">
+<p>To use the provided defaults you can set the <code>spring.sleuth.propagation.type</code> property.
+The value can be a list in which case you will propagate more tracing headers.</p>
+</div>
+<div class="paragraph">
+<p>For OpenTelemetry we support <code>AWS</code>, <code>B3</code>, <code>JAEGER</code>, <code>OT_TRACER</code> and <code>W3C</code> via the <code>io.opentelemetry:opentelemetry-extension-trace-propagators</code> dependency that you have to manually add to your classpath.</p>
+</div>
+<div class="paragraph">
+<p>You can read more about how to provide custom context propagation in this "<a href="howto.html#how-to-change-context-propagation">how to section</a>".</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="features-otel"><a class="anchor" href="#features-otel"></a><a class="link" href="#features-otel">2. OpenTelemetry Tracer Integration</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Spring Cloud Sleuth integrates with the OpenTelemetry (OTel in short) SDK tracer via the bridge that is available in the <code>spring-cloud-sleuth-otel</code> module.
+In this section you can read about specific OTel integrations.</p>
+</div>
+<div class="paragraph">
+<p>You can choose to use either Sleuth&#8217;s API or the OpenTelemetry API directly in your code (e.g. either Sleuth&#8217;s <code>Tracer</code> or OpenTelemetry&#8217;s <code>Tracer</code>).
+If you want to use this tracer implementation&#8217;s API directly please read <a href="https://github.com/open-telemetry/opentelemetry-java">their documentation to learn more about it</a>.</p>
+</div>
+<div class="sect2">
+<h3 id="features-otel-exporters"><a class="anchor" href="#features-otel-exporters"></a><a class="link" href="#features-otel-exporters">2.1. OpenTelemetry Exporters Integration</a></h3>
+<div class="sect3">
+<h4 id="features-otel-logging"><a class="anchor" href="#features-otel-logging"></a><a class="link" href="#features-otel-logging">2.1.1. OpenTelemetry Logging</a></h4>
+<div class="paragraph">
+<p>We&#8217;re providing an Slf4j integration via a <code>SpanProcessor</code> that injects to and removes entries (trace / span ids, baggage, tags etc.) from MDC. You can disable that via the <code>spring.sleuth.otel.log.slf4j.enabled=false</code> property.</p>
+</div>
+<div class="paragraph">
+<p>If it&#8217;s there on the classpath, we integrate with the <code>LoggingSpanExporter</code>.
+You can disable that integration via the <code>spring.sleuth.otel.log.exporter.enabled=false</code> property.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="features-otel-jaeger"><a class="anchor" href="#features-otel-jaeger"></a><a class="link" href="#features-otel-jaeger">2.1.2. OpenTelemetry Jaeger Integration</a></h4>
+<div class="paragraph">
+<p>We&#8217;re providing an out-of-the-box integration with the OTel Jaeger exporter. via the <code>io.opentelemetry:opentelemetry-exporter-jaeger</code> dependency.</p>
+</div>
+<div class="paragraph">
+<p>For configuration options please check the <code>spring.sleuth.otel.exporter.jaeger</code> properties in the <a href="#appendix.adoc">appendix</a>. To fully override the default configuration please register a bean of <code>JaegerGrpcSpanExporter</code> type.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="features-otel-otlp"><a class="anchor" href="#features-otel-otlp"></a><a class="link" href="#features-otel-otlp">2.1.3. OpenTelemetry OTLP Integration</a></h4>
+<div class="paragraph">
+<p>We&#8217;re providing an out-of-the-box integration with the OTel OTLP gRPC exporter. via the <code>io.opentelemetry:opentelemetry-exporter-otlp</code> dependency.</p>
+</div>
+<div class="paragraph">
+<p>For configuration options please check the <code>spring.sleuth.otel.exporter.otlp</code> properties in the <a href="#appendix.adoc">appendix</a>. To fully override the default configuration please register a bean of <code>OtlpGrpcSpanExporter</code> type.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="features-otel-resource-provider"><a class="anchor" href="#features-otel-resource-provider"></a><a class="link" href="#features-otel-resource-provider">2.2. OpenTelemetry ResourceProvider</a></h3>
+<div class="paragraph">
+<p>OpenTelemetry provides a <code>Resource</code> abstraction which captures identifying information about the entities for which signals (stats or traces) are reported. If you wish to provide your own, you can register beans of <code>Supplier&lt;Resource&gt;</code> type.</p>
+</div>
+<div class="paragraph">
+<p>You can disable the registration of the default <code>Supplier&lt;Resource&gt;</code> beans via the <code>spring.sleuth.otel.resource.enabled=false</code> property.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="features-otel-opentracing"><a class="anchor" href="#features-otel-opentracing"></a><a class="link" href="#features-otel-opentracing">2.3. OpenTelemetry Opentracing</a></h3>
+<div class="paragraph">
+<p>You can integrate with OpenTelemetry and <a href="https://opentracing.io/">OpenTracing</a> via the
+<code>io.opentelemetry:opentelemetry-opentracing-shim</code> bridge.
+Just add it to the classpath and the OpenTracing <code>Tracer</code> will be set up automatically.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="features-zipkin"><a class="anchor" href="#features-zipkin"></a><a class="link" href="#features-zipkin">3. Sending Spans to Zipkin</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Spring Cloud Sleuth provides various integrations with the <a href="https://zipkin.io">OpenZipkin</a> distributed tracing system.
+Regardless of the chosen tracer implementation it&#8217;s enough to add <code>spring-cloud-sleuth-zipkin</code> to the classpath to start sending spans to Zipkin.
+You can choose whether to do that via HTTP or messaging.
+You can read more about how to do that in "<a href="howto.html#how-to-set-up-sleuth-with-otel-zipkin-messaging">how to section</a>".</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="features-traces-actuator"><a class="anchor" href="#features-traces-actuator"></a><a class="link" href="#features-traces-actuator">4. Traces Actuator Endpoint</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Spring Cloud Sleuth comes with a <code>traces</code> Actuator endpoint that can store finished spans. The endpoint can be queried either via an HTTP Get method to simply retrieve the list of stored spans or via HTTP Post method to retrieve the list and clear it.</p>
+</div>
+<div class="paragraph">
+<p>In order to represent the OTel spans in a Zipkin format you need to add the <code>io.opentelemetry:opentelemetry-exporter-zipkin</code> to the classpath. To represent the spans in an OTLP format you need to add <code>io.opentelemetry:opentelemetry-exporter-otlp-common</code> to the classpath.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="features-whats-next"><a class="anchor" href="#features-whats-next"></a><a class="link" href="#features-whats-next">5. What to Read Next</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you want to learn more about any of the classes discussed in this section, you can browse the
+<a href="https://github.com/spring-cloud/spring-cloud-sleuth-otel/tree/main">source code directly</a>.
+If you have specific questions, see the
+<a href="howto.html#howto">how-to</a> section.</p>
+</div>
+</div>
+</div>
+</div>
+<script type="text/javascript" src="js/tocbot/tocbot.min.js"></script>
+<script type="text/javascript" src="js/toc.js"></script>
+</body>
+</html>
