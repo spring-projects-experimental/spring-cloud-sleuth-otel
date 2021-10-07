@@ -62,7 +62,7 @@ class OtelLogConfiguration {
 
 	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnClass(LoggingSpanExporter.class)
-	@ConditionalOnProperty("spring.sleuth.otel.log.exporter.enabled")
+	@ConditionalOnProperty(value = "spring.sleuth.otel.log.exporter.enabled", matchIfMissing = true)
 	static class LoggingExporterConfiguration {
 
 		@Bean
