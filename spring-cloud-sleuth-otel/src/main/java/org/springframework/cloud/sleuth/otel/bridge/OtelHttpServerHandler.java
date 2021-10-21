@@ -153,6 +153,32 @@ public class OtelHttpServerHandler
 		return request.url();
 	}
 
+	@Override
+	protected String scheme(HttpServerRequest request) {
+		return toUri(request).getScheme();
+	}
+
+	@Override
+	protected String host(HttpServerRequest request) {
+		return toUri(request).getHost();
+	}
+
+	@Override
+	protected String target(HttpServerRequest request) {
+		URI uri = toUri(request);
+		return uri.getPath() + queryPart(uri) + fragmentPart(uri);
+	}
+
+	private String queryPart(URI uri) {
+		String query = uri.getQuery();
+		return query != null ? "?" + query : "";
+	}
+
+	private String fragmentPart(URI uri) {
+		String fragment = uri.getFragment();
+		return fragment != null ? "#" + fragment : "";
+	}
+
 	protected URI toUri(HttpServerRequest request) {
 		return URI.create(request.url());
 	}
