@@ -16,10 +16,14 @@
 
 package org.springframework.cloud.sleuth.autoconfig.otel.actuate;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import io.opentelemetry.exporter.otlp.internal.SpanAdapter;
+import io.opentelemetry.exporter.otlp.internal.traces.ResourceSpansMarshaler;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.sdk.trace.data.SpanData;
 
@@ -40,7 +44,7 @@ class OtelOtlpFinishedSpanWriter implements FinishedSpanWriter<byte[]> {
 	public byte[] write(TextOutputFormat format, List<FinishedSpan> spans) {
 		if (format == TextOutputFormat.CONTENT_TYPE_OTLP_PROTOBUF) {
 			List<SpanData> spanData = spans.stream().map(OtelFinishedSpan::toOtel).collect(Collectors.toList());
-			List<ResourceSpans> resourceSpans = SpanAdapter.toProtoResourceSpans(spanData);
+			List<ResourceSpans> resourceSpans = toProtoResourceSpans(spanData);
 			if (resourceSpans.isEmpty()) {
 				return null;
 			}
@@ -50,6 +54,21 @@ class OtelOtlpFinishedSpanWriter implements FinishedSpanWriter<byte[]> {
 			return resources.toByteArray();
 		}
 		return null;
+	}
+
+	private List<ResourceSpans> toProtoResourceSpans(List<SpanData> spanData) {
+		return Arrays.stream(ResourceSpansMarshaler.create(spanData)).map(this::toResourceSpans)
+				.collect(Collectors.toList());
+	}
+
+	private ResourceSpans toResourceSpans(ResourceSpansMarshaler resourceSpansMarshaler) {
+		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+			resourceSpansMarshaler.writeBinaryTo(os);
+			return ResourceSpans.parseFrom(os.toByteArray());
+		}
+		catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
 	}
 
 }
