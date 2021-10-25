@@ -21,6 +21,12 @@ import org.assertj.core.api.BDDAssertions;
 import org.springframework.cloud.sleuth.exporter.FinishedSpan;
 import org.springframework.cloud.sleuth.test.TestTracingAssertions;
 
+/**
+ * Class containing assertions specific to OTel.
+ *
+ * @author Marcin Grzejszczak
+ * @since 1.0.0
+ */
 public class OtelTestTracingAssertions implements TestTracingAssertions {
 
 	@Override
