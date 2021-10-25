@@ -49,6 +49,12 @@ import org.springframework.cloud.sleuth.test.TestTracingAwareSupplier;
 import org.springframework.cloud.sleuth.test.TracerAware;
 import org.springframework.context.ApplicationEventPublisher;
 
+/**
+ * Class containing access to all tracing related components.
+ *
+ * @author Marcin Grzejszczak
+ * @since 1.0.0
+ */
 public class OtelTestTracing implements TracerAware, TestTracingAware, TestTracingAwareSupplier, Closeable {
 
 	private final DynamicSampler sampler = new DynamicSampler();

@@ -38,10 +38,20 @@ import org.springframework.cloud.sleuth.otel.bridge.ArrayListSpanProcessor;
 import org.springframework.cloud.sleuth.otel.bridge.OtelAccessor;
 import org.springframework.cloud.sleuth.test.TestSpanHandler;
 
+/**
+ * Test abstraction to store handled spans.
+ *
+ * @author Marcin Grzejszczak
+ * @since 1.0.0
+ */
 public class OtelTestSpanHandler implements TestSpanHandler, SpanProcessor, SpanExporter {
 
 	private final ArrayListSpanProcessor spanProcessor;
 
+	/**
+	 * Creates a new instance.
+	 * @param spanProcessor span processor
+	 */
 	public OtelTestSpanHandler(ArrayListSpanProcessor spanProcessor) {
 		this.spanProcessor = spanProcessor;
 	}
