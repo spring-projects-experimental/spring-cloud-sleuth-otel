@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import io.opentelemetry.context.Context;
 
 import org.springframework.cloud.sleuth.Span;
-import org.springframework.cloud.sleuth.TraceContext;
 import org.springframework.cloud.sleuth.docs.AssertingSpan;
 
 /**
@@ -71,7 +70,7 @@ class OtelSpan implements Span {
 	}
 
 	@Override
-	public TraceContext context() {
+	public OtelTraceContext context() {
 		if (this.delegate == null) {
 			return null;
 		}
