@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.sleuth.otel.bridge;
 
-import java.util.Objects;
 import java.util.regex.Pattern;
 
 import io.opentelemetry.api.OpenTelemetry;
@@ -24,6 +23,7 @@ import io.opentelemetry.context.Context;
 import io.opentelemetry.context.ContextKey;
 import io.opentelemetry.context.propagation.TextMapGetter;
 import io.opentelemetry.instrumentation.api.instrumenter.Instrumenter;
+import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanNameExtractor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -64,11 +64,13 @@ public class OtelHttpServerHandler implements HttpServerHandler {
 		this.httpServerResponseParser = httpServerResponseParser;
 		this.pattern = skipPatternProvider.skipPattern();
 
+		SpringHttpServerAttributesExtractor httpAttributesExtractor = new SpringHttpServerAttributesExtractor();
 		this.instrumenter = Instrumenter
 				.<HttpServerRequest, HttpServerResponse>newBuilder(openTelemetry, "org.springframework.cloud.sleuth",
-						Objects::toString)
+						HttpSpanNameExtractor.create(httpAttributesExtractor))
 				.addAttributesExtractor(new HttpRequestNetServerAttributesExtractor())
-				.addAttributesExtractor(new SpringHttpServerAttributesExtractor()).newServerInstrumenter(getGetter());
+				.addAttributesExtractor(httpAttributesExtractor).addAttributesExtractor(new PathAttributeExtractor())
+				.newServerInstrumenter(getGetter());
 	}
 
 	@Override
