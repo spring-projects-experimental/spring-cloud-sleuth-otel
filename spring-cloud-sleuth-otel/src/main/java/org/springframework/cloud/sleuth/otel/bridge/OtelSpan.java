@@ -77,7 +77,7 @@ class OtelSpan implements Span {
 	}
 
 	@Override
-	public TraceContext context() {
+	public OtelTraceContext context() {
 		if (this.delegate == null) {
 			return null;
 		}

@@ -56,6 +56,10 @@
 		</dependency>
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
+			<artifactId>opentelemetry-api-metrics</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.opentelemetry</groupId>
 			<artifactId>opentelemetry-extension-aws</artifactId>
 		</dependency>
 		<dependency>
