@@ -43,13 +43,13 @@ class HttpRequestNetClientAttributesExtractor extends NetClientAttributesExtract
 
 	@Override
 	public Integer peerPort(HttpRequest httpRequest, @Nullable HttpResponse httpResponse) {
-		return httpRequest.remotePort();
+		return httpRequest == null ? null : httpRequest.remotePort();
 	}
 
 	@Nullable
 	@Override
 	public String peerIp(HttpRequest httpRequest, @Nullable HttpResponse httpResponse) {
-		return httpRequest.remoteIp();
+		return httpRequest == null ? null : httpRequest.remoteIp();
 	}
 
 }

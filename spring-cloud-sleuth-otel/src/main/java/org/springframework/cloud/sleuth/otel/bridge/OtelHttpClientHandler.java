@@ -20,6 +20,7 @@ import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.ContextKey;
 import io.opentelemetry.instrumentation.api.instrumenter.Instrumenter;
+import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanNameExtractor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -62,11 +63,12 @@ public class OtelHttpClientHandler implements HttpClientHandler {
 		this.httpClientResponseParser = httpClientResponseParser;
 		this.samplerFunction = samplerFunction;
 
+		SpringHttpClientAttributesExtractor httpAttributesExtractor = new SpringHttpClientAttributesExtractor();
 		this.instrumenter = Instrumenter
 				.<HttpClientRequest, HttpClientResponse>newBuilder(openTelemetry, "org.springframework.cloud.sleuth",
-						Object::toString)
+						HttpSpanNameExtractor.create(httpAttributesExtractor))
 				.addAttributesExtractor(new HttpRequestNetClientAttributesExtractor())
-				.addAttributesExtractor(new SpringHttpClientAttributesExtractor())
+				.addAttributesExtractor(httpAttributesExtractor).addAttributesExtractor(new PathAttributeExtractor())
 				.newClientInstrumenter(HttpClientRequest::header);
 	}
 
@@ -122,8 +124,11 @@ public class OtelHttpClientHandler implements HttpClientHandler {
 		}
 		OtelTraceContext traceContext = otelSpanWrapper.context();
 		Context otelContext = traceContext.context();
+		// TODO this must be otelContext, but OpenTelemetry context handling is not
+		// entirely correct here atm
+		Context contextToEnd = Context.current().with(otelSpanWrapper.delegate);
 		// response.getRequest() too often returns null
-		instrumenter.end(otelContext, otelContext.get(REQUEST_CONTEXT_KEY), response, response.error());
+		instrumenter.end(contextToEnd, otelContext.get(REQUEST_CONTEXT_KEY), response, response.error());
 	}
 
 }
