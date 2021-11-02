@@ -19,6 +19,7 @@ package org.springframework.cloud.sleuth.otel.bridge;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.AttributesBuilder;
 import io.opentelemetry.instrumentation.api.instrumenter.AttributesExtractor;
+import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
 
 import org.springframework.cloud.sleuth.http.HttpRequest;
 import org.springframework.cloud.sleuth.http.HttpResponse;
@@ -33,7 +34,9 @@ class PathAttributeExtractor implements AttributesExtractor<HttpRequest, HttpRes
 	public void onStart(AttributesBuilder attributes, HttpRequest httpRequest) {
 		String path = httpRequest.path();
 		if (StringUtils.hasLength(path)) {
-			set(attributes, HTTP_PATH, path);
+			//TODO some tests expect this even on client spans, but this goes against Otel semantic conventions
+			//should fix tests
+			set(attributes, SemanticAttributes.HTTP_ROUTE, path);
 		}
 	}
 
