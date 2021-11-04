@@ -34,9 +34,12 @@ class PathAttributeExtractor implements AttributesExtractor<HttpRequest, HttpRes
 	public void onStart(AttributesBuilder attributes, HttpRequest httpRequest) {
 		String path = httpRequest.path();
 		if (StringUtils.hasLength(path)) {
-			//TODO some tests expect this even on client spans, but this goes against Otel semantic conventions
-			//should fix tests
+			// TODO some tests expect this even on client spans, but this goes against
+			// Otel semantic conventions
+			// should fix tests
 			set(attributes, SemanticAttributes.HTTP_ROUTE, path);
+			// some tests from Sleuth expect http.route attribute and some http.path
+			set(attributes, HTTP_PATH, path);
 		}
 	}
 
