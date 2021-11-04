@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import io.opentelemetry.context.Context;
 import io.opentelemetry.context.ContextKey;
 import io.opentelemetry.instrumentation.api.instrumenter.Instrumenter;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanNameExtractor;
+import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanStatusExtractor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -67,6 +68,7 @@ public class OtelHttpClientHandler implements HttpClientHandler {
 		this.instrumenter = Instrumenter
 				.<HttpClientRequest, HttpClientResponse>newBuilder(openTelemetry, "org.springframework.cloud.sleuth",
 						HttpSpanNameExtractor.create(httpAttributesExtractor))
+				.setSpanStatusExtractor(HttpSpanStatusExtractor.create(httpAttributesExtractor))
 				.addAttributesExtractor(new HttpRequestNetClientAttributesExtractor())
 				.addAttributesExtractor(httpAttributesExtractor).addAttributesExtractor(new PathAttributeExtractor())
 				.newClientInstrumenter(HttpClientRequest::header);
