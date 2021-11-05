@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2020 the original author or authors.
+ * Copyright 2013-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,17 @@
 
 package org.springframework.cloud.sleuth.otel.bridge;
 
-import java.net.URI;
 import java.util.regex.Pattern;
 
 import io.opentelemetry.api.OpenTelemetry;
-import io.opentelemetry.api.trace.SpanBuilder;
 import io.opentelemetry.context.Context;
-import io.opentelemetry.context.Scope;
+import io.opentelemetry.context.ContextKey;
 import io.opentelemetry.context.propagation.TextMapGetter;
-import io.opentelemetry.instrumentation.api.tracer.HttpServerTracer;
+import io.opentelemetry.instrumentation.api.instrumenter.Instrumenter;
+import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanNameExtractor;
+import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanStatusExtractor;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.http.HttpRequestParser;
@@ -39,11 +41,15 @@ import org.springframework.util.StringUtils;
  * OpenTelemetry implementation of a {@link HttpServerHandler}.
  *
  * @author Marcin Grzejszczak
+ * @author Nikita Salnikov-Tarnovski
  * @since 1.0.0
  */
-public class OtelHttpServerHandler
-		extends HttpServerTracer<HttpServerRequest, HttpServerResponse, HttpServerRequest, HttpServerRequest>
-		implements HttpServerHandler {
+public class OtelHttpServerHandler implements HttpServerHandler {
+
+	private static final Log log = LogFactory.getLog(OtelHttpClientHandler.class);
+
+	private static final ContextKey<HttpServerRequest> REQUEST_CONTEXT_KEY = ContextKey
+			.named(OtelHttpServerHandler.class.getName() + ".request");
 
 	private final HttpRequestParser httpServerRequestParser;
 
@@ -51,12 +57,22 @@ public class OtelHttpServerHandler
 
 	private final Pattern pattern;
 
+	private final Instrumenter<HttpServerRequest, HttpServerResponse> instrumenter;
+
 	public OtelHttpServerHandler(OpenTelemetry openTelemetry, HttpRequestParser httpServerRequestParser,
 			HttpResponseParser httpServerResponseParser, SkipPatternProvider skipPatternProvider) {
-		super(openTelemetry);
 		this.httpServerRequestParser = httpServerRequestParser;
 		this.httpServerResponseParser = httpServerResponseParser;
 		this.pattern = skipPatternProvider.skipPattern();
+
+		SpringHttpServerAttributesExtractor httpAttributesExtractor = new SpringHttpServerAttributesExtractor();
+		this.instrumenter = Instrumenter
+				.<HttpServerRequest, HttpServerResponse>newBuilder(openTelemetry, "org.springframework.cloud.sleuth",
+						HttpSpanNameExtractor.create(httpAttributesExtractor))
+				.setSpanStatusExtractor(HttpSpanStatusExtractor.create(httpAttributesExtractor))
+				.addAttributesExtractor(new HttpRequestNetServerAttributesExtractor())
+				.addAttributesExtractor(httpAttributesExtractor).addAttributesExtractor(new PathAttributeExtractor())
+				.newServerInstrumenter(getGetter());
 	}
 
 	@Override
@@ -66,75 +82,45 @@ public class OtelHttpServerHandler
 		if (shouldSkip) {
 			return OtelSpan.fromOtel(io.opentelemetry.api.trace.Span.getInvalid());
 		}
-		Context context = startSpan(request, request, request, request.method());
-		return OtelSpan.fromOtel(io.opentelemetry.api.trace.Span.fromContext(context), context);
+		Context parentContext = Context.current();
+		if (instrumenter.shouldStart(parentContext, request)) {
+			Context context = instrumenter.start(parentContext, request);
+			return span(context, request);
+		}
+		else {
+			return OtelSpan.fromOtel(io.opentelemetry.api.trace.Span.getInvalid());
+		}
+	}
+
+	private Span span(Context context, HttpServerRequest request) {
+		io.opentelemetry.api.trace.Span span = io.opentelemetry.api.trace.Span.fromContext(context);
+		Span result = OtelSpan.fromOtel(span, context.with(REQUEST_CONTEXT_KEY, request));
+		if (this.httpServerRequestParser != null) {
+			this.httpServerRequestParser.parse(request, result.context(), result);
+		}
+		return result;
 	}
 
 	@Override
 	public void handleSend(HttpServerResponse response, Span span) {
-		Throwable throwable = response.error();
-		io.opentelemetry.api.trace.Span otel = OtelSpan.toOtel(span);
-		try (Scope scope = otel.makeCurrent()) {
-			parseResponse(span, response);
-			if (throwable == null) {
-				end(Context.current(), response);
+		OtelSpan otelSpanWrapper = (OtelSpan) span;
+		if (!otelSpanWrapper.delegate.getSpanContext().isValid()) {
+			if (log.isDebugEnabled()) {
+				log.debug("Not doing anything because the span is invalid");
 			}
-			else {
-				endExceptionally(Context.current(), throwable, response);
-			}
+			return;
 		}
-	}
 
-	private void parseResponse(Span span, HttpServerResponse response) {
 		if (this.httpServerResponseParser != null) {
 			this.httpServerResponseParser.parse(response, span.context(), span);
 		}
+		OtelTraceContext traceContext = otelSpanWrapper.context();
+		Context otelContext = traceContext.context();
+		// response.getRequest() too often returns null
+		instrumenter.end(otelContext, otelContext.get(REQUEST_CONTEXT_KEY), response, response.error());
 	}
 
-	@Override
-	public Context startSpan(HttpServerRequest connection, HttpServerRequest request, HttpServerRequest storage,
-			String spanName, long startTimestamp) {
-		Context context = super.startSpan(connection, request, storage, spanName, startTimestamp);
-		if (httpServerRequestParser != null) {
-			io.opentelemetry.api.trace.Span otelSpan = io.opentelemetry.api.trace.Span.fromContext(context);
-			Span fromOtel = OtelSpan.fromOtel(otelSpan);
-			this.httpServerRequestParser.parse(connection, fromOtel.context(), fromOtel);
-		}
-		return context;
-	}
-
-	@Override
-	protected void onRequest(SpanBuilder spanBuilder, HttpServerRequest request) {
-		super.onRequest(spanBuilder, request);
-		String path = request.path();
-		if (StringUtils.hasText(path)) {
-			spanBuilder.setAttribute("http.path", path);
-		}
-	}
-
-	@Override
-	public Context getServerContext(HttpServerRequest request) {
-		Object context = request.getAttribute(CONTEXT_ATTRIBUTE);
-		return context instanceof Context ? (Context) context : null;
-	}
-
-	@Override
-	protected Integer peerPort(HttpServerRequest request) {
-		return toUri(request).getPort();
-	}
-
-	@Override
-	protected String peerHostIp(HttpServerRequest request) {
-		return toUri(request).getHost();
-	}
-
-	@Override
-	protected String flavor(HttpServerRequest request, HttpServerRequest request2) {
-		return toUri(request).getScheme();
-	}
-
-	@Override
-	protected TextMapGetter<HttpServerRequest> getGetter() {
+	private TextMapGetter<HttpServerRequest> getGetter() {
 		return new TextMapGetter<HttpServerRequest>() {
 			@Override
 			public Iterable<String> keys(HttpServerRequest carrier) {
@@ -146,66 +132,6 @@ public class OtelHttpServerHandler
 				return carrier.header(key);
 			}
 		};
-	}
-
-	@Override
-	protected String url(HttpServerRequest request) {
-		return request.url();
-	}
-
-	@Override
-	protected String scheme(HttpServerRequest request) {
-		return toUri(request).getScheme();
-	}
-
-	@Override
-	protected String host(HttpServerRequest request) {
-		return toUri(request).getHost();
-	}
-
-	@Override
-	protected String target(HttpServerRequest request) {
-		URI uri = toUri(request);
-		return uri.getPath() + queryPart(uri) + fragmentPart(uri);
-	}
-
-	private String queryPart(URI uri) {
-		String query = uri.getQuery();
-		return query != null ? "?" + query : "";
-	}
-
-	private String fragmentPart(URI uri) {
-		String fragment = uri.getFragment();
-		return fragment != null ? "#" + fragment : "";
-	}
-
-	protected URI toUri(HttpServerRequest request) {
-		return URI.create(request.url());
-	}
-
-	@Override
-	protected String method(HttpServerRequest request) {
-		return request.method();
-	}
-
-	@Override
-	protected String requestHeader(HttpServerRequest request, String s) {
-		return request.header(s);
-	}
-
-	@Override
-	protected int responseStatus(HttpServerResponse httpServerResponse) {
-		return httpServerResponse.statusCode();
-	}
-
-	@Override
-	protected void attachServerContext(Context context, HttpServerRequest request) {
-		request.setAttribute(CONTEXT_ATTRIBUTE, context);
-	}
-
-	@Override
-	protected String getInstrumentationName() {
-		return "org.springframework.cloud.sleuth";
 	}
 
 }

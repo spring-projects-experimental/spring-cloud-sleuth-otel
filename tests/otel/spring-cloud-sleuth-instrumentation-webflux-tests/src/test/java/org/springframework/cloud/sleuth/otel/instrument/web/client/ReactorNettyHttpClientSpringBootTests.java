@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.sleuth.otel.instrument.web.client;
 
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.api.trace.SpanId;
 import io.opentelemetry.api.trace.TraceFlags;
@@ -24,14 +25,24 @@ import io.opentelemetry.api.trace.TraceState;
 import io.opentelemetry.context.propagation.TextMapPropagator;
 import io.opentelemetry.extension.trace.propagation.B3Propagator;
 import io.opentelemetry.sdk.trace.samplers.Sampler;
+import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Flux;
+import reactor.netty.DisposableServer;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.http.client.HttpClientResponse;
+import reactor.netty.http.server.HttpServer;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.TraceContext;
 import org.springframework.cloud.sleuth.exporter.FinishedSpan;
 import org.springframework.cloud.sleuth.otel.OtelTestSpanHandler;
 import org.springframework.cloud.sleuth.otel.bridge.ArrayListSpanProcessor;
 import org.springframework.cloud.sleuth.otel.bridge.OtelAccessor;
+import org.springframework.cloud.sleuth.test.TestSpanHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
@@ -43,6 +54,12 @@ import org.springframework.test.context.TestPropertySource;
 public class ReactorNettyHttpClientSpringBootTests
 		extends org.springframework.cloud.sleuth.instrument.web.client.ReactorNettyHttpClientSpringBootTests {
 
+	@Autowired
+	HttpClient httpClient;
+
+	@Autowired
+	TestSpanHandler handler;
+
 	@Override
 	public TraceContext traceContext() {
 		return OtelAccessor.traceContext(SpanContext.create(TraceId.fromLongs(1L, 0L), SpanId.fromLong(2L),
@@ -53,6 +70,21 @@ public class ReactorNettyHttpClientSpringBootTests
 	public void assertSingleB3Header(String b3SingleHeaderReadByServer, FinishedSpan clientSpan, TraceContext parent) {
 		Assertions.assertThat(b3SingleHeaderReadByServer)
 				.isEqualTo(parent.traceId() + "-" + clientSpan.getSpanId() + "-1");
+	}
+
+	@Test
+	public void shouldRecordHttpClientAttributes() {
+		DisposableServer disposableServer = HttpServer.create().port(0)
+				.handle((in, out) -> out.sendString(Flux.just("foo"))).bindNow();
+
+		HttpClientResponse response = httpClient.port(disposableServer.port()).get().uri("/").response().block();
+
+		Assertions.assertThat(response.status()).isEqualTo(HttpResponseStatus.OK);
+
+		FinishedSpan clientSpan = this.handler.takeRemoteSpan(Span.Kind.CLIENT);
+
+		Assertions.assertThat(clientSpan.getTags().get(SemanticAttributes.HTTP_URL.getKey())).isNotEmpty();
+		Assertions.assertThat(clientSpan.getTags().get(SemanticAttributes.HTTP_METHOD.getKey())).isNotEmpty();
 	}
 
 	@Configuration(proxyBeanMethods = false)
