@@ -31,7 +31,8 @@ import org.springframework.lang.Nullable;
  *
  * @author Nikita Salnikov-Tarnovski
  */
-class SpringHttpServerAttributesExtractor extends HttpServerAttributesExtractor<HttpServerRequest, HttpServerResponse> {
+public class SpringHttpServerAttributesExtractor
+		extends HttpServerAttributesExtractor<HttpServerRequest, HttpServerResponse> {
 
 	@Nullable
 	@Override
@@ -49,7 +50,7 @@ class SpringHttpServerAttributesExtractor extends HttpServerAttributesExtractor<
 		return uri.getPath() + queryPart(uri);
 	}
 
-	private URI toUri(HttpServerRequest request) {
+	protected URI toUri(HttpServerRequest request) {
 		String url = request.url();
 		return url == null ? null : URI.create(url);
 	}

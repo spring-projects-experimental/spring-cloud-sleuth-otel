@@ -23,6 +23,7 @@ import io.opentelemetry.context.Context;
 import io.opentelemetry.context.ContextKey;
 import io.opentelemetry.context.propagation.TextMapGetter;
 import io.opentelemetry.instrumentation.api.instrumenter.Instrumenter;
+import io.opentelemetry.instrumentation.api.instrumenter.http.HttpServerAttributesExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanNameExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanStatusExtractor;
 import org.apache.commons.logging.Log;
@@ -60,12 +61,12 @@ public class OtelHttpServerHandler implements HttpServerHandler {
 	private final Instrumenter<HttpServerRequest, HttpServerResponse> instrumenter;
 
 	public OtelHttpServerHandler(OpenTelemetry openTelemetry, HttpRequestParser httpServerRequestParser,
-			HttpResponseParser httpServerResponseParser, SkipPatternProvider skipPatternProvider) {
+			HttpResponseParser httpServerResponseParser, SkipPatternProvider skipPatternProvider,
+			HttpServerAttributesExtractor<HttpServerRequest, HttpServerResponse> httpAttributesExtractor) {
 		this.httpServerRequestParser = httpServerRequestParser;
 		this.httpServerResponseParser = httpServerResponseParser;
 		this.pattern = skipPatternProvider.skipPattern();
 
-		SpringHttpServerAttributesExtractor httpAttributesExtractor = new SpringHttpServerAttributesExtractor();
 		this.instrumenter = Instrumenter
 				.<HttpServerRequest, HttpServerResponse>newBuilder(openTelemetry, "org.springframework.cloud.sleuth",
 						HttpSpanNameExtractor.create(httpAttributesExtractor))
@@ -73,6 +74,12 @@ public class OtelHttpServerHandler implements HttpServerHandler {
 				.addAttributesExtractor(new HttpRequestNetServerAttributesExtractor())
 				.addAttributesExtractor(httpAttributesExtractor).addAttributesExtractor(new PathAttributeExtractor())
 				.newServerInstrumenter(getGetter());
+	}
+
+	public OtelHttpServerHandler(OpenTelemetry openTelemetry, HttpRequestParser httpServerRequestParser,
+			HttpResponseParser httpServerResponseParser, SkipPatternProvider skipPatternProvider) {
+		this(openTelemetry, httpServerRequestParser, httpServerResponseParser, skipPatternProvider,
+				new SpringHttpServerAttributesExtractor());
 	}
 
 	@Override
