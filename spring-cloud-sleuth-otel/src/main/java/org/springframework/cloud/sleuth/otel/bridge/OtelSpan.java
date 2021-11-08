@@ -28,7 +28,6 @@ import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.context.Context;
 
 import org.springframework.cloud.sleuth.Span;
-import org.springframework.cloud.sleuth.TraceContext;
 import org.springframework.lang.Nullable;
 
 /**
@@ -77,7 +76,7 @@ class OtelSpan implements Span {
 	}
 
 	@Override
-	public TraceContext context() {
+	public OtelTraceContext context() {
 		if (this.delegate == null) {
 			return null;
 		}
