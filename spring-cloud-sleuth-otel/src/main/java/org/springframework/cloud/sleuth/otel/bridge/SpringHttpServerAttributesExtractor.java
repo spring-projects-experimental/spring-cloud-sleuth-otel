@@ -31,7 +31,8 @@ import org.springframework.lang.Nullable;
  *
  * @author Nikita Salnikov-Tarnovski
  */
-class SpringHttpServerAttributesExtractor extends HttpServerAttributesExtractor<HttpServerRequest, HttpServerResponse> {
+public class SpringHttpServerAttributesExtractor
+		extends HttpServerAttributesExtractor<HttpServerRequest, HttpServerResponse> {
 
 	@Nullable
 	@Override

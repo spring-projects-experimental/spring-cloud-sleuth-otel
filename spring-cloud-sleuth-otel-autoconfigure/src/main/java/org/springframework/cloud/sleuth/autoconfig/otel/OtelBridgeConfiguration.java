@@ -21,6 +21,8 @@ import java.util.regex.Pattern;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.context.ContextStorage;
 import io.opentelemetry.context.propagation.ContextPropagators;
+import io.opentelemetry.instrumentation.api.instrumenter.http.HttpClientAttributesExtractor;
+import io.opentelemetry.instrumentation.api.instrumenter.http.HttpServerAttributesExtractor;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -34,10 +36,14 @@ import org.springframework.cloud.sleuth.autoconfig.SleuthBaggageProperties;
 import org.springframework.cloud.sleuth.autoconfig.instrument.web.ConditionalOnSleuthWeb;
 import org.springframework.cloud.sleuth.autoconfig.instrument.web.SleuthWebProperties;
 import org.springframework.cloud.sleuth.http.HttpClientHandler;
+import org.springframework.cloud.sleuth.http.HttpClientRequest;
+import org.springframework.cloud.sleuth.http.HttpClientResponse;
 import org.springframework.cloud.sleuth.http.HttpRequest;
 import org.springframework.cloud.sleuth.http.HttpRequestParser;
 import org.springframework.cloud.sleuth.http.HttpResponseParser;
 import org.springframework.cloud.sleuth.http.HttpServerHandler;
+import org.springframework.cloud.sleuth.http.HttpServerRequest;
+import org.springframework.cloud.sleuth.http.HttpServerResponse;
 import org.springframework.cloud.sleuth.instrument.web.HttpClientRequestParser;
 import org.springframework.cloud.sleuth.instrument.web.HttpClientResponseParser;
 import org.springframework.cloud.sleuth.instrument.web.HttpClientSampler;
@@ -54,6 +60,8 @@ import org.springframework.cloud.sleuth.otel.bridge.OtelSpanCustomizer;
 import org.springframework.cloud.sleuth.otel.bridge.OtelTracer;
 import org.springframework.cloud.sleuth.otel.bridge.SkipPatternSampler;
 import org.springframework.cloud.sleuth.otel.bridge.SpanExporterCustomizer;
+import org.springframework.cloud.sleuth.otel.bridge.SpringHttpClientAttributesExtractor;
+import org.springframework.cloud.sleuth.otel.bridge.SpringHttpServerAttributesExtractor;
 import org.springframework.cloud.sleuth.propagation.Propagator;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -119,9 +127,16 @@ class OtelBridgeConfiguration {
 		HttpClientHandler otelHttpClientHandler(io.opentelemetry.api.OpenTelemetry openTelemetry,
 				@Nullable @HttpClientRequestParser HttpRequestParser httpClientRequestParser,
 				@Nullable @HttpClientResponseParser HttpResponseParser httpClientResponseParser,
-				SamplerFunction<HttpRequest> samplerFunction) {
+				SamplerFunction<HttpRequest> samplerFunction,
+				HttpClientAttributesExtractor<HttpClientRequest, HttpClientResponse> otelHttpAttributesExtractor) {
 			return new OtelHttpClientHandler(openTelemetry, httpClientRequestParser, httpClientResponseParser,
-					samplerFunction);
+					samplerFunction, otelHttpAttributesExtractor);
+		}
+
+		@Bean
+		@ConditionalOnMissingBean
+		HttpClientAttributesExtractor<HttpClientRequest, HttpClientResponse> otelHttpClientAttributesExtractor() {
+			return new SpringHttpClientAttributesExtractor();
 		}
 
 		@Bean
@@ -129,9 +144,16 @@ class OtelBridgeConfiguration {
 		HttpServerHandler otelHttpServerHandler(io.opentelemetry.api.OpenTelemetry openTelemetry,
 				@Nullable @HttpServerRequestParser HttpRequestParser httpServerRequestParser,
 				@Nullable @HttpServerResponseParser HttpResponseParser httpServerResponseParser,
-				ObjectProvider<SkipPatternProvider> skipPatternProvider) {
+				ObjectProvider<SkipPatternProvider> skipPatternProvider,
+				HttpServerAttributesExtractor<HttpServerRequest, HttpServerResponse> otelHttpAttributesExtractor) {
 			return new OtelHttpServerHandler(openTelemetry, httpServerRequestParser, httpServerResponseParser,
-					skipPatternProvider.getIfAvailable(() -> () -> Pattern.compile("")));
+					skipPatternProvider.getIfAvailable(() -> () -> Pattern.compile("")), otelHttpAttributesExtractor);
+		}
+
+		@Bean
+		@ConditionalOnMissingBean
+		HttpServerAttributesExtractor<HttpServerRequest, HttpServerResponse> otelHttpServerAttributesExtractor() {
+			return new SpringHttpServerAttributesExtractor();
 		}
 
 		@Bean

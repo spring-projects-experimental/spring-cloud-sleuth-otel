@@ -30,7 +30,8 @@ import org.springframework.lang.Nullable;
  *
  * @author Nikita Salnikov-Tarnovski
  */
-class SpringHttpClientAttributesExtractor extends HttpClientAttributesExtractor<HttpClientRequest, HttpClientResponse> {
+public class SpringHttpClientAttributesExtractor
+		extends HttpClientAttributesExtractor<HttpClientRequest, HttpClientResponse> {
 
 	@Nullable
 	@Override

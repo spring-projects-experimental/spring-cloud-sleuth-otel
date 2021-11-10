@@ -20,6 +20,7 @@ import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.ContextKey;
 import io.opentelemetry.instrumentation.api.instrumenter.Instrumenter;
+import io.opentelemetry.instrumentation.api.instrumenter.http.HttpClientAttributesExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanNameExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanStatusExtractor;
 import org.apache.commons.logging.Log;
@@ -59,12 +60,11 @@ public class OtelHttpClientHandler implements HttpClientHandler {
 	private final Instrumenter<HttpClientRequest, HttpClientResponse> instrumenter;
 
 	public OtelHttpClientHandler(OpenTelemetry openTelemetry, @Nullable HttpRequestParser httpClientRequestParser,
-			@Nullable HttpResponseParser httpClientResponseParser, SamplerFunction<HttpRequest> samplerFunction) {
+			@Nullable HttpResponseParser httpClientResponseParser, SamplerFunction<HttpRequest> samplerFunction,
+			HttpClientAttributesExtractor<HttpClientRequest, HttpClientResponse> httpAttributesExtractor) {
 		this.httpClientRequestParser = httpClientRequestParser;
 		this.httpClientResponseParser = httpClientResponseParser;
 		this.samplerFunction = samplerFunction;
-
-		SpringHttpClientAttributesExtractor httpAttributesExtractor = new SpringHttpClientAttributesExtractor();
 		this.instrumenter = Instrumenter
 				.<HttpClientRequest, HttpClientResponse>newBuilder(openTelemetry, "org.springframework.cloud.sleuth",
 						HttpSpanNameExtractor.create(httpAttributesExtractor))
