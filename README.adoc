@@ -123,7 +123,7 @@ NOTE: Set `spring.application.name=myService` (for instance) to see the service 
 
 == Documentation
 
-Please visit the https://docs.spring.io/spring-cloud-sleuth/docs/[Spring Cloud Sleuth documentation page] to read more about the Spring Cloud Sleuth project. You can check this project's https://spring-cloud-incubator.github.io/spring-cloud-sleuth-otel/docs/current/reference/html/[documentation here].
+Please visit the https://docs.spring.io/spring-cloud-sleuth/docs/[Spring Cloud Sleuth documentation page] to read more about the Spring Cloud Sleuth project. You can check this project's https://spring-projects-experimental.github.io/spring-cloud-sleuth-otel/docs/current/reference/html/[documentation here].
 
 == Building
 
