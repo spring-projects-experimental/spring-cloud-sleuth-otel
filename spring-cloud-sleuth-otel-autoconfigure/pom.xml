@@ -55,6 +55,11 @@
 			<artifactId>wavefront-spring-boot</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>io.lettuce</groupId>
+			<artifactId>lettuce-core</artifactId>
+			<optional>true</optional>
+		</dependency>
 
 		<dependency>
 			<groupId>javax.jms</groupId>
