@@ -14,11 +14,11 @@ We then walk you through building your first {project-full-name} application, di
 Spring Cloud Sleuth OTel provides integration with https://opentelemetry.io[OpenTelemetry SDK].
 
 [[getting-started-first-application]]
-== Developing Your First Spring Cloud sleuth-based Application
+== Developing Your First Spring Cloud Sleuth OTel based Application
 
 This section describes how to develop a small “Hello World!” web application that highlights some of Spring Cloud Sleuth’s key features.
 We use Maven to build this project, since most IDEs support it.
-As the tracer implementation we'll use https://github.com/openzipkin/brave[OpenZipkin Brave].
+As the tracer implementation we'll use https://github.com/open-telemetry/opentelemetry-java[OpenTelemetry].
 
 [TIP]
 ====
