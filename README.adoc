@@ -17,6 +17,23 @@ Spring Cloud Sleuth provides Spring Boot auto-configuration for OpenTelemetry ba
 Sleuth configures everything you need to get started.
 This includes where trace data (spans) are reported to, how many traces to keep (sampling), if remote fields (baggage) are sent, and which libraries are traced.
 
+=== Compatibility Matrix
+
+Please check the table below and pic the compatible versions for your project:
+
+[cols="1,1,1"]
+|===
+|Spring Boot |Spring Cloud |Spring Cloud Sleuth OTel
+
+|2.4.x, 2.5.x
+|2020.0.x aka Ilford
+|1.0.x
+
+|2.6.x
+|2021.0.x aka Jubilee
+|1.1.x
+|===
+
 === Quick Start
 
 Add Spring Cloud Sleuth to the classpath of a Spring Boot application (together with a Tracer implementation) and you will see trace IDs in logs.
