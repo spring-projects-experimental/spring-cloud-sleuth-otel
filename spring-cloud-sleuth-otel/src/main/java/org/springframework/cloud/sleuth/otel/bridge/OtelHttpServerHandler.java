@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.cloud.sleuth.Span;
+import org.springframework.cloud.sleuth.docs.AssertingSpan;
 import org.springframework.cloud.sleuth.http.HttpRequestParser;
 import org.springframework.cloud.sleuth.http.HttpResponseParser;
 import org.springframework.cloud.sleuth.http.HttpServerHandler;
@@ -103,7 +104,7 @@ public class OtelHttpServerHandler implements HttpServerHandler {
 
 	@Override
 	public void handleSend(HttpServerResponse response, Span span) {
-		OtelSpan otelSpanWrapper = (OtelSpan) span;
+		OtelSpan otelSpanWrapper = AssertingSpan.unwrap(span);
 		if (!otelSpanWrapper.delegate.getSpanContext().isValid()) {
 			if (log.isDebugEnabled()) {
 				log.debug("Not doing anything because the span is invalid");
