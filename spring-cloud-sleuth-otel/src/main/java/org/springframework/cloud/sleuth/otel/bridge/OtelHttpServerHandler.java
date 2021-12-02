@@ -48,7 +48,7 @@ import org.springframework.util.StringUtils;
  */
 public class OtelHttpServerHandler implements HttpServerHandler {
 
-	private static final Log log = LogFactory.getLog(OtelHttpClientHandler.class);
+	private static final Log log = LogFactory.getLog(OtelHttpServerHandler.class);
 
 	private static final ContextKey<HttpServerRequest> REQUEST_CONTEXT_KEY = ContextKey
 			.named(OtelHttpServerHandler.class.getName() + ".request");
@@ -68,7 +68,7 @@ public class OtelHttpServerHandler implements HttpServerHandler {
 		this.httpServerResponseParser = httpServerResponseParser;
 		this.pattern = skipPatternProvider.skipPattern();
 		this.instrumenter = Instrumenter
-				.<HttpServerRequest, HttpServerResponse>newBuilder(openTelemetry, "org.springframework.cloud.sleuth",
+				.<HttpServerRequest, HttpServerResponse>builder(openTelemetry, "org.springframework.cloud.sleuth",
 						HttpSpanNameExtractor.create(httpAttributesExtractor))
 				.setSpanStatusExtractor(HttpSpanStatusExtractor.create(httpAttributesExtractor))
 				.addAttributesExtractor(new HttpRequestNetServerAttributesExtractor())
