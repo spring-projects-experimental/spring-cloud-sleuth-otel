@@ -96,7 +96,7 @@
 			<artifactId>opentelemetry-exporter-otlp-common</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>io.opentelemetry</groupId>
+			<groupId>io.opentelemetry.proto</groupId>
 			<artifactId>opentelemetry-proto</artifactId>
 		</dependency>
 	</dependencies>

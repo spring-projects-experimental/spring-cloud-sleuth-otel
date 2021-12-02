@@ -213,7 +213,7 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>io.opentelemetry</groupId>
+			<groupId>io.opentelemetry.proto</groupId>
 			<artifactId>opentelemetry-proto</artifactId>
 			<optional>true</optional>
 		</dependency>
