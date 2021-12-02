@@ -66,7 +66,7 @@ public class OtelHttpClientHandler implements HttpClientHandler {
 
 		SpringHttpClientAttributesExtractor httpAttributesExtractor = new SpringHttpClientAttributesExtractor();
 		this.instrumenter = Instrumenter
-				.<HttpClientRequest, HttpClientResponse>newBuilder(openTelemetry, "org.springframework.cloud.sleuth",
+				.<HttpClientRequest, HttpClientResponse>builder(openTelemetry, "org.springframework.cloud.sleuth",
 						HttpSpanNameExtractor.create(httpAttributesExtractor))
 				.setSpanStatusExtractor(HttpSpanStatusExtractor.create(httpAttributesExtractor))
 				.addAttributesExtractor(new HttpRequestNetClientAttributesExtractor())
