@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.10">
+<title>&#8220;How-to&#8221; Guides</title>
+<link rel="stylesheet" href="css/spring.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+.hidden {
+	display: none;
+}
+
+.switch {
+	border-width: 1px 1px 0 1px;
+	border-style: solid;
+	border-color: #7a2518;
+	display: inline-block;
+}
+
+.switch--item {
+	padding: 10px;
+	background-color: #ffffff;
+	color: #7a2518;
+	display: inline-block;
+	cursor: pointer;
+}
+
+.switch--item:not(:first-child) {
+	border-width: 0 0 0 1px;
+	border-style: solid;
+	border-color: #7a2518;
+}
+
+.switch--item.selected {
+	background-color: #7a2519;
+	color: #ffffff;
+}
+
+</style>
+<script type="text/javascript">
+function addBlockSwitches() {
+	for (var primary of document.querySelectorAll('.primary')) {
+		var switchItem = createSwitchItem(primary, createBlockSwitch(primary));
+		switchItem.item.classList.add("selected");
+		var title = primary.querySelector('.title')
+		title.remove();
+	}
+	for (var secondary of document.querySelectorAll('.secondary')) {
+		var primary = findPrimary(secondary);
+		if (primary === null) {
+			console.error("Found secondary block with no primary sibling");
+		}
+		else {
+			var switchItem = createSwitchItem(secondary, primary.querySelector('.switch'));
+			switchItem.content.classList.add("hidden");
+			primary.append(switchItem.content);
+			secondary.remove();
+		}
+	}
+}
+
+function createElementFromHtml(html) {
+	var template = document.createElement('template');
+    template.innerHTML = html;
+    return template.content.firstChild;
+}
+
+function createBlockSwitch(primary) {
+    var blockSwitch = createElementFromHtml('<div class="switch"></div>');
+    primary.prepend(blockSwitch)
+	return blockSwitch;
+}
+
+function findPrimary(secondary) {
+	var candidate = secondary.previousElementSibling;
+	while (candidate != null && !candidate.classList.contains('primary')) {
+		candidate = candidate.previousElementSibling;
+	}
+	return candidate;
+}
+
+function createSwitchItem(block, blockSwitch) {
+	var blockName = block.querySelector('.title').textContent;
+	var content = block.querySelectorAll('.content').item(0);
+	var colist = nextSibling(block, '.colist');
+	if (colist != null) {
+		content.append(colist);
+	}
+	var item = createElementFromHtml('<div class="switch--item">' + blockName + '</div>');
+	item.dataset.blockName = blockName;
+	content.dataset.blockName = blockName;
+	blockSwitch.append(item);
+	return {'item': item, 'content': content};
+}
+
+function nextSibling(element, selector) {
+	var sibling = element.nextElementSibling;
+	while (sibling) {
+		if (sibling.matches(selector)) {
+			return sibling;
+		}
+		sibling = sibling.nextElementSibling;
+	}
+}
+
+function globalSwitch() {
+	document.querySelectorAll(".switch--item").forEach(function(item) {
+		var blockId = blockIdForSwitchItem(item);
+		var handler = function(event) {
+			selectedText = event.target.textContent;
+			window.localStorage.setItem(blockId, selectedText);
+			for (var switchItem of document.querySelectorAll(".switch--item")) {
+				if (blockIdForSwitchItem(switchItem) === blockId && switchItem.textContent === selectedText) {
+					select(switchItem);
+				}
+			}
+		}
+		item.addEventListener("click", handler);
+		if (item.textContent === window.localStorage.getItem(blockId)) {
+			select(item);
+		}
+	});
+}
+
+function select(selected) {
+	for (var child of selected.parentNode.children) {
+		child.classList.remove("selected");
+	}
+	selected.classList.add("selected");
+	for (var child of selected.parentNode.parentNode.children) {
+		if (child.classList.contains("content")) {
+			if (selected.dataset.blockName === child.dataset.blockName) {
+				child.classList.remove("hidden");
+			}
+			else {
+				child.classList.add("hidden");
+			}
+		}
+	}	
+}
+
+function blockIdForSwitchItem(item) {
+	idComponents = []
+	for (var switchItem of item.parentNode.querySelectorAll(".switch--item")) {
+		idComponents.push(switchItem.textContent.toLowerCase());
+	}
+	return idComponents.sort().join("-")
+}
+
+window.onload = function() {
+	addBlockSwitches();
+	globalSwitch();
+};
+
+</script>
+
+</head>
+<body id="howto" class="book toc2 toc-left">
+<div id="header">
+<h1>&#8220;How-to&#8221; Guides</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#how-to-set-up-sleuth-with-otel">1. How to Set Up Sleuth with OpenTelemetry?</a></li>
+<li><a href="#how-to-set-up-sleuth-with-otel-zipkin-http">2. How to Set Up Sleuth with OpenTelemetry &amp; Zipkin via HTTP?</a></li>
+<li><a href="#how-to-set-up-sleuth-with-otel-zipkin-messaging">3. How to Set Up Sleuth with OpenTelemetry &amp; Zipkin via Messaging?</a></li>
+<li><a href="#how-to-change-context-propagation">4. How to Change The Context Propagation Mechanism?</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section provides answers to some common &#8220;how do I do that&#8230;&#8203;?&#8221; questions that often arise when using Spring Cloud Sleuth OTel.
+Its coverage is not exhaustive, but it does cover quite a lot.</p>
+</div>
+<div class="paragraph">
+<p>If you have a specific problem that we do not cover here, you might want to check out
+<a href="https://stackoverflow.com/tags/spring-cloud-sleuth-otel">stackoverflow.com</a> to see if someone has already provided an answer.
+Stack Overflow is also a great place to ask new questions (please use the <code>spring-cloud-sleuth-otel</code> tag).</p>
+</div>
+<div class="paragraph">
+<p>We are also more than happy to extend this section.
+If you want to add a &#8220;how-to&#8221;, send us a <a href="https://github.com/spring-cloud/spring-cloud-sleuth-otel/tree/1.0.x">pull request</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="how-to-set-up-sleuth-with-otel"><a class="anchor" href="#how-to-set-up-sleuth-with-otel"></a><a class="link" href="#how-to-set-up-sleuth-with-otel">1. How to Set Up Sleuth with OpenTelemetry?</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Add the Sleuth starter, exclude Brave and add OpenTelemetry dependency to the classpath.</p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="listingblock primary">
+<div class="title">Maven</div>
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependencyManagement&gt;
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-dependencies&lt;/artifactId&gt;
+            &lt;!-- Provide the latest stable Spring Cloud release train version (e.g. 2020.0.0) --&gt;
+            &lt;version&gt;${release.train.version}&lt;/version&gt;
+            &lt;type&gt;pom&lt;/type&gt;
+            &lt;scope&gt;import&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-sleuth-otel-dependencies&lt;/artifactId&gt;
+            &lt;!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project --&gt;
+            &lt;version&gt;${spring-cloud-sleuth-otel.version}&lt;/version&gt;
+            &lt;scope&gt;import&lt;/scope&gt;
+            &lt;type&gt;pom&lt;/type&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/dependencyManagement&gt;
+
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-sleuth&lt;/artifactId&gt;
+    &lt;exclusions&gt;
+        &lt;exclusion&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-sleuth-brave&lt;/artifactId&gt;
+        &lt;/exclusion&gt;
+    &lt;/exclusions&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-sleuth-otel-autoconfigure&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+    &lt;!-- You 'll need those to add OTel support --&gt;
+    &lt;repositories&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+            &lt;snapshots&gt;&lt;enabled&gt;true&lt;/enabled&gt;&lt;/snapshots&gt;
+        &lt;/repository&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/repository&gt;
+    &lt;/repositories&gt;
+    &lt;pluginRepositories&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+    &lt;/pluginRepositories&gt;</code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Gradle</div>
+<div class="content">
+<pre class="highlight"><code class="language-groovy" data-lang="groovy">dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${releaseTrainVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:${springCloudSleuthOtelVersion}"
+    }
+}
+
+dependencies {
+    implementation("org.springframework.cloud:spring-cloud-starter-sleuth") {
+        exclude group: 'org.springframework.cloud', module: 'spring-cloud-sleuth-brave'
+    }
+    implementation "org.springframework.cloud:spring-cloud-sleuth-otel-autoconfigure"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+            url "https://repo.spring.io/snapshot"
+    }
+    maven {
+            url "https://repo.spring.io/milestone"
+    }
+    maven {
+            url "https://repo.spring.io/release"
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="how-to-set-up-sleuth-with-otel-zipkin-http"><a class="anchor" href="#how-to-set-up-sleuth-with-otel-zipkin-http"></a><a class="link" href="#how-to-set-up-sleuth-with-otel-zipkin-http">2. How to Set Up Sleuth with OpenTelemetry &amp; Zipkin via HTTP?</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Add the Sleuth starter, exclude Brave, add OTel and Zipkin to the classpath.</p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="listingblock primary">
+<div class="title">Maven</div>
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependencyManagement&gt;
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-dependencies&lt;/artifactId&gt;
+            &lt;!-- Provide the latest stable Spring Cloud release train version (e.g. 2020.0.0) --&gt;
+            &lt;version&gt;${release.train.version}&lt;/version&gt;
+            &lt;type&gt;pom&lt;/type&gt;
+            &lt;scope&gt;import&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-sleuth-otel-dependencies&lt;/artifactId&gt;
+            &lt;!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project --&gt;
+            &lt;version&gt;${spring-cloud-sleuth-otel.version}&lt;/version&gt;
+            &lt;scope&gt;import&lt;/scope&gt;
+            &lt;type&gt;pom&lt;/type&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/dependencyManagement&gt;
+
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-sleuth&lt;/artifactId&gt;
+    &lt;exclusions&gt;
+        &lt;exclusion&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-sleuth-brave&lt;/artifactId&gt;
+        &lt;/exclusion&gt;
+    &lt;/exclusions&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-sleuth-otel-autoconfigure&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-sleuth-zipkin&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;io.opentelemetry&lt;/groupId&gt;
+  &lt;artifactId&gt;opentelemetry-exporter-zipkin&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+    &lt;!-- You 'll need those to add OTel support --&gt;
+    &lt;repositories&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+            &lt;snapshots&gt;&lt;enabled&gt;true&lt;/enabled&gt;&lt;/snapshots&gt;
+        &lt;/repository&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/repository&gt;
+    &lt;/repositories&gt;
+    &lt;pluginRepositories&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+    &lt;/pluginRepositories&gt;</code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Gradle</div>
+<div class="content">
+<pre class="highlight"><code class="language-groovy" data-lang="groovy">dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${releaseTrainVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:${springCloudSleuthOtelVersion}"
+    }
+}
+
+dependencies {
+    implementation("org.springframework.cloud:spring-cloud-starter-sleuth") {
+        exclude group: 'org.springframework.cloud', module: 'spring-cloud-sleuth-brave'
+    }
+    implementation "org.springframework.cloud:spring-cloud-sleuth-otel-autoconfigure"
+    implementation "org.springframework.cloud:spring-cloud-sleuth-zipkin"
+    implementation "io.opentelemetry:opentelemetry-exporter-zipkin"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+            url "https://repo.spring.io/snapshot"
+    }
+    maven {
+            url "https://repo.spring.io/milestone"
+    }
+    maven {
+            url "https://repo.spring.io/release"
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="how-to-set-up-sleuth-with-otel-zipkin-messaging"><a class="anchor" href="#how-to-set-up-sleuth-with-otel-zipkin-messaging"></a><a class="link" href="#how-to-set-up-sleuth-with-otel-zipkin-messaging">3. How to Set Up Sleuth with OpenTelemetry &amp; Zipkin via Messaging?</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you want to use RabbitMQ, Kafka or ActiveMQ instead of HTTP, add the <code>spring-rabbit</code>, <code>spring-kafka</code> or <code>org.apache.activemq:activemq-client</code> dependency.
+The default destination name is <code>Zipkin</code>.</p>
+</div>
+<div class="paragraph">
+<p>If using Kafka, you must add the Kafka dependency.</p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="listingblock primary">
+<div class="title">Maven</div>
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependencyManagement&gt;
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-dependencies&lt;/artifactId&gt;
+            &lt;!-- Provide the latest stable Spring Cloud release train version (e.g. 2020.0.0) --&gt;
+            &lt;version&gt;${release.train.version}&lt;/version&gt;
+            &lt;type&gt;pom&lt;/type&gt;
+            &lt;scope&gt;import&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-sleuth-otel-dependencies&lt;/artifactId&gt;
+            &lt;!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project --&gt;
+            &lt;version&gt;${spring-cloud-sleuth-otel.version}&lt;/version&gt;
+            &lt;scope&gt;import&lt;/scope&gt;
+            &lt;type&gt;pom&lt;/type&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/dependencyManagement&gt;
+
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-sleuth&lt;/artifactId&gt;
+    &lt;exclusions&gt;
+        &lt;exclusion&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-sleuth-brave&lt;/artifactId&gt;
+        &lt;/exclusion&gt;
+    &lt;/exclusions&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-sleuth-otel-autoconfigure&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-sleuth-zipkin&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.kafka&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-kafka&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+
+    &lt;!-- You 'll need those to add OTel support --&gt;
+    &lt;repositories&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+            &lt;snapshots&gt;&lt;enabled&gt;true&lt;/enabled&gt;&lt;/snapshots&gt;
+        &lt;/repository&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/repository&gt;
+    &lt;/repositories&gt;
+    &lt;pluginRepositories&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+    &lt;/pluginRepositories&gt;</code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Gradle</div>
+<div class="content">
+<pre class="highlight"><code class="language-groovy" data-lang="groovy">dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${releaseTrainVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:${springCloudSleuthOtelVersion}"
+    }
+}
+
+dependencies {
+    implementation("org.springframework.cloud:spring-cloud-starter-sleuth") {
+        exclude group: 'org.springframework.cloud', module: 'spring-cloud-sleuth-brave'
+    }
+    implementation "org.springframework.cloud:spring-cloud-sleuth-otel-autoconfigure"
+    implementation "org.springframework.cloud:spring-cloud-sleuth-zipkin"
+    implementation "org.springframework.kafka:spring-kafka"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+            url "https://repo.spring.io/snapshot"
+    }
+    maven {
+            url "https://repo.spring.io/milestone"
+    }
+    maven {
+            url "https://repo.spring.io/release"
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Also, you need to set the property <code>spring.zipkin.sender.type</code> property accordingly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">spring.zipkin.sender.type: kafka</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you want Sleuth over RabbitMQ, add the <code>spring-cloud-sleuth-otel</code> (exclude <code>spring-cloud-sleuth-brave</code>), <code>spring-cloud-sleuth-zipkin</code> and <code>spring-rabbit</code> dependencies.</p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="listingblock primary">
+<div class="title">Maven</div>
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependencyManagement&gt;
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-dependencies&lt;/artifactId&gt;
+            &lt;!-- Provide the latest stable Spring Cloud release train version (e.g. 2020.0.0) --&gt;
+            &lt;version&gt;${release.train.version}&lt;/version&gt;
+            &lt;type&gt;pom&lt;/type&gt;
+            &lt;scope&gt;import&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-sleuth-otel-dependencies&lt;/artifactId&gt;
+            &lt;!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project --&gt;
+            &lt;version&gt;${spring-cloud-sleuth-otel.version}&lt;/version&gt;
+            &lt;scope&gt;import&lt;/scope&gt;
+            &lt;type&gt;pom&lt;/type&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/dependencyManagement&gt;
+
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-sleuth&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-sleuth-zipkin&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.amqp&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-rabbit&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+
+    &lt;!-- You 'll need those to add OTel support --&gt;
+    &lt;repositories&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+            &lt;snapshots&gt;&lt;enabled&gt;true&lt;/enabled&gt;&lt;/snapshots&gt;
+        &lt;/repository&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/repository&gt;
+    &lt;/repositories&gt;
+    &lt;pluginRepositories&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+    &lt;/pluginRepositories&gt;</code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Gradle</div>
+<div class="content">
+<pre class="highlight"><code class="language-groovy" data-lang="groovy">dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${releaseTrainVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:${springCloudSleuthOtelVersion}"
+    }
+}
+
+dependencies {
+    implementation("org.springframework.cloud:spring-cloud-starter-sleuth") {
+        exclude group: 'org.springframework.cloud', module: 'spring-cloud-sleuth-brave'
+    }
+    implementation "org.springframework.cloud:spring-cloud-sleuth-zipkin"
+    implementation "org.springframework.amqp:spring-rabbit"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+            url "https://repo.spring.io/snapshot"
+    }
+    maven {
+            url "https://repo.spring.io/milestone"
+    }
+    maven {
+            url "https://repo.spring.io/release"
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>If you want Sleuth over RabbitMQ, add the <code>spring-cloud-sleuth-otel</code> (exclude <code>spring-cloud-sleuth-brave</code>), <code>spring-cloud-sleuth-zipkin</code> and <code>activemq-client</code> dependencies.</p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="listingblock primary">
+<div class="title">Maven</div>
+<div class="content">
+<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;dependencyManagement&gt;
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-dependencies&lt;/artifactId&gt;
+            &lt;!-- Provide the latest stable Spring Cloud release train version (e.g. 2020.0.0) --&gt;
+            &lt;version&gt;${release.train.version}&lt;/version&gt;
+            &lt;type&gt;pom&lt;/type&gt;
+            &lt;scope&gt;import&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-sleuth-otel-dependencies&lt;/artifactId&gt;
+            &lt;!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project --&gt;
+            &lt;version&gt;${spring-cloud-sleuth-otel.version}&lt;/version&gt;
+            &lt;scope&gt;import&lt;/scope&gt;
+            &lt;type&gt;pom&lt;/type&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/dependencyManagement&gt;
+
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-sleuth&lt;/artifactId&gt;
+    &lt;exclusions&gt;
+        &lt;exclusion&gt;
+            &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-cloud-sleuth-brave&lt;/artifactId&gt;
+        &lt;/exclusion&gt;
+    &lt;/exclusions&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-sleuth-otel-autoconfigure&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-sleuth-zipkin&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.activemq&lt;/groupId&gt;
+    &lt;artifactId&gt;activemq-client&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+
+    &lt;!-- You 'll need those to add OTel support --&gt;
+    &lt;repositories&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+            &lt;snapshots&gt;&lt;enabled&gt;true&lt;/enabled&gt;&lt;/snapshots&gt;
+        &lt;/repository&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/repository&gt;
+    &lt;/repositories&gt;
+    &lt;pluginRepositories&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+    &lt;/pluginRepositories&gt;</code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Gradle</div>
+<div class="content">
+<pre class="highlight"><code class="language-groovy" data-lang="groovy">dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${releaseTrainVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-sleuth-otel-dependencies:${springCloudSleuthOtelVersion}"
+    }
+}
+
+dependencies {
+    implementation("org.springframework.cloud:spring-cloud-starter-sleuth") {
+        exclude group: 'org.springframework.cloud', module: 'spring-cloud-sleuth-brave'
+    }
+    implementation "org.springframework.cloud:spring-cloud-sleuth-otel-autoconfigure"
+    implementation "org.springframework.cloud:spring-cloud-sleuth-zipkin"
+    implementation "org.apache.activemq:activemq-client"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+            url "https://repo.spring.io/snapshot"
+    }
+    maven {
+            url "https://repo.spring.io/milestone"
+    }
+    maven {
+            url "https://repo.spring.io/release"
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Also, you need to set the property <code>spring.zipkin.sender.type</code> property accordingly:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">spring.zipkin.sender.type: activemq</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="how-to-change-context-propagation"><a class="anchor" href="#how-to-change-context-propagation"></a><a class="link" href="#how-to-change-context-propagation">4. How to Change The Context Propagation Mechanism?</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To use the provided defaults you can set the <code>spring.sleuth.propagation.type</code> property.
+The value can be a list in which case you will propagate more tracing headers.</p>
+</div>
+<div class="paragraph">
+<p>For OpenTelemetry we support <code>AWS</code>, <code>B3</code>, <code>JAEGER</code>, <code>OT_TRACER</code> and <code>W3C</code> propagation types.</p>
+</div>
+<div class="paragraph">
+<p>If you want to provide a custom propagation mechanism set the <code>spring.sleuth.propagation.type</code> property to <code>CUSTOM</code> and implement your own bean (<code>Propagation.Factory</code> for Brave and <code>TextMapPropagator</code> for OpenTelemetry).
+Below you can find the examples:</p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Component
+class CustomPropagator implements TextMapPropagator {
+
+    @Override
+    public List&lt;String&gt; fields() {
+        return Arrays.asList("myCustomTraceId", "myCustomSpanId");
+    }
+
+    @Override
+    public &lt;C&gt; void inject(Context context, C carrier, TextMapSetter&lt;C&gt; setter) {
+        SpanContext spanContext = Span.fromContext(context).getSpanContext();
+        if (!spanContext.isValid()) {
+            return;
+        }
+        setter.set(carrier, "myCustomTraceId", spanContext.getTraceId());
+        setter.set(carrier, "myCustomSpanId", spanContext.getSpanId());
+    }
+
+    @Override
+    public &lt;C&gt; Context extract(Context context, C carrier, TextMapGetter&lt;C&gt; getter) {
+        String traceParent = getter.get(carrier, "myCustomTraceId");
+        if (traceParent == null) {
+            return Span.getInvalid().storeInContext(context);
+        }
+        String spanId = getter.get(carrier, "myCustomSpanId");
+        return Span.wrap(SpanContext.createFromRemoteParent(traceParent, spanId, TraceFlags.getSampled(),
+                TraceState.builder().build())).storeInContext(context);
+    }
+
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script type="text/javascript" src="js/tocbot/tocbot.min.js"></script>
+<script type="text/javascript" src="js/toc.js"></script>
+</body>
+</html>
