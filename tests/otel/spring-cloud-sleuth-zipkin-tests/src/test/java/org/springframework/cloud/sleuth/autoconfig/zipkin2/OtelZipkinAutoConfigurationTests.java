@@ -16,15 +16,59 @@
 
 package org.springframework.cloud.sleuth.autoconfig.zipkin2;
 
-import io.opentelemetry.sdk.trace.samplers.Sampler;
+import java.util.concurrent.TimeUnit;
 
+import io.opentelemetry.sdk.trace.samplers.Sampler;
+import okhttp3.mockwebserver.RecordedRequest;
+import org.awaitility.Awaitility;
+import zipkin2.reporter.AsyncReporter;
+
+import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.cloud.sleuth.autoconfig.otel.OtelAutoConfiguration;
 import org.springframework.cloud.sleuth.autoconfig.otel.zipkin2.ZipkinOtelAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import static org.assertj.core.api.BDDAssertions.then;
+
 public class OtelZipkinAutoConfigurationTests
 		extends org.springframework.cloud.sleuth.autoconfig.zipkin2.ZipkinAutoConfigurationTests {
+
+	@Override
+	void defaultsToV2Endpoint() throws Exception {
+		zipkinRunner().withPropertyValues("spring.zipkin.base-url=" + this.server.url("/").toString()).run(context -> {
+			context.getBean(Tracer.class).nextSpan().name("foo").tag("foo", "bar").start().end();
+
+			context.getBean(ZipkinAutoConfiguration.REPORTER_BEAN_NAME, AsyncReporter.class).flush();
+			Awaitility.await().atMost(5, TimeUnit.SECONDS)
+					.untilAsserted(() -> then(this.server.getRequestCount()).isGreaterThan(1));
+
+			Awaitility.await().atMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
+				RecordedRequest request = this.server.takeRequest(1, TimeUnit.SECONDS);
+				then(request).isNotNull();
+				then(request.getPath()).isEqualTo("/api/v2/spans");
+				then(request.getBody().readUtf8()).contains("localEndpoint");
+			});
+		});
+	}
+
+	@Override
+	public void encoderDirectsEndpoint() throws Exception {
+		zipkinRunner().withPropertyValues("spring.zipkin.base-url=" + this.server.url("/").toString(),
+				"spring.zipkin.encoder=JSON_V1").run(context -> {
+					context.getBean(Tracer.class).nextSpan().name("foo").tag("foo", "bar").start().end();
+
+					Awaitility.await().atMost(5, TimeUnit.SECONDS)
+							.untilAsserted(() -> then(this.server.getRequestCount()).isGreaterThan(0));
+
+					Awaitility.await().atMost(5, TimeUnit.SECONDS).untilAsserted(() -> {
+						RecordedRequest request = this.server.takeRequest(1, TimeUnit.SECONDS);
+						then(request).isNotNull();
+						then(request.getPath()).isEqualTo("/api/v1/spans");
+						then(request.getBody().readUtf8()).contains("binaryAnnotations");
+					});
+				});
+	}
 
 	@Override
 	protected Class tracerZipkinConfiguration() {

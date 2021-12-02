@@ -19,6 +19,7 @@ package org.springframework.cloud.sleuth.otel;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -37,6 +38,8 @@ import org.springframework.cloud.sleuth.exporter.FinishedSpan;
 import org.springframework.cloud.sleuth.otel.bridge.ArrayListSpanProcessor;
 import org.springframework.cloud.sleuth.otel.bridge.OtelAccessor;
 import org.springframework.cloud.sleuth.test.TestSpanHandler;
+
+import static org.assertj.core.api.BDDAssertions.then;
 
 /**
  * Test abstraction to store handled spans.
@@ -91,6 +94,33 @@ public class OtelTestSpanHandler implements TestSpanHandler, SpanProcessor, Span
 	@Override
 	public FinishedSpan get(int index) {
 		return reportedSpans().get(index);
+	}
+
+	@Override
+	public void assertAllSpansWereFinishedOrAbandoned(Queue<Span> createdSpans) {
+		List<FinishedSpan> finishedSpans = reportedSpans();
+		then(finishedSpans).as("There should be that many finished spans as many created ones")
+				.hasSize(createdSpans.size());
+		// finished -> a,b,c ; created -> b,c,d => matchedFinished = b,c
+		List<FinishedSpan> matchedFinishedSpans = finishedSpans.stream()
+				.filter(f -> createdSpans.stream().anyMatch(cs -> f.getSpanId().equals(cs.context().spanId())))
+				.collect(Collectors.toList());
+		// finished -> a,b,c ; created -> b,c,d => matchedCreated = b,c
+		List<Span> matchedCreatedSpans = createdSpans.stream()
+				.filter(cs -> finishedSpans.stream().anyMatch(f -> cs.context().spanId().equals(f.getSpanId())))
+				.collect(Collectors.toList());
+		// finished -> a,b,c ; created -> b,c,d => missingFinished = a
+		List<FinishedSpan> missingFinishedSpans = finishedSpans.stream()
+				.filter(f -> matchedFinishedSpans.stream().noneMatch(m -> m.getSpanId().equals(f.getSpanId())))
+				.collect(Collectors.toList());
+		// finished -> a,b,c ; created -> b,c,d => missingCreated = d
+		List<Span> missingCreatedSpans = createdSpans.stream().filter(
+				f -> matchedCreatedSpans.stream().noneMatch(m -> m.context().spanId().equals(f.context().spanId())))
+				.collect(Collectors.toList());
+		if (!missingFinishedSpans.isEmpty() || !missingCreatedSpans.isEmpty()) {
+			throw new AssertionError("There were unmatched created spans " + missingCreatedSpans
+					+ " and/or finished span " + missingFinishedSpans);
+		}
 	}
 
 	@Override
