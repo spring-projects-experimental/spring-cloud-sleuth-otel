@@ -108,6 +108,26 @@
 		</dependency>
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
+			<artifactId>opentelemetry-sdk-metrics</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>io.opentelemetry</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>io.opentelemetry</groupId>
+			<artifactId>opentelemetry-sdk-logs</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>io.opentelemetry</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>io.opentelemetry</groupId>
 			<artifactId>opentelemetry-semconv</artifactId>
 		</dependency>
 		<dependency>
