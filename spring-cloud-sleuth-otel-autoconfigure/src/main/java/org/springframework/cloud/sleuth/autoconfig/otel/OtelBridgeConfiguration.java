@@ -21,8 +21,8 @@ import java.util.regex.Pattern;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.context.ContextStorage;
 import io.opentelemetry.context.propagation.ContextPropagators;
-import io.opentelemetry.instrumentation.api.instrumenter.http.HttpClientAttributesExtractor;
-import io.opentelemetry.instrumentation.api.instrumenter.http.HttpServerAttributesExtractor;
+import io.opentelemetry.instrumentation.api.instrumenter.http.HttpClientAttributesGetter;
+import io.opentelemetry.instrumentation.api.instrumenter.http.HttpServerAttributesGetter;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -60,8 +60,8 @@ import org.springframework.cloud.sleuth.otel.bridge.OtelSpanCustomizer;
 import org.springframework.cloud.sleuth.otel.bridge.OtelTracer;
 import org.springframework.cloud.sleuth.otel.bridge.SkipPatternSampler;
 import org.springframework.cloud.sleuth.otel.bridge.SpanExporterCustomizer;
-import org.springframework.cloud.sleuth.otel.bridge.SpringHttpClientAttributesExtractor;
-import org.springframework.cloud.sleuth.otel.bridge.SpringHttpServerAttributesExtractor;
+import org.springframework.cloud.sleuth.otel.bridge.SpringHttpClientAttributesGetter;
+import org.springframework.cloud.sleuth.otel.bridge.SpringHttpServerAttributesGetter;
 import org.springframework.cloud.sleuth.propagation.Propagator;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -128,15 +128,15 @@ class OtelBridgeConfiguration {
 				@Nullable @HttpClientRequestParser HttpRequestParser httpClientRequestParser,
 				@Nullable @HttpClientResponseParser HttpResponseParser httpClientResponseParser,
 				SamplerFunction<HttpRequest> samplerFunction,
-				HttpClientAttributesExtractor<HttpClientRequest, HttpClientResponse> otelHttpAttributesExtractor) {
+				HttpClientAttributesGetter<HttpClientRequest, HttpClientResponse> otelHttpAttributesGetter) {
 			return new OtelHttpClientHandler(openTelemetry, httpClientRequestParser, httpClientResponseParser,
-					samplerFunction, otelHttpAttributesExtractor);
+					samplerFunction, otelHttpAttributesGetter);
 		}
 
 		@Bean
 		@ConditionalOnMissingBean
-		HttpClientAttributesExtractor<HttpClientRequest, HttpClientResponse> otelHttpClientAttributesExtractor() {
-			return new SpringHttpClientAttributesExtractor();
+		HttpClientAttributesGetter<HttpClientRequest, HttpClientResponse> otelHttpClientAttributesGetter() {
+			return new SpringHttpClientAttributesGetter();
 		}
 
 		@Bean
@@ -145,15 +145,15 @@ class OtelBridgeConfiguration {
 				@Nullable @HttpServerRequestParser HttpRequestParser httpServerRequestParser,
 				@Nullable @HttpServerResponseParser HttpResponseParser httpServerResponseParser,
 				ObjectProvider<SkipPatternProvider> skipPatternProvider,
-				HttpServerAttributesExtractor<HttpServerRequest, HttpServerResponse> otelHttpAttributesExtractor) {
+				HttpServerAttributesGetter<HttpServerRequest, HttpServerResponse> otelHttpAttributesGetter) {
 			return new OtelHttpServerHandler(openTelemetry, httpServerRequestParser, httpServerResponseParser,
-					skipPatternProvider.getIfAvailable(() -> () -> Pattern.compile("")), otelHttpAttributesExtractor);
+					skipPatternProvider.getIfAvailable(() -> () -> Pattern.compile("")), otelHttpAttributesGetter);
 		}
 
 		@Bean
 		@ConditionalOnMissingBean
-		HttpServerAttributesExtractor<HttpServerRequest, HttpServerResponse> otelHttpServerAttributesExtractor() {
-			return new SpringHttpServerAttributesExtractor();
+		HttpServerAttributesGetter<HttpServerRequest, HttpServerResponse> otelHttpServerAttributesGetter() {
+			return new SpringHttpServerAttributesGetter();
 		}
 
 		@Bean

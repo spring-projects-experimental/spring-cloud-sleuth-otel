@@ -16,40 +16,39 @@
 
 package org.springframework.cloud.sleuth.otel.bridge;
 
-import io.opentelemetry.instrumentation.api.instrumenter.net.NetClientAttributesExtractor;
+import io.opentelemetry.instrumentation.api.instrumenter.net.NetServerAttributesGetter;
 
 import org.springframework.cloud.sleuth.http.HttpRequest;
-import org.springframework.cloud.sleuth.http.HttpResponse;
 import org.springframework.lang.Nullable;
 
 /**
- * Extracts OpenTelemetry network semantic attributes value for client http spans.
+ * Extracts OpenTelemetry network semantic attributes value for server http spans.
  *
  * @author Nikita Salnikov-Tarnovski
  */
-class HttpRequestNetClientAttributesExtractor extends NetClientAttributesExtractor<HttpRequest, HttpResponse> {
+class HttpRequestNetServerAttributesGetter implements NetServerAttributesGetter<HttpRequest> {
 
 	@Nullable
 	@Override
-	public String transport(HttpRequest httpRequest, @Nullable HttpResponse httpResponse) {
+	public String transport(HttpRequest httpRequest) {
 		return null;
 	}
 
 	@Nullable
 	@Override
-	public String peerName(HttpRequest httpRequest, @Nullable HttpResponse httpResponse) {
+	public String peerName(HttpRequest httpRequest) {
 		return null;
 	}
 
 	@Override
-	public Integer peerPort(HttpRequest httpRequest, @Nullable HttpResponse httpResponse) {
-		return httpRequest == null ? null : httpRequest.remotePort();
+	public Integer peerPort(HttpRequest httpRequest) {
+		return httpRequest.remotePort();
 	}
 
 	@Nullable
 	@Override
-	public String peerIp(HttpRequest httpRequest, @Nullable HttpResponse httpResponse) {
-		return httpRequest == null ? null : httpRequest.remoteIp();
+	public String peerIp(HttpRequest httpRequest) {
+		return httpRequest.remoteIp();
 	}
 
 }

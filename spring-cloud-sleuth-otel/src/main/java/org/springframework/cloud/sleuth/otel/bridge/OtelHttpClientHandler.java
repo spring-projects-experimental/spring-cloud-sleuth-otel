@@ -21,8 +21,10 @@ import io.opentelemetry.context.Context;
 import io.opentelemetry.context.ContextKey;
 import io.opentelemetry.instrumentation.api.instrumenter.Instrumenter;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpClientAttributesExtractor;
+import io.opentelemetry.instrumentation.api.instrumenter.http.HttpClientAttributesGetter;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanNameExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanStatusExtractor;
+import io.opentelemetry.instrumentation.api.instrumenter.net.NetClientAttributesExtractor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -62,17 +64,17 @@ public class OtelHttpClientHandler implements HttpClientHandler {
 
 	public OtelHttpClientHandler(OpenTelemetry openTelemetry, @Nullable HttpRequestParser httpClientRequestParser,
 			@Nullable HttpResponseParser httpClientResponseParser, SamplerFunction<HttpRequest> samplerFunction,
-			HttpClientAttributesExtractor<HttpClientRequest, HttpClientResponse> httpAttributesExtractor) {
+			HttpClientAttributesGetter<HttpClientRequest, HttpClientResponse> httpAttributesGetter) {
 		this.httpClientRequestParser = httpClientRequestParser;
 		this.httpClientResponseParser = httpClientResponseParser;
 		this.samplerFunction = samplerFunction;
 		this.instrumenter = Instrumenter
 				.<HttpClientRequest, HttpClientResponse>builder(openTelemetry, "org.springframework.cloud.sleuth",
-						HttpSpanNameExtractor.create(httpAttributesExtractor))
-				.setSpanStatusExtractor(HttpSpanStatusExtractor.create(httpAttributesExtractor))
-				.addAttributesExtractor(new HttpRequestNetClientAttributesExtractor())
-				.addAttributesExtractor(httpAttributesExtractor).addAttributesExtractor(new PathAttributeExtractor())
-				.newClientInstrumenter(HttpClientRequest::header);
+						HttpSpanNameExtractor.create(httpAttributesGetter))
+				.setSpanStatusExtractor(HttpSpanStatusExtractor.create(httpAttributesGetter))
+				.addAttributesExtractor(NetClientAttributesExtractor.create(new HttpRequestNetClientAttributesGetter()))
+				.addAttributesExtractor(HttpClientAttributesExtractor.create(httpAttributesGetter))
+				.addAttributesExtractor(new PathAttributeExtractor()).newClientInstrumenter(HttpClientRequest::header);
 	}
 
 	@Override

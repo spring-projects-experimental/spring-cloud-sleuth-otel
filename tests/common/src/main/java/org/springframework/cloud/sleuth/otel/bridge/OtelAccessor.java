@@ -19,8 +19,8 @@ package org.springframework.cloud.sleuth.otel.bridge;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.context.propagation.ContextPropagators;
-import io.opentelemetry.instrumentation.api.instrumenter.http.HttpClientAttributesExtractor;
-import io.opentelemetry.instrumentation.api.instrumenter.http.HttpServerAttributesExtractor;
+import io.opentelemetry.instrumentation.api.instrumenter.http.HttpClientAttributesGetter;
+import io.opentelemetry.instrumentation.api.instrumenter.http.HttpServerAttributesGetter;
 import io.opentelemetry.sdk.trace.data.SpanData;
 
 import org.springframework.cloud.sleuth.CurrentTraceContext;
@@ -111,9 +111,9 @@ public final class OtelAccessor {
 	public static HttpClientHandler httpClientHandler(io.opentelemetry.api.OpenTelemetry openTelemetry,
 			@Nullable HttpRequestParser httpClientRequestParser, @Nullable HttpResponseParser httpClientResponseParser,
 			SamplerFunction<HttpRequest> samplerFunction,
-			HttpClientAttributesExtractor<HttpClientRequest, HttpClientResponse> httpAttributesExtractor) {
+			HttpClientAttributesGetter<HttpClientRequest, HttpClientResponse> httpAttributesGetter) {
 		return new OtelHttpClientHandler(openTelemetry, httpClientRequestParser, httpClientResponseParser,
-				samplerFunction, httpAttributesExtractor);
+				samplerFunction, httpAttributesGetter);
 	}
 
 	/**
@@ -127,9 +127,9 @@ public final class OtelAccessor {
 	public static HttpServerHandler httpServerHandler(io.opentelemetry.api.OpenTelemetry openTelemetry,
 			HttpRequestParser httpServerRequestParser, HttpResponseParser httpServerResponseParser,
 			SkipPatternProvider skipPatternProvider,
-			HttpServerAttributesExtractor<HttpServerRequest, HttpServerResponse> httpAttributesExtractor) {
+			HttpServerAttributesGetter<HttpServerRequest, HttpServerResponse> httpAttributesGetter) {
 		return new OtelHttpServerHandler(openTelemetry, httpServerRequestParser, httpServerResponseParser,
-				skipPatternProvider, httpAttributesExtractor);
+				skipPatternProvider, httpAttributesGetter);
 	}
 
 	/**

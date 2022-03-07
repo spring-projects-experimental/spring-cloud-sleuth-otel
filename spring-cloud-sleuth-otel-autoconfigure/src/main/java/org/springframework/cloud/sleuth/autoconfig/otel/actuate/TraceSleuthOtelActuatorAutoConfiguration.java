@@ -59,7 +59,7 @@ public class TraceSleuthOtelActuatorAutoConfiguration {
 	}
 
 	@Bean
-	@ConditionalOnClass(name = "io.opentelemetry.exporter.otlp.internal.traces.ResourceSpansMarshaler")
+	@ConditionalOnClass(name = "io.opentelemetry.exporter.internal.otlp.traces.ResourceSpansMarshaler")
 	Supplier<FinishedSpanWriter> sleuthOtlpOtelFinishedSpanWriter() {
 		return OtelOtlpFinishedSpanWriter::new;
 	}
