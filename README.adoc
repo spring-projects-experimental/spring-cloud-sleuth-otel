@@ -17,23 +17,6 @@ Spring Cloud Sleuth provides Spring Boot auto-configuration for OpenTelemetry ba
 Sleuth configures everything you need to get started.
 This includes where trace data (spans) are reported to, how many traces to keep (sampling), if remote fields (baggage) are sent, and which libraries are traced.
 
-=== Compatibility Matrix
-
-Please check the table below and pic the compatible versions for your project:
-
-[cols="1,1,1"]
-|===
-|Spring Boot |Spring Cloud |Spring Cloud Sleuth OTel
-
-|2.4.x, 2.5.x
-|2020.0.x aka Ilford
-|1.0.x
-
-|2.6.x
-|2021.0.x aka Jubilee
-|1.1.x
-|===
-
 === Quick Start
 
 Add Spring Cloud Sleuth to the classpath of a Spring Boot application (together with a Tracer implementation) and you will see trace IDs in logs.
@@ -140,7 +123,7 @@ NOTE: Set `spring.application.name=myService` (for instance) to see the service 
 
 == Documentation
 
-Please visit the https://docs.spring.io/spring-cloud-sleuth/docs/[Spring Cloud Sleuth documentation page] to read more about the Spring Cloud Sleuth project. You can check this project's https://spring-projects-experimental.github.io/spring-cloud-sleuth-otel/docs/current/reference/html/[documentation here].
+Please visit the https://docs.spring.io/spring-cloud-sleuth/docs/[Spring Cloud Sleuth documentation page] to read more about the Spring Cloud Sleuth project. You can check this project's https://spring-cloud-incubator.github.io/spring-cloud-sleuth-otel/docs/current/reference/html/[documentation here].
 
 == Building
 
@@ -406,6 +389,57 @@ Go to `File` -> `Settings` -> `Other settings` -> `Checkstyle`. There click on t
 
 IMPORTANT: Remember to set the `Scan Scope` to `All sources` since we apply checkstyle rules for production and test sources.
 
+=== Duplicate Finder
+
+Spring Cloud Build brings along the  `basepom:duplicate-finder-maven-plugin`, that enables flagging duplicate and conflicting classes and resources on the java classpath.
+
+==== Duplicate Finder configuration
+
+Duplicate finder is *enabled by default* and will run in the `verify` phase of your Maven build, but it will only take effect in your project if you add the `duplicate-finder-maven-plugin` to the `build` section of the projecst's `pom.xml`.
+
+.pom.xml
+[source,xml]
+----
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.basepom.maven</groupId>
+            <artifactId>duplicate-finder-maven-plugin</artifactId>
+        </plugin>
+    </plugins>
+</build>
+----
+
+For other properties, we have set defaults as listed in the https://github.com/basepom/duplicate-finder-maven-plugin/wiki[plugin documentation].
+
+You can easily override them but setting the value of the selected property prefixed with `duplicate-finder-maven-plugin`. For example, set `duplicate-finder-maven-plugin.skip` to `true` in order to skip duplicates check in your build.
+
+If you need to add `ignoredClassPatterns` or `ignoredResourcePatterns` to your setup, make sure to add them in the plugin configuration section of your project:
+
+[source,xml]
+----
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.basepom.maven</groupId>
+            <artifactId>duplicate-finder-maven-plugin</artifactId>
+            <configuration>
+                <ignoredClassPatterns>
+                    <ignoredClassPattern>org.joda.time.base.BaseDateTime</ignoredClassPattern>
+                    <ignoredClassPattern>.*module-info</ignoredClassPattern>
+                </ignoredClassPatterns>
+                <ignoredResourcePatterns>
+                    <ignoredResourcePattern>changelog.txt</ignoredResourcePattern>
+                </ignoredResourcePatterns>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+
+
+----
+
+
 == Releasing
 
 === Bump the versions of all the dependencies
@@ -415,7 +449,7 @@ Go to root project's `pom.xml` and update the properties to point to proper depe
 ===  Update the project versions
 
 ```bash
-$ otelVersion="1.0.0-M8" && ./mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && pushd spring-cloud-sleuth-otel-dependencies && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd && pushd benchmarks && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd
+$ otelVersion="1.1.0-M6" && ./mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && pushd spring-cloud-sleuth-otel-dependencies && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd && pushd benchmarks && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd
 ```
 
 IMPORTANT: Notice that we have to update some modules manually.
@@ -449,21 +483,21 @@ $ ./mvnw deploy -Pcentral -DskipTests
 === Commit and tag
 
 ```bash
-$ otelVersion="1.0.0-M8" && git commit -am "Bumped versions for the ${otelVersion} release" && git tag "v${otelVersion}"
+$ otelVersion="1.1.0-M6" && git commit -am "Bumped versions for the ${otelVersion} release" && git tag "v${otelVersion}"
 ```
 
 === Generate and update the docs
 
 ```bash
 $ ./mvnw clean install -Pdocs -pl docs
-$ export otelVersion="1.0.0-M8"
+$ export otelVersion="1.1.0-M6"
 $ temporaryDir="/tmp/sleuth-otel"  && rm -rf "${temporaryDir}" && mkdir -p "${temporaryDir}" && cp -r docs/target/generated-docs/* "${temporaryDir}" && git checkout gh-pages && git reset --hard origin/gh-pages && rm -rf "docs/${otelVersion}" && mkdir -p "docs/${otelVersion}" && cp -rf "${temporaryDir}"/* "docs/${otelVersion}/" && pushd docs && rm current && ln -s "${otelVersion}" current && git add . && git commit -m "Updated site" && git push origin gh-pages
 ```
 
 === Go back to snapshots
 
 ```bash
-$ otelVersion="1.0.0-SNAPSHOT" && ./mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && pushd spring-cloud-sleuth-otel-dependencies && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd && pushd benchmarks && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd
+$ otelVersion="1.1.0-SNAPSHOT" && ./mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && pushd spring-cloud-sleuth-otel-dependencies && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd && pushd benchmarks && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd
 ```
 
 === Commit and push tags
