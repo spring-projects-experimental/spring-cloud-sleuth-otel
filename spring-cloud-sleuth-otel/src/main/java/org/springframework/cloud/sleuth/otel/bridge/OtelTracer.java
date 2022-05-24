@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.springframework.cloud.sleuth.BaggageInScope;
 import org.springframework.cloud.sleuth.BaggageManager;
+import org.springframework.cloud.sleuth.CurrentTraceContext;
 import org.springframework.cloud.sleuth.ScopedSpan;
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.SpanCustomizer;
@@ -35,6 +36,8 @@ import org.springframework.context.ApplicationEventPublisher;
  * @since 1.0.0
  */
 public class OtelTracer implements Tracer {
+
+	private final OtelCurrentTraceContext otelCurrentTraceContext = new OtelCurrentTraceContext();
 
 	private final io.opentelemetry.api.trace.Tracer tracer;
 
@@ -132,6 +135,11 @@ public class OtelTracer implements Tracer {
 	@Override
 	public BaggageInScope createBaggage(String name, String value) {
 		return this.otelBaggageManager.createBaggage(name, value);
+	}
+
+	@Override
+	public CurrentTraceContext currentTraceContext() {
+		return this.otelCurrentTraceContext;
 	}
 
 }
