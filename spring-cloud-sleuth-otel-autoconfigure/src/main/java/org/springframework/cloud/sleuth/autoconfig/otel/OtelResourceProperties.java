@@ -16,6 +16,8 @@
 
 package org.springframework.cloud.sleuth.autoconfig.otel;
 
+import java.util.Map;
+
 import io.opentelemetry.sdk.resources.Resource;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -23,6 +25,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * Properties for setting OTel resource providers.
  *
+ * @author Knut Schleßelmann
  * @author Marcin Grzejszczak
  * @since 1.0.0
  */
@@ -34,12 +37,25 @@ public class OtelResourceProperties {
 	 */
 	private boolean enabled = true;
 
+	/**
+	 * Map of custom resource attributes (e.g. service.version)
+	 */
+	private Map<String, String> attributes = null;
+
 	public boolean isEnabled() {
 		return this.enabled;
 	}
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public Map<String, String> getAttributes() {
+		return attributes;
+	}
+
+	public void setAttributes(Map<String, String> attributes) {
+		this.attributes = attributes;
 	}
 
 }
