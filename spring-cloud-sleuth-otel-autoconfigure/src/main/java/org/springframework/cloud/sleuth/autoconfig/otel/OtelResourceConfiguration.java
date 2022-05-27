@@ -45,25 +45,9 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
  * @since 1.0.0
  */
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnClass(ProcessResource.class)
 @EnableConfigurationProperties(OtelResourceProperties.class)
 @ConditionalOnProperty(value = "spring.sleuth.otel.resource.enabled", matchIfMissing = true)
 class OtelResourceConfiguration {
-
-	@Bean
-	Supplier<Resource> otelOsResourceProvider() {
-		return OsResource::get;
-	}
-
-	@Bean
-	Supplier<Resource> otelProcessResourceProvider() {
-		return ProcessResource::get;
-	}
-
-	@Bean
-	Supplier<Resource> otelProcessRuntimeResourceProvider() {
-		return ProcessRuntimeResource::get;
-	}
 
 	@Bean
 	@Conditional(OtelResourceAttributesCondition.class)
@@ -72,6 +56,26 @@ class OtelResourceConfiguration {
 		properties.getAttributes().forEach(attributesBuilder::put);
 
 		return () -> Resource.create(attributesBuilder.build());
+	}
+
+	@ConditionalOnClass(ProcessResource.class)
+	static class OtelProcessResourceConfiguration {
+
+		@Bean
+		Supplier<Resource> otelOsResourceProvider() {
+			return OsResource::get;
+		}
+
+		@Bean
+		Supplier<Resource> otelProcessResourceProvider() {
+			return ProcessResource::get;
+		}
+
+		@Bean
+		Supplier<Resource> otelProcessRuntimeResourceProvider() {
+			return ProcessRuntimeResource::get;
+		}
+
 	}
 
 	static class OtelResourceAttributesCondition implements Condition {
