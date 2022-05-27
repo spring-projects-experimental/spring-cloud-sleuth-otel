@@ -85,7 +85,7 @@ class OtelResourceConfiguration {
 			OtelResourceProperties config = Binder.get(context.getEnvironment())
 					.bind("spring.sleuth.otel.resource", OtelResourceProperties.class).orElse(null);
 
-			return config != null && config.getAttributes() != null && !config.getAttributes().isEmpty();
+			return config != null && !config.getAttributes().isEmpty();
 		}
 
 	}

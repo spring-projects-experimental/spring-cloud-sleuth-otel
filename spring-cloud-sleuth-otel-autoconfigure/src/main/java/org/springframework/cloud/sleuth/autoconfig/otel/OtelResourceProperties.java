@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.sleuth.autoconfig.otel;
 
+import java.util.Collections;
 import java.util.Map;
 
 import io.opentelemetry.sdk.resources.Resource;
@@ -40,7 +41,7 @@ public class OtelResourceProperties {
 	/**
 	 * Map of custom resource attributes (e.g. service.version)
 	 */
-	private Map<String, String> attributes = null;
+	private Map<String, String> attributes = Collections.emptyMap();
 
 	public boolean isEnabled() {
 		return this.enabled;
