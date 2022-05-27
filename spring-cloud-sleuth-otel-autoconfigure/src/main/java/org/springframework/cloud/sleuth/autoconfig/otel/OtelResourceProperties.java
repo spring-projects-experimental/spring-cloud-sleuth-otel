@@ -51,7 +51,7 @@ public class OtelResourceProperties {
 	}
 
 	public Map<String, String> getAttributes() {
-		return attributes;
+		return this.attributes;
 	}
 
 	public void setAttributes(Map<String, String> attributes) {
