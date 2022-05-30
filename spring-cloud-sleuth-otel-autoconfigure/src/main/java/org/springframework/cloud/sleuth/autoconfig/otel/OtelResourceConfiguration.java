@@ -18,6 +18,8 @@ package org.springframework.cloud.sleuth.autoconfig.otel;
 
 import java.util.function.Supplier;
 
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.common.AttributesBuilder;
 import io.opentelemetry.sdk.extension.resources.OsResource;
 import io.opentelemetry.sdk.extension.resources.ProcessResource;
 import io.opentelemetry.sdk.extension.resources.ProcessRuntimeResource;
@@ -26,35 +28,66 @@ import io.opentelemetry.sdk.resources.Resource;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
  * {@link org.springframework.boot.autoconfigure.EnableAutoConfiguration
  * Auto-configuration} to enable OpenTelemetry exporters.
  *
+ * @author Knut Schleßelmann
  * @author Marcin Grzejszczak
  * @since 1.0.0
  */
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnClass(ProcessResource.class)
 @EnableConfigurationProperties(OtelResourceProperties.class)
 @ConditionalOnProperty(value = "spring.sleuth.otel.resource.enabled", matchIfMissing = true)
 class OtelResourceConfiguration {
 
 	@Bean
-	Supplier<Resource> otelOsResourceProvider() {
-		return OsResource::get;
+	@Conditional(OtelResourceAttributesCondition.class)
+	Supplier<Resource> customResourceProvider(OtelResourceProperties properties) {
+		AttributesBuilder attributesBuilder = Attributes.builder();
+		properties.getAttributes().forEach(attributesBuilder::put);
+
+		return () -> Resource.create(attributesBuilder.build());
 	}
 
-	@Bean
-	Supplier<Resource> otelProcessResourceProvider() {
-		return ProcessResource::get;
+	@ConditionalOnClass(ProcessResource.class)
+	static class OtelProcessResourceConfiguration {
+
+		@Bean
+		Supplier<Resource> otelOsResourceProvider() {
+			return OsResource::get;
+		}
+
+		@Bean
+		Supplier<Resource> otelProcessResourceProvider() {
+			return ProcessResource::get;
+		}
+
+		@Bean
+		Supplier<Resource> otelProcessRuntimeResourceProvider() {
+			return ProcessRuntimeResource::get;
+		}
+
 	}
 
-	@Bean
-	Supplier<Resource> otelProcessRuntimeResourceProvider() {
-		return ProcessRuntimeResource::get;
+	static class OtelResourceAttributesCondition implements Condition {
+
+		@Override
+		public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+			OtelResourceProperties config = Binder.get(context.getEnvironment())
+					.bind("spring.sleuth.otel.resource", OtelResourceProperties.class).orElse(null);
+
+			return config != null && !config.getAttributes().isEmpty();
+		}
+
 	}
 
 }
