@@ -67,6 +67,7 @@ class OtelExporterConfiguration {
 
 	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnClass(JaegerGrpcSpanExporter.class)
+	@ConditionalOnProperty(value = "spring.sleuth.otel.exporter.jaeger.enabled", matchIfMissing = true)
 	static class JaegerExporterConfiguration {
 
 		@Bean
@@ -88,6 +89,7 @@ class OtelExporterConfiguration {
 
 	@Configuration(proxyBeanMethods = false)
 	@ConditionalOnClass(OtlpGrpcSpanExporter.class)
+	@ConditionalOnProperty(value = "spring.sleuth.otel.exporter.otlp.enabled", matchIfMissing = true)
 	static class OtlpExporterConfiguration {
 
 		@Bean

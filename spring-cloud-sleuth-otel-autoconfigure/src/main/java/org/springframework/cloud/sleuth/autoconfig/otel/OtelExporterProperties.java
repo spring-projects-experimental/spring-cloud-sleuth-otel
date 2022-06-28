@@ -86,6 +86,11 @@ public class OtelExporterProperties {
 	public static class Otlp {
 
 		/**
+		 * Enables OTLP exporter.
+		 */
+		private boolean enabled = true;
+
+		/**
 		 * Timeout in millis.
 		 */
 		private Long timeout;
@@ -124,12 +129,25 @@ public class OtelExporterProperties {
 			this.headers = headers;
 		}
 
+		public boolean isEnabled() {
+			return this.enabled;
+		}
+
+		public void setEnabled(boolean enabled) {
+			this.enabled = enabled;
+		}
+
 	}
 
 	/**
 	 * Integrations with Jaeger exporter.
 	 */
 	public static class Jaeger {
+
+		/**
+		 * Enables Jaeger exporter.
+		 */
+		private boolean enabled = true;
 
 		/**
 		 * Timeout in millis.
@@ -155,6 +173,14 @@ public class OtelExporterProperties {
 
 		public void setEndpoint(String endpoint) {
 			this.endpoint = endpoint;
+		}
+
+		public boolean isEnabled() {
+			return this.enabled;
+		}
+
+		public void setEnabled(boolean enabled) {
+			this.enabled = enabled;
 		}
 
 	}
