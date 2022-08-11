@@ -5,7 +5,7 @@ Go to root project's `pom.xml` and update the properties to point to proper depe
 ===  Update the project versions
 
 ```bash
-$ otelVersion="1.1.0-M6" && ./mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && pushd spring-cloud-sleuth-otel-dependencies && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd && pushd benchmarks && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd
+$ otelVersion="1.1.0-M7" && ./mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && pushd spring-cloud-sleuth-otel-dependencies && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd && pushd benchmarks && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd
 ```
 
 IMPORTANT: Notice that we have to update some modules manually.
@@ -39,14 +39,14 @@ $ ./mvnw deploy -Pcentral -DskipTests
 === Commit and tag
 
 ```bash
-$ otelVersion="1.1.0-M6" && git commit -am "Bumped versions for the ${otelVersion} release" && git tag "v${otelVersion}"
+$ otelVersion="1.1.0-M7" && git commit -am "Bumped versions for the ${otelVersion} release" && git tag "v${otelVersion}"
 ```
 
 === Generate and update the docs
 
 ```bash
 $ ./mvnw clean install -Pdocs -pl docs
-$ export otelVersion="1.1.0-M6"
+$ export otelVersion="1.1.0-M7"
 $ temporaryDir="/tmp/sleuth-otel"  && rm -rf "${temporaryDir}" && mkdir -p "${temporaryDir}" && cp -r docs/target/generated-docs/* "${temporaryDir}" && git checkout gh-pages && git reset --hard origin/gh-pages && rm -rf "docs/${otelVersion}" && mkdir -p "docs/${otelVersion}" && cp -rf "${temporaryDir}"/* "docs/${otelVersion}/" && pushd docs && rm current && ln -s "${otelVersion}" current && git add . && git commit -m "Updated site" && git push origin gh-pages
 ```
 
