@@ -23,8 +23,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Detects if both OTel (this project) and autoconfiguration for Brave are both on the
- * classpath.
+ * Detects if both OTel (this project) and Brave are on the classpath.
  *
  * @author Jonatan Ivanov
  * @since 1.0.0
@@ -44,9 +43,10 @@ class MultipleTracerAutoConfigurationsDetector {
 	static final class MultipleTracersFoundException extends RuntimeException {
 
 		MultipleTracersFoundException() {
-			super("You have both Spring Cloud Sleuth OpenTelemetry (OTel) and Spring Cloud Sleuth Brave tracers on the "
+			super("You have both OpenTelemetry (OTel) and Brave (probably from Spring Cloud Sleuth Brave) tracers on the "
 					+ "classpath. Please exclude <org.springframework.cloud:spring-cloud-sleuth-brave> dependency from "
-					+ "<org.springframework.cloud:spring-cloud-starter-sleuth>.");
+					+ "<org.springframework.cloud:spring-cloud-starter-sleuth>. If the issue persist, please check the "
+					+ "classpath, something brings in Brave that you need to exclude");
 		}
 
 	}
