@@ -16,10 +16,11 @@
 
 package org.springframework.cloud.sleuth.otel.bridge;
 
+import java.net.URI;
+
 import io.opentelemetry.instrumentation.api.instrumenter.net.NetServerAttributesGetter;
 
 import org.springframework.cloud.sleuth.http.HttpRequest;
-import org.springframework.lang.Nullable;
 
 /**
  * Extracts OpenTelemetry network semantic attributes value for server http spans.
@@ -28,21 +29,39 @@ import org.springframework.lang.Nullable;
  */
 class HttpRequestNetServerAttributesGetter implements NetServerAttributesGetter<HttpRequest> {
 
-	@Nullable
 	@Override
 	public String transport(HttpRequest httpRequest) {
-		return null;
+		String url = httpRequest.url();
+		if (url == null) {
+			return null;
+		}
+		URI uri = URI.create(url);
+		return uri.getScheme();
 	}
 
 	@Override
-	public Integer peerPort(HttpRequest httpRequest) {
+	public String hostName(HttpRequest httpRequest) {
+		String url = httpRequest.url();
+		if (url == null) {
+			return null;
+		}
+		URI uri = URI.create(url);
+		return uri.getHost();
+	}
+
+	@Override
+	public Integer hostPort(HttpRequest httpRequest) {
 		return httpRequest.remotePort();
 	}
 
-	@Nullable
 	@Override
-	public String peerIp(HttpRequest httpRequest) {
+	public String sockPeerAddr(HttpRequest httpRequest) {
 		return httpRequest.remoteIp();
+	}
+
+	@Override
+	public Integer sockPeerPort(HttpRequest httpRequest) {
+		return httpRequest.remotePort();
 	}
 
 }

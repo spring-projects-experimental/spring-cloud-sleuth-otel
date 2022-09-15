@@ -20,6 +20,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.opentelemetry.context.Context;
+import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
 
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.docs.AssertingSpan;
@@ -110,6 +111,13 @@ class OtelSpan implements Span {
 	@Override
 	public void end() {
 		this.delegate.end();
+	}
+
+	@Override
+	public Span remoteIpAndPort(String ip, int port) {
+		this.delegate.setAttribute(SemanticAttributes.NET_PEER_IP, ip);
+		this.delegate.setAttribute(SemanticAttributes.NET_PEER_PORT, (long) port);
+		return this;
 	}
 
 	@Override

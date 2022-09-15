@@ -70,9 +70,10 @@
 		<spring-cloud-task.version>2.4.2</spring-cloud-task.version>
 		<spring-cloud-deployer.version>2.7.2</spring-cloud-deployer.version>
 		<opentracing.version>0.32.0</opentracing.version>
-		<opentelemetry.version>1.16.0</opentelemetry.version>
-		<opentelemetry.alpha.version>1.16.0-alpha</opentelemetry.alpha.version>
-		<opentelemetry-instrumentation.version>1.16.0-alpha</opentelemetry-instrumentation.version>
+		<opentelemetry.version>1.18.0</opentelemetry.version>
+		<opentelemetry-alpha.version>1.18.0-alpha</opentelemetry-alpha.version>
+		<opentelemetry-instrumentation.version>1.18.0</opentelemetry-instrumentation.version>
+		<opentelemetry-instrumentation-alpha.version>1.18.0-alpha</opentelemetry-instrumentation-alpha.version>
 		<opentelemetry-proto.version>0.11.0-alpha</opentelemetry-proto.version>
 		<wavefront.version>2.2.0</wavefront.version>
 		<spring-security-boot-autoconfigure.version>2.3.4.RELEASE</spring-security-boot-autoconfigure.version>
@@ -258,7 +259,7 @@
 			<dependency>
 				<groupId>io.opentelemetry</groupId>
 				<artifactId>opentelemetry-bom-alpha</artifactId>
-				<version>${opentelemetry.alpha.version}</version>
+				<version>${opentelemetry-alpha.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -298,7 +299,7 @@
 			<dependency>
 				<groupId>io.opentelemetry.instrumentation</groupId>
 				<artifactId>opentelemetry-instrumentation-api-semconv</artifactId>
-				<version>${opentelemetry-instrumentation.version}</version>
+				<version>${opentelemetry-instrumentation-alpha.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.security.oauth</groupId>

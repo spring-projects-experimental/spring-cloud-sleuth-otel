@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
 
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.TraceContext;
@@ -115,6 +116,13 @@ class OtelSpanBuilder implements Span.Builder {
 	@Override
 	public Span.Builder remoteServiceName(String remoteServiceName) {
 		this.delegate.setAttribute(REMOTE_SERVICE_NAME_KEY, remoteServiceName);
+		return this;
+	}
+
+	@Override
+	public Span.Builder remoteIpAndPort(String ip, int port) {
+		this.delegate.setAttribute(SemanticAttributes.NET_PEER_IP, ip);
+		this.delegate.setAttribute(SemanticAttributes.NET_PEER_PORT, (long) port);
 		return this;
 	}
 

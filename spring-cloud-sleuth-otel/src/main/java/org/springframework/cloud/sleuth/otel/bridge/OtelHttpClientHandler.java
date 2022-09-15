@@ -74,7 +74,8 @@ public class OtelHttpClientHandler implements HttpClientHandler {
 				.setSpanStatusExtractor(HttpSpanStatusExtractor.create(httpAttributesGetter))
 				.addAttributesExtractor(NetClientAttributesExtractor.create(new HttpRequestNetClientAttributesGetter()))
 				.addAttributesExtractor(HttpClientAttributesExtractor.create(httpAttributesGetter))
-				.addAttributesExtractor(new PathAttributeExtractor()).newClientInstrumenter(HttpClientRequest::header);
+				.addAttributesExtractor(new PathAttributeExtractor())
+				.buildClientInstrumenter(HttpClientRequest::header);
 	}
 
 	@Override
@@ -110,6 +111,9 @@ public class OtelHttpClientHandler implements HttpClientHandler {
 		Span result = OtelSpan.fromOtel(span, context.with(REQUEST_CONTEXT_KEY, request));
 		if (this.httpClientRequestParser != null) {
 			this.httpClientRequestParser.parse(request, result.context(), result);
+		}
+		if (request.remotePort() != 0) {
+			result.remoteIpAndPort(request.remoteIp(), request.remotePort());
 		}
 		return result;
 	}
