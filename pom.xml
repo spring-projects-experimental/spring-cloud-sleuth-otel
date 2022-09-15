@@ -94,7 +94,7 @@
 		<awaitility.version>4.0.3</awaitility.version>
 		<archunit-junit5.version>0.14.1</archunit-junit5.version>
 		<jsr305.version>3.0.2</jsr305.version>
-		<testcontainers.version>1.15.3</testcontainers.version>
+		<testcontainers.version>1.17.3</testcontainers.version>
 	</properties>
 
 	<build>
