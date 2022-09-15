@@ -46,10 +46,14 @@ class HttpRequestNetClientAttributesGetter implements NetClientAttributesGetter<
 		return httpRequest == null ? null : httpRequest.remotePort();
 	}
 
-	@Nullable
 	@Override
-	public String peerIp(HttpRequest httpRequest, @Nullable HttpResponse httpResponse) {
+	public String sockPeerAddr(HttpRequest httpRequest, HttpResponse httpResponse) {
 		return httpRequest == null ? null : httpRequest.remoteIp();
+	}
+
+	@Override
+	public Integer sockPeerPort(HttpRequest httpRequest, HttpResponse httpResponse) {
+		return httpRequest == null ? null : httpRequest.remotePort();
 	}
 
 }

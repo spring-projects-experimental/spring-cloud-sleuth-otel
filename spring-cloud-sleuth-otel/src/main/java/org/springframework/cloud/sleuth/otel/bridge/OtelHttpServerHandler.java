@@ -75,7 +75,7 @@ public class OtelHttpServerHandler implements HttpServerHandler {
 				.setSpanStatusExtractor(HttpSpanStatusExtractor.create(httpAttributesGetter))
 				.addAttributesExtractor(NetServerAttributesExtractor.create(new HttpRequestNetServerAttributesGetter()))
 				.addAttributesExtractor(HttpServerAttributesExtractor.create(httpAttributesGetter))
-				.addAttributesExtractor(new PathAttributeExtractor()).newServerInstrumenter(getGetter());
+				.addAttributesExtractor(new PathAttributeExtractor()).buildServerInstrumenter(getGetter());
 	}
 
 	@Override
