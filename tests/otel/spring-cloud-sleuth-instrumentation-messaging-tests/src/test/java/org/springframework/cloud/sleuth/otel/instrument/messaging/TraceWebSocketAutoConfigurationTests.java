@@ -24,12 +24,14 @@ import org.springframework.cloud.sleuth.otel.bridge.ArrayListSpanProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 
 /**
  * @author Marcin Grzejszczak
  */
 @SpringBootTest
 @ContextConfiguration(classes = TraceWebSocketAutoConfigurationTests.Config.class)
+@TestPropertySource(properties = "")
 public class TraceWebSocketAutoConfigurationTests
 		extends org.springframework.cloud.sleuth.instrument.messaging.TraceWebSocketAutoConfigurationTests {
 

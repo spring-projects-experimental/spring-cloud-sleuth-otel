@@ -17,6 +17,7 @@
 package org.springframework.cloud.sleuth.autoconfig.zipkin2;
 
 import io.opentelemetry.sdk.trace.samplers.Sampler;
+import org.junit.jupiter.api.Disabled;
 
 import org.springframework.cloud.sleuth.autoconfig.otel.OtelAutoConfiguration;
 import org.springframework.cloud.sleuth.autoconfig.otel.zipkin2.ZipkinOtelAutoConfiguration;
@@ -39,6 +40,12 @@ public class OtelZipkinAutoConfigurationTests
 	@Override
 	protected Class configurationClass() {
 		return Config.class;
+	}
+
+	@Override
+	@Disabled
+	void should_apply_micrometer_reporter_metrics_when_meter_registry_bean_present() {
+
 	}
 
 	@Configuration(proxyBeanMethods = false)
