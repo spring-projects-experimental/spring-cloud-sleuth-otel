@@ -29,7 +29,7 @@
 	<parent>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-build</artifactId>
-		<version>3.1.2</version>
+		<version>3.1.4</version>
 		<relativePath/>
 		<!-- lookup parent from repository -->
 	</parent>
@@ -57,18 +57,18 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.testTarget>1.8</maven.compiler.testTarget>
 		<maven.compiler.testSource>1.8</maven.compiler.testSource>
-		<spring-cloud-build.version>3.1.2</spring-cloud-build.version>
-		<spring-cloud-commons.version>3.1.2</spring-cloud-commons.version>
-		<spring-cloud-sleuth.version>3.1.2</spring-cloud-sleuth.version>
-		<spring-cloud-gateway.version>3.1.2</spring-cloud-gateway.version>
-		<spring-cloud-config.version>3.1.2</spring-cloud-config.version>
-		<spring-cloud-circuitbreaker.version>2.1.2</spring-cloud-circuitbreaker.version>
-		<spring-cloud-stream.version>3.2.2</spring-cloud-stream.version>
-		<spring-cloud-function.version>3.2.2</spring-cloud-function.version>
-		<spring-cloud-netflix.version>3.1.2</spring-cloud-netflix.version>
-		<spring-cloud-openfeign.version>3.1.2</spring-cloud-openfeign.version>
-		<spring-cloud-task.version>2.4.2</spring-cloud-task.version>
-		<spring-cloud-deployer.version>2.7.2</spring-cloud-deployer.version>
+		<spring-cloud-build.version>3.1.4</spring-cloud-build.version>
+		<spring-cloud-commons.version>3.1.4</spring-cloud-commons.version>
+		<spring-cloud-sleuth.version>3.1.4</spring-cloud-sleuth.version>
+		<spring-cloud-gateway.version>3.1.4</spring-cloud-gateway.version>
+		<spring-cloud-config.version>3.1.4</spring-cloud-config.version>
+		<spring-cloud-circuitbreaker.version>2.1.4</spring-cloud-circuitbreaker.version>
+		<spring-cloud-stream.version>3.2.5</spring-cloud-stream.version>
+		<spring-cloud-function.version>3.2.7</spring-cloud-function.version>
+		<spring-cloud-netflix.version>3.1.4</spring-cloud-netflix.version>
+		<spring-cloud-openfeign.version>3.1.4</spring-cloud-openfeign.version>
+		<spring-cloud-task.version>2.4.4</spring-cloud-task.version>
+		<spring-cloud-deployer.version>2.7.6</spring-cloud-deployer.version>
 		<opentracing.version>0.32.0</opentracing.version>
 		<opentelemetry.version>1.18.0</opentelemetry.version>
 		<opentelemetry-alpha.version>1.18.0-alpha</opentelemetry-alpha.version>

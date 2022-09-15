@@ -18,11 +18,14 @@ package org.springframework.cloud.sleuth.otel.bridge;
 
 import io.opentelemetry.api.common.AttributeKey;
 import org.assertj.core.api.BDDAssertions;
+import org.junit.jupiter.api.Disabled;
 
 import org.springframework.cloud.sleuth.exporter.FinishedSpan;
 import org.springframework.cloud.sleuth.otel.OtelTestTracing;
 import org.springframework.cloud.sleuth.test.TestTracingAware;
 
+// TODO: After 3.1.5 Sleuth gets released enable back
+@Disabled("Waiting for Sleuth 3.1.5 release")
 public class CircuitBreakerTests
 		extends org.springframework.cloud.sleuth.instrument.circuitbreaker.CircuitBreakerTests {
 

@@ -19,6 +19,7 @@ package org.springframework.cloud.sleuth.otel.bridge;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.sdk.trace.samplers.Sampler;
 import org.assertj.core.api.BDDAssertions;
+import org.junit.jupiter.api.Disabled;
 
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.sleuth.exporter.FinishedSpan;
@@ -29,6 +30,9 @@ import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest
 @ContextConfiguration(classes = CircuitBreakerIntegrationTests.Config.class)
+
+// TODO: After 3.1.5 Sleuth gets released enable back
+@Disabled("Waiting for Sleuth 3.1.5 release")
 public class CircuitBreakerIntegrationTests
 		extends org.springframework.cloud.sleuth.instrument.circuitbreaker.CircuitBreakerIntegrationTests {
 
