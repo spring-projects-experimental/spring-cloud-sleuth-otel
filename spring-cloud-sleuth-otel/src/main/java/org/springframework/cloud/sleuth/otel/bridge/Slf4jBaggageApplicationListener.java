@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import io.opentelemetry.api.baggage.Baggage;
+import io.opentelemetry.api.trace.Span;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.slf4j.MDC;
@@ -45,7 +46,8 @@ public class Slf4jBaggageApplicationListener implements ApplicationListener<Appl
 		if (log.isTraceEnabled()) {
 			log.trace("Got scope attached event [" + event + "]");
 		}
-		if (event.getBaggage() != null) {
+		Span span = event.getSpan();
+		if (event.getBaggage() != null && span != null && span.getSpanContext().isValid()) {
 			putEntriesIntoMdc(event.getBaggage());
 		}
 	}
