@@ -6,11 +6,6 @@ export POST_RELEASE_VERSION="${POST_RELEASE_VERSION:-}"
 export DEBUG="${DEBUG:-false}"
 
 export VERSION="${RELEASE_VERSION}"
-export FOO_SEC="${FOO_SEC:-}"
-export FOO_PUB="${FOO_PUB:-}"
-export FOO_PASSPHRASE="${FOO_PASSPHRASE:-}"
-export SONATYPE_USER="${SONATYPE_USER:-}"
-export SONATYPE_PASSWORD="${SONATYPE_PASSWORD:-}"
 
 if [[ "${DEBUG}" == "true" ]];  then
   set -x
@@ -28,8 +23,6 @@ else
     echo Activating \"central\" profile for version=\"$VERSION\"
     echo $MAVEN_ARGS | grep -q milestone || MAVEN_ARGS="$MAVEN_ARGS -Pcentral"
 fi
-
-MAVEN_ARGS="${MAVEN_ARGS} -Dgpg.secretKeyring="$FOO_SEC" -Dgpg.publicKeyring="$FOO_PUB" -Dgpg.passphrase="$FOO_PASSPHRASE" -DSONATYPE_USER="$SONATYPE_USER" -DSONATYPE_PASSWORD="$SONATYPE_PASSWORD""
 
 echo "Will set the following Maven Args [${MAVEN_ARGS}]"
 
