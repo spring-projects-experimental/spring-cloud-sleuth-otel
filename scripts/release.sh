@@ -44,7 +44,7 @@ git commit -am "Bumped versions for the ${otelVersion} release" && git tag "v${o
 
 echo -e "\n\nGenerate docs\n\n"
 
-./mvnw clean install -Pdocs -pl docs && cp -r docs/target/generated-docs/* "${temporaryDir}" && git checkout gh-pages && git reset --hard origin/gh-pages && rm -rf "docs/${otelVersion}" && mkdir -p "docs/${otelVersion}" && cp -rf "${temporaryDir}"/* "docs/${otelVersion}/" && pushd docs && rm current && ln -s "${otelVersion}" current && git add . && git commit -m "Updated site" && git push origin gh-pages
+./mvnw clean install -Pdocs -pl docs && git stash && cp -r docs/target/generated-docs/* "${temporaryDir}" && git checkout gh-pages && git reset --hard origin/gh-pages && rm -rf "docs/${otelVersion}" && mkdir -p "docs/${otelVersion}" && cp -rf "${temporaryDir}"/* "docs/${otelVersion}/" && pushd docs && rm current && ln -s "${otelVersion}" current && git add . && git commit -m "Updated site" && git push origin gh-pages
 
 echo -e "\n\nUpdate the project versions to a post release version ${POST_RELEASE_VERSION}\n\n"
 
