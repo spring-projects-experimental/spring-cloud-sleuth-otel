@@ -25,3 +25,4 @@ _includes
 .sdkmanrc
 results/jmh/*.csv
 config/application.properties
+.flattened-pom.xml
