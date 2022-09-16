@@ -49,3 +49,8 @@ echo -e "\n\nGenerate docs\n\n"
 echo -e "\n\nUpdate the project versions to a post release version ${POST_RELEASE_VERSION}\n\n"
 
 otelVersion="${POST_RELEASE_VERSION}" && ./mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && pushd spring-cloud-sleuth-otel-dependencies && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd && pushd benchmarks && ../mvnw versions:set -DnewVersion="${otelVersion}" -DgenerateBackupPoms=false && popd
+
+echo -e "\n\nGoing back to snapshots after the release\n\n"
+
+git commit -am "Going back to snapshots after the release"
+git push origin --tags
