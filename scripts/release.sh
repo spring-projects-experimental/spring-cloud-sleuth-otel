@@ -3,6 +3,7 @@ set -e
 
 export RELEASE_VERSION="${RELEASE_VERSION:-}"
 export POST_RELEASE_VERSION="${POST_RELEASE_VERSION:-}"
+export DEBUG="${DEBUG:-false}"
 
 export VERSION="${RELEASE_VERSION}"
 export FOO_SEC="${FOO_SEC:-}"
@@ -10,6 +11,10 @@ export FOO_PUB="${FOO_PUB:-}"
 export FOO_PASSPHRASE="${FOO_PASSPHRASE:-}"
 export SONATYPE_USER="${SONATYPE_USER:-}"
 export SONATYPE_PASSWORD="${SONATYPE_PASSWORD:-}"
+
+if [[ "${DEBUG}" == "true" ]];  then
+  set -x
+fi
 
 temporaryDir="$(mktemp -d)"
 trap "{ rm -rf ${temporaryDir}; }" EXIT
