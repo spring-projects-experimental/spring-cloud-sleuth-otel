@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.10">
+<title>Getting Started</title>
+<link rel="stylesheet" href="css/spring.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+.hidden {
+	display: none;
+}
+
+.switch {
+	border-width: 1px 1px 0 1px;
+	border-style: solid;
+	border-color: #7a2518;
+	display: inline-block;
+}
+
+.switch--item {
+	padding: 10px;
+	background-color: #ffffff;
+	color: #7a2518;
+	display: inline-block;
+	cursor: pointer;
+}
+
+.switch--item:not(:first-child) {
+	border-width: 0 0 0 1px;
+	border-style: solid;
+	border-color: #7a2518;
+}
+
+.switch--item.selected {
+	background-color: #7a2519;
+	color: #ffffff;
+}
+
+</style>
+<script type="text/javascript">
+function addBlockSwitches() {
+	for (var primary of document.querySelectorAll('.primary')) {
+		var switchItem = createSwitchItem(primary, createBlockSwitch(primary));
+		switchItem.item.classList.add("selected");
+		var title = primary.querySelector('.title')
+		title.remove();
+	}
+	for (var secondary of document.querySelectorAll('.secondary')) {
+		var primary = findPrimary(secondary);
+		if (primary === null) {
+			console.error("Found secondary block with no primary sibling");
+		}
+		else {
+			var switchItem = createSwitchItem(secondary, primary.querySelector('.switch'));
+			switchItem.content.classList.add("hidden");
+			primary.append(switchItem.content);
+			secondary.remove();
+		}
+	}
+}
+
+function createElementFromHtml(html) {
+	var template = document.createElement('template');
+    template.innerHTML = html;
+    return template.content.firstChild;
+}
+
+function createBlockSwitch(primary) {
+    var blockSwitch = createElementFromHtml('<div class="switch"></div>');
+    primary.prepend(blockSwitch)
+	return blockSwitch;
+}
+
+function findPrimary(secondary) {
+	var candidate = secondary.previousElementSibling;
+	while (candidate != null && !candidate.classList.contains('primary')) {
+		candidate = candidate.previousElementSibling;
+	}
+	return candidate;
+}
+
+function createSwitchItem(block, blockSwitch) {
+	var blockName = block.querySelector('.title').textContent;
+	var content = block.querySelectorAll('.content').item(0);
+	var colist = nextSibling(block, '.colist');
+	if (colist != null) {
+		content.append(colist);
+	}
+	var item = createElementFromHtml('<div class="switch--item">' + blockName + '</div>');
+	item.dataset.blockName = blockName;
+	content.dataset.blockName = blockName;
+	blockSwitch.append(item);
+	return {'item': item, 'content': content};
+}
+
+function nextSibling(element, selector) {
+	var sibling = element.nextElementSibling;
+	while (sibling) {
+		if (sibling.matches(selector)) {
+			return sibling;
+		}
+		sibling = sibling.nextElementSibling;
+	}
+}
+
+function globalSwitch() {
+	document.querySelectorAll(".switch--item").forEach(function(item) {
+		var blockId = blockIdForSwitchItem(item);
+		var handler = function(event) {
+			selectedText = event.target.textContent;
+			window.localStorage.setItem(blockId, selectedText);
+			for (var switchItem of document.querySelectorAll(".switch--item")) {
+				if (blockIdForSwitchItem(switchItem) === blockId && switchItem.textContent === selectedText) {
+					select(switchItem);
+				}
+			}
+		}
+		item.addEventListener("click", handler);
+		if (item.textContent === window.localStorage.getItem(blockId)) {
+			select(item);
+		}
+	});
+}
+
+function select(selected) {
+	for (var child of selected.parentNode.children) {
+		child.classList.remove("selected");
+	}
+	selected.classList.add("selected");
+	for (var child of selected.parentNode.parentNode.children) {
+		if (child.classList.contains("content")) {
+			if (selected.dataset.blockName === child.dataset.blockName) {
+				child.classList.remove("hidden");
+			}
+			else {
+				child.classList.add("hidden");
+			}
+		}
+	}	
+}
+
+function blockIdForSwitchItem(item) {
+	idComponents = []
+	for (var switchItem of item.parentNode.querySelectorAll(".switch--item")) {
+		idComponents.push(switchItem.textContent.toLowerCase());
+	}
+	return idComponents.sort().join("-")
+}
+
+window.onload = function() {
+	addBlockSwitches();
+	globalSwitch();
+};
+
+</script>
+
+</head>
+<body id="getting-started" class="book toc2 toc-left">
+<div id="header">
+<h1>Getting Started</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#getting-started-introducing-spring-cloud-sleuth">1. Introducing Spring Cloud Sleuth OTel</a></li>
+<li><a href="#getting-started-first-application">2. Developing Your First Spring Cloud Sleuth OTel based Application</a>
+<ul class="sectlevel2">
+<li><a href="#getting-started-first-application-pom">2.1. Creating the POM</a></li>
+<li><a href="#getting-started-first-application-dependencies">2.2. Adding Classpath Dependencies</a></li>
+<li><a href="#getting-started-first-application-code">2.3. Writing the Code</a></li>
+<li><a href="#getting-started-first-application-run">2.4. Running the Example</a></li>
+</ul>
+</li>
+<li><a href="#getting-started-whats-next">3. Next Steps</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you are getting started with Spring Cloud Sleuth OTel or Spring in general, start by reading this section.
+It answers the basic &#8220;what?&#8221;, &#8220;how?&#8221; and &#8220;why?&#8221; questions.
+It includes an introduction to Spring Cloud Sleuth OTel, along with installation instructions.
+We then walk you through building your first Spring Cloud Sleuth OTel application, discussing some core principles as we go.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="getting-started-introducing-spring-cloud-sleuth"><a class="anchor" href="#getting-started-introducing-spring-cloud-sleuth"></a><a class="link" href="#getting-started-introducing-spring-cloud-sleuth">1. Introducing Spring Cloud Sleuth OTel</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Spring Cloud Sleuth OTel provides integration with <a href="https://opentelemetry.io">OpenTelemetry SDK</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="getting-started-first-application"><a class="anchor" href="#getting-started-first-application"></a><a class="link" href="#getting-started-first-application">2. Developing Your First Spring Cloud Sleuth OTel based Application</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section describes how to develop a small “Hello World!” web application that highlights some of Spring Cloud Sleuth’s key features.
+We use Maven to build this project, since most IDEs support it.
+As the tracer implementation we&#8217;ll use <a href="https://github.com/open-telemetry/opentelemetry-java">OpenTelemetry</a>.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>You can shortcut the steps below by going to <a href="https://start.spring.io" class="bare">start.spring.io</a> and choosing the "Web" and "Spring Cloud Sleuth" starters from the dependencies searcher.
+Doing so generates a new project structure so that you can <a href="#getting-started-first-application-code">start coding right away</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="getting-started-first-application-pom"><a class="anchor" href="#getting-started-first-application-pom"></a><a class="link" href="#getting-started-first-application-pom">2.1. Creating the POM</a></h3>
+<div class="paragraph">
+<p>We need to start by creating a Maven <code>pom.xml</code> file.
+The <code>pom.xml</code> is the recipe that is used to build your project.
+Open your favorite text editor and add the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="xml" class="language-xml hljs">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+    &lt;groupId&gt;com.example&lt;/groupId&gt;
+    &lt;artifactId&gt;myproject&lt;/artifactId&gt;
+    &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+
+    &lt;parent&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+        &lt;!-- Use the latest compatible Spring Boot version. You can check https://spring.io/projects/spring-cloud for more information --&gt;
+        &lt;version&gt;$2.6.11&lt;/version&gt;
+    &lt;/parent&gt;
+
+    &lt;!-- Spring Cloud Sleuth requires a Spring Cloud BOM --&gt;
+    &lt;dependencyManagement&gt;
+        &lt;dependencies&gt;
+            &lt;dependency&gt;
+                &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+                &lt;artifactId&gt;spring-cloud-dependencies&lt;/artifactId&gt;
+                &lt;!-- Provide the latest stable Spring Cloud release train version (e.g. 2020.0.0) --&gt;
+                &lt;version&gt;${release.train.version}&lt;/version&gt;
+                &lt;type&gt;pom&lt;/type&gt;
+                &lt;scope&gt;import&lt;/scope&gt;
+            &lt;/dependency&gt;
+            &lt;!-- Spring Cloud Sleuth OTel requires a Spring Cloud Sleuth OTel BOM --&gt;
+            &lt;dependency&gt;
+                &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+                &lt;artifactId&gt;spring-cloud-sleuth-otel-dependencies&lt;/artifactId&gt;
+                &lt;!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project --&gt;
+                &lt;version&gt;${spring-cloud-sleuth-otel.version}&lt;/version&gt;
+                &lt;scope&gt;import&lt;/scope&gt;
+                &lt;type&gt;pom&lt;/type&gt;
+            &lt;/dependency&gt;
+        &lt;/dependencies&gt;
+    &lt;/dependencyManagement&gt;
+
+    &lt;!-- You 'll need those to add OTel support --&gt;
+    &lt;repositories&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+            &lt;snapshots&gt;&lt;enabled&gt;true&lt;/enabled&gt;&lt;/snapshots&gt;
+        &lt;/repository&gt;
+        &lt;repository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/repository&gt;
+    &lt;/repositories&gt;
+    &lt;pluginRepositories&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-snapshots&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/snapshot&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+        &lt;pluginRepository&gt;
+            &lt;id&gt;spring-milestones&lt;/id&gt;
+            &lt;url&gt;https://repo.spring.io/milestone&lt;/url&gt;
+        &lt;/pluginRepository&gt;
+    &lt;/pluginRepositories&gt;
+&lt;/project&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The preceding listing should give you a working build.
+You can test it by running <code>mvn package</code> (for now, you can ignore the &#8220;jar will be empty - no content was marked for inclusion!&#8221; warning).</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+At this point, you could import the project into an IDE (most modern Java IDEs include built-in support for Maven).
+For simplicity, we continue to use a plain text editor for this example.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="getting-started-first-application-dependencies"><a class="anchor" href="#getting-started-first-application-dependencies"></a><a class="link" href="#getting-started-first-application-dependencies">2.2. Adding Classpath Dependencies</a></h3>
+<div class="paragraph">
+<p>To add the necessary dependencies, edit your <code>pom.xml</code> and add the <code>spring-boot-starter-web</code> dependency immediately below the <code>parent</code> section. To use Sleuth with OpenTelemetry do the following.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="xml" class="language-xml hljs">&lt;dependencies&gt;
+    &lt;!-- Boot's Web support --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;!-- Sleuth with Brave tracer implementation --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-cloud-starter-sleuth&lt;/artifactId&gt;
+        &lt;exclusions&gt;
+            &lt;!-- Exclude Brave (the default) --&gt;
+            &lt;exclusion&gt;
+                &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+                &lt;artifactId&gt;spring-cloud-sleuth-brave&lt;/artifactId&gt;
+            &lt;/exclusion&gt;
+        &lt;/exclusions&gt;
+    &lt;/dependency&gt;
+    &lt;!-- Add OpenTelemetry tracer --&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-cloud-sleuth-otel-autoconfigure&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="getting-started-first-application-code"><a class="anchor" href="#getting-started-first-application-code"></a><a class="link" href="#getting-started-first-application-code">2.3. Writing the Code</a></h3>
+<div class="paragraph">
+<p>To finish our application, we need to create a single Java file.
+By default, Maven compiles sources from <code>src/main/java</code>, so you need to create that directory structure and then add a file named <code>src/main/java/Example.java</code> to contain the following code:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code data-lang="java" class="language-java hljs">import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.*;
+import org.springframework.boot.autoconfigure.*;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@EnableAutoConfiguration
+public class Example {
+
+    private static final Logger log = LoggerFactory.getLogger(Backend.class);
+
+    @RequestMapping("/")
+    String home() {
+        log.info("Hello world!");
+        return "Hello World!";
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(Example.class, args);
+    }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Although there is not much code here, quite a lot is going on.
+We step through the important parts in the next few sections.</p>
+</div>
+<div class="sect3">
+<h4 id="the-restcontroller-and-requestmapping-annotations"><a class="anchor" href="#the-restcontroller-and-requestmapping-annotations"></a><a class="link" href="#the-restcontroller-and-requestmapping-annotations">The @RestController and @RequestMapping Annotations</a></h4>
+<div class="paragraph">
+<p>Spring Boot sets up the Rest Controller and makes our application bind to a Tomcat port.
+Spring Cloud Sleuth with OTel tracer will provide instrumentation of the incoming request.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="getting-started-first-application-run"><a class="anchor" href="#getting-started-first-application-run"></a><a class="link" href="#getting-started-first-application-run">2.4. Running the Example</a></h3>
+<div class="paragraph">
+<p>At this point, your application should work.
+Since you used the <code>spring-boot-starter-parent</code> POM, you have a useful <code>run</code> goal that you can use to start the application.
+Type <code>SPRING_APPLICATION_NAME=backend mvn spring-boot:run</code> from the root project directory to start the application.
+You should see output similar to the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>$ mvn spring-boot:run
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ ...
+....... . . .
+....... . . . (log output here)
+....... . . .
+........ Started Example in 2.222 seconds (JVM running for 6.514)</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you open a web browser to <code><a href="http://localhost:8080" class="bare">localhost:8080</a></code>, you should see the following output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>Hello World!</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you check the logs you should see a similar output</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>2020-10-21 12:01:16.285  INFO [backend,0b6aaf642574edd3,0b6aaf642574edd3] 289589 --- [nio-9000-exec-1] Example              : Hello world!</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can notice that the logging format has been updated with the following information <code>[backend,0b6aaf642574edd3,0b6aaf642574edd3</code>.
+This entry corresponds to <code>[application name,trace id, span id]</code>.
+The application name got read from the <code>SPRING_APPLICATION_NAME</code> environment variable.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Instead of logging the request in the handler explicitly, you could set <code>logging.level.org.springframework.web.servlet.DispatcherServlet=DEBUG</code>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>To gracefully exit the application, press <code>ctrl-c</code>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="getting-started-whats-next"><a class="anchor" href="#getting-started-whats-next"></a><a class="link" href="#getting-started-whats-next">3. Next Steps</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Hopefully, this section provided some of the Spring Cloud Sleuth OTel basics and got you on your way to writing your own applications.
+If you are a task-oriented type of developer, you might want to jump over to <a href="https://spring.io" class="bare">spring.io</a> and check out some of the
+<a href="https://spring.io/guides/">getting started</a> guides that solve specific &#8220;How do I do that with Spring?&#8221; problems.
+We also have Spring Cloud Sleuth OTel-specific &#8220;<a href="howto.html#howto">how-to</a>&#8221; reference documentation.</p>
+</div>
+<div class="paragraph">
+<p>Otherwise, the next logical step is to read <a href="using.html#using">Using Spring Cloud Sleuth OTel</a>.
+If you are really impatient, you could also jump ahead and read about
+<a href="project-features.html#project-features">Spring Cloud Sleuth OTel features</a>.</p>
+</div>
+</div>
+</div>
+</div>
+<link rel="stylesheet" href="js/highlight/styles/github.min.css">
+<script src="js/highlight/highlight.min.js"></script>
+<script>hljs.initHighlighting()</script>
+<script type="text/javascript" src="js/tocbot/tocbot.min.js"></script>
+<script type="text/javascript" src="js/toc.js"></script>
+</body>
+</html>
