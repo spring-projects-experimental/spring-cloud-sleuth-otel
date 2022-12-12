@@ -18,7 +18,8 @@ package org.springframework.cloud.sleuth.otel.bridge;
 
 import java.util.Collection;
 import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 
 import io.opentelemetry.context.Context;
 import io.opentelemetry.sdk.common.CompletableResultCode;
@@ -38,7 +39,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class ArrayListSpanProcessor implements SpanProcessor, SpanExporter {
 
-	Queue<SpanData> spans = new LinkedBlockingQueue<>(50);
+	private final Queue<SpanData> spans = new ConcurrentLinkedQueue<>();
 
 	@Override
 	public void onStart(Context parent, ReadWriteSpan span) {
@@ -62,6 +63,7 @@ public class ArrayListSpanProcessor implements SpanProcessor, SpanExporter {
 
 	@Override
 	public CompletableResultCode export(Collection<SpanData> spans) {
+		this.spans.addAll(spans.stream().filter(f -> !this.spans.contains(f)).collect(Collectors.toList()));
 		return CompletableResultCode.ofSuccess();
 	}
 
@@ -85,14 +87,25 @@ public class ArrayListSpanProcessor implements SpanProcessor, SpanExporter {
 		shutdown().join(10, SECONDS);
 	}
 
+	/**
+	 * Returns the first collected span.
+	 * @return the first span
+	 */
 	public SpanData takeLocalSpan() {
 		return this.spans.poll();
 	}
 
+	/**
+	 * Returns collected spans.
+	 * @return collected spans
+	 */
 	public Queue<SpanData> spans() {
 		return this.spans;
 	}
 
+	/**
+	 * Clears the stored spans.
+	 */
 	public void clear() {
 		this.spans.clear();
 	}
