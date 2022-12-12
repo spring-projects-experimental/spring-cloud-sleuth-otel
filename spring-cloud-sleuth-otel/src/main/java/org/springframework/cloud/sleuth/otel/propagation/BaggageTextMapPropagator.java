@@ -34,13 +34,20 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.cloud.sleuth.BaggageManager;
 
 /**
- * {@link TextMapPropagator} that adds Sleuth compatible baggage entries (name of the
- * field means an HTTP header entry).
+ * {@link TextMapPropagator} that adds compatible baggage entries (name of the field means
+ * an HTTP header entry). If existing baggage is present in the context, this will append
+ * entries to the existing one. Preferably this {@link TextMapPropagator} should be added
+ * as last.
  *
  * @author Marcin Grzejszczak
  * @since 1.0.0
  */
 public class BaggageTextMapPropagator implements TextMapPropagator {
+
+	/**
+	 * Taken from one of the W3C OTel tests. Can't find it in a spec.
+	 */
+	private static final String PROPAGATION_UNLIMITED = "propagation=unlimited";
 
 	private static final Log log = LogFactory.getLog(BaggageTextMapPropagator.class);
 
@@ -48,6 +55,11 @@ public class BaggageTextMapPropagator implements TextMapPropagator {
 
 	private final BaggageManager baggageManager;
 
+	/**
+	 * Creates a new instance of {@link BaggageTextMapPropagator}.
+	 * @param remoteFields remote fields
+	 * @param baggageManager baggage manager
+	 */
 	public BaggageTextMapPropagator(List<String> remoteFields, BaggageManager baggageManager) {
 		this.remoteFields = remoteFields;
 		this.baggageManager = baggageManager;
@@ -77,9 +89,10 @@ public class BaggageTextMapPropagator implements TextMapPropagator {
 				.map(s -> new AbstractMap.SimpleEntry<>(s, getter.get(c, s))).filter(e -> e.getValue() != null)
 				.collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()));
 		BaggageBuilder builder = Baggage.current().toBuilder();
-		// TODO: [OTEL] magic string
 		baggageEntries
-				.forEach((key, value) -> builder.put(key, value, BaggageEntryMetadata.create("propagation=unlimited")));
+				.forEach((key, value) -> builder.put(key, value, BaggageEntryMetadata.create(PROPAGATION_UNLIMITED)));
+		Baggage.fromContext(context)
+				.forEach((s, baggageEntry) -> builder.put(s, baggageEntry.getValue(), baggageEntry.getMetadata()));
 		Baggage baggage = builder.build();
 		Context withBaggage = context.with(baggage);
 		if (log.isDebugEnabled()) {
