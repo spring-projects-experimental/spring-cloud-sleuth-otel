@@ -30,6 +30,7 @@ import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.sdk.trace.data.EventData;
 import io.opentelemetry.sdk.trace.data.SpanData;
+import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
 
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.exporter.FinishedSpan;
@@ -101,7 +102,7 @@ public class OtelFinishedSpan implements FinishedSpan {
 
 	@Override
 	public String getRemoteIp() {
-		return getTags().get("net.peer.ip");
+		return getTags().get(SemanticAttributes.NET_SOCK_PEER_ADDR.getKey());
 	}
 
 	@Override

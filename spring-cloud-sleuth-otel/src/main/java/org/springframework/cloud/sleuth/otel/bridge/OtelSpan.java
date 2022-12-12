@@ -117,7 +117,7 @@ class OtelSpan implements Span {
 
 	@Override
 	public Span remoteIpAndPort(String ip, int port) {
-		this.delegate.setAttribute(SemanticAttributes.NET_PEER_IP, ip);
+		this.delegate.setAttribute(SemanticAttributes.NET_SOCK_PEER_ADDR, ip);
 		this.delegate.setAttribute(SemanticAttributes.NET_PEER_PORT, (long) port);
 		return this;
 	}
