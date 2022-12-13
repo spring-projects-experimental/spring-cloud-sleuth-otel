@@ -108,10 +108,13 @@ public class OtelBaggageManager implements BaggageManager {
 	@Override
 	public BaggageInScope getBaggage(TraceContext traceContext, String name) {
 		OtelTraceContext context = (OtelTraceContext) traceContext;
-		// TODO: Refactor
 		Deque<Context> stack = new ArrayDeque<>();
-		stack.addFirst(Context.current());
-		stack.addFirst(context.context());
+		Context current = Context.current();
+		Context traceContextContext = context.context();
+		stack.addFirst(current);
+		if (current != traceContextContext) {
+			stack.addFirst(traceContextContext);
+		}
 		Context ctx = removeFirst(stack);
 		Entry entry = null;
 		while (ctx != null && entry == null) {
@@ -132,8 +135,8 @@ public class OtelBaggageManager implements BaggageManager {
 	}
 
 	private Entry entryForName(String name, io.opentelemetry.api.baggage.Baggage baggage) {
-		return Entry.fromBaggage(baggage).stream().filter(e -> e.getKey().toLowerCase().equals(name.toLowerCase()))
-				.findFirst().orElse(null);
+		return Entry.fromBaggage(baggage).stream().filter(e -> e.getKey().equalsIgnoreCase(name)).findFirst()
+				.orElse(null);
 	}
 
 	private BaggageInScope otelBaggage(Entry entry) {
