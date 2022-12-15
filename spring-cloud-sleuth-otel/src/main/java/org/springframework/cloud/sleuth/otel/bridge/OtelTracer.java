@@ -17,6 +17,10 @@
 package org.springframework.cloud.sleuth.otel.bridge;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 
 import org.springframework.cloud.sleuth.BaggageInScope;
 import org.springframework.cloud.sleuth.BaggageManager;
@@ -57,8 +61,29 @@ public class OtelTracer implements Tracer {
 		if (parent == null) {
 			return nextSpan();
 		}
-		return OtelSpan.fromOtel(
-				this.tracer.spanBuilder("").setParent(OtelTraceContext.toOtelContext(parent.context())).startSpan());
+		OtelSpan otelSpan = getOtelSpan(parent);
+		AtomicReference<Context> context = otelSpan.context().context;
+		Context otelContext = context.get();
+		Scope scope = null;
+		if (otelContext != null) {
+			scope = otelContext.makeCurrent();
+		}
+		try {
+			return OtelSpan.fromOtel(this.tracer.spanBuilder("")
+					.setParent(OtelTraceContext.toOtelContext(parent.context())).startSpan());
+		}
+		finally {
+			if (scope != null) {
+				scope.close();
+			}
+		}
+	}
+
+	private static OtelSpan getOtelSpan(Span parent) {
+		if (parent instanceof AssertingSpan) {
+			return AssertingSpan.unwrap(parent);
+		}
+		return ((OtelSpan) parent);
 	}
 
 	@Override

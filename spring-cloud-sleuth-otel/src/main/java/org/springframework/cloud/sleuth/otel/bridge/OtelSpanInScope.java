@@ -17,6 +17,7 @@
 package org.springframework.cloud.sleuth.otel.bridge;
 
 import io.opentelemetry.api.trace.SpanContext;
+import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,7 +48,12 @@ class OtelSpanInScope implements Tracer.SpanInScope {
 			SpanFromSpanContext spanFromSpanContext = (SpanFromSpanContext) otelSpan;
 			return spanFromSpanContext.otelTraceContext.context().makeCurrent();
 		}
-		return otelSpan.makeCurrent();
+		if (this.sleuthSpan == null || this.sleuthSpan.context() == null
+				|| this.sleuthSpan.context().context() == null) {
+			return otelSpan.makeCurrent();
+		}
+		Context context = this.sleuthSpan.context().context();
+		return context.with(otelSpan).makeCurrent();
 	}
 
 	@Override
