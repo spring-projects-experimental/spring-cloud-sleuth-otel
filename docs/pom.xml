@@ -69,6 +69,11 @@
 					<plugin>
 						<groupId>org.asciidoctor</groupId>
 						<artifactId>asciidoctor-maven-plugin</artifactId>
+						<configuration>
+							<attributes>
+								<docs-url>https://spring-projects-experimental.github.io/spring-cloud-sleuth-otel/docs/${project.version}@</docs-url>
+							</attributes>
+						</configuration>
 					</plugin>
 					<plugin>
 						<artifactId>maven-antrun-plugin</artifactId>
