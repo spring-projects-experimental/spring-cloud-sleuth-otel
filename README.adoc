@@ -10,6 +10,8 @@ Edit the files in the src/main/asciidoc/ directory instead.
 image::https://github.com/spring-cloud-incubator/spring-cloud-sleuth-otel/workflows/Build/badge.svg?style=svg["Build",link="https://github.com/spring-cloud-incubator/spring-cloud-sleuth-otel/actions"]
 image::https://badges.gitter.im/spring-cloud/spring-cloud-sleuth.svg[Gitter,link="https://gitter.im/spring-cloud/spring-cloud-sleuth?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
 
+IMPORTANT: This project is based on Spring Cloud Sleuth 3.1 which is feature complete. Spring Cloud Sleuth OTel is also feature complete. You should migrate to Micrometer Tracing - please read this https://github.com/micrometer-metrics/tracing/wiki/Spring-Cloud-Sleuth-3.1-Migration-Guide[migration guide] for more information.
+
 == Spring Cloud Sleuth OTel
 
 Spring Cloud Sleuth provides Spring Boot auto-configuration for OpenTelemetry based distributed tracing.
