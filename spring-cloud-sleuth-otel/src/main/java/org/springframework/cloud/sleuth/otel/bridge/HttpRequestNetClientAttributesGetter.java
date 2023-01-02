@@ -35,14 +35,13 @@ class HttpRequestNetClientAttributesGetter implements NetClientAttributesGetter<
 		return null;
 	}
 
-	@Nullable
 	@Override
-	public String peerName(HttpRequest httpRequest, @Nullable HttpResponse httpResponse) {
+	public String peerName(HttpRequest httpRequest) {
 		return null;
 	}
 
 	@Override
-	public Integer peerPort(HttpRequest httpRequest, @Nullable HttpResponse httpResponse) {
+	public Integer peerPort(HttpRequest httpRequest) {
 		return httpRequest == null ? null : httpRequest.remotePort();
 	}
 

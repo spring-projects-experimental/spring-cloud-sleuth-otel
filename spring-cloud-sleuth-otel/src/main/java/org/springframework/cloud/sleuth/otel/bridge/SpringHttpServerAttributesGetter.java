@@ -82,11 +82,6 @@ public class SpringHttpServerAttributesGetter
 		return null;
 	}
 
-	@Override
-	public String serverName(HttpServerRequest httpServerRequest) {
-		return null;
-	}
-
 	@Nullable
 	@Override
 	public String method(HttpServerRequest httpServerRequest) {

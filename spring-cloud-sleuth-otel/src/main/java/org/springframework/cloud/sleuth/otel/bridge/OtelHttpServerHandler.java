@@ -27,7 +27,6 @@ import io.opentelemetry.instrumentation.api.instrumenter.http.HttpServerAttribut
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpServerAttributesGetter;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanNameExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanStatusExtractor;
-import io.opentelemetry.instrumentation.api.instrumenter.net.NetServerAttributesExtractor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -73,8 +72,8 @@ public class OtelHttpServerHandler implements HttpServerHandler {
 				.<HttpServerRequest, HttpServerResponse>builder(openTelemetry, "org.springframework.cloud.sleuth",
 						HttpSpanNameExtractor.create(httpAttributesGetter))
 				.setSpanStatusExtractor(HttpSpanStatusExtractor.create(httpAttributesGetter))
-				.addAttributesExtractor(NetServerAttributesExtractor.create(new HttpRequestNetServerAttributesGetter()))
-				.addAttributesExtractor(HttpServerAttributesExtractor.create(httpAttributesGetter))
+				.addAttributesExtractor(HttpServerAttributesExtractor.create(httpAttributesGetter,
+						new HttpRequestNetServerAttributesGetter()))
 				.addAttributesExtractor(new PathAttributeExtractor()).buildServerInstrumenter(getGetter());
 	}
 

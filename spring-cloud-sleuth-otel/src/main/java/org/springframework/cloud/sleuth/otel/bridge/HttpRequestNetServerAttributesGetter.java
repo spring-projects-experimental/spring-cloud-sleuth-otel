@@ -20,17 +20,17 @@ import java.net.URI;
 
 import io.opentelemetry.instrumentation.api.instrumenter.net.NetServerAttributesGetter;
 
-import org.springframework.cloud.sleuth.http.HttpRequest;
+import org.springframework.cloud.sleuth.http.HttpServerRequest;
 
 /**
  * Extracts OpenTelemetry network semantic attributes value for server http spans.
  *
  * @author Nikita Salnikov-Tarnovski
  */
-class HttpRequestNetServerAttributesGetter implements NetServerAttributesGetter<HttpRequest> {
+class HttpRequestNetServerAttributesGetter implements NetServerAttributesGetter<HttpServerRequest> {
 
 	@Override
-	public String transport(HttpRequest httpRequest) {
+	public String transport(HttpServerRequest httpRequest) {
 		String url = httpRequest.url();
 		if (url == null) {
 			return null;
@@ -40,7 +40,7 @@ class HttpRequestNetServerAttributesGetter implements NetServerAttributesGetter<
 	}
 
 	@Override
-	public String hostName(HttpRequest httpRequest) {
+	public String hostName(HttpServerRequest httpRequest) {
 		String url = httpRequest.url();
 		if (url == null) {
 			return null;
@@ -50,17 +50,17 @@ class HttpRequestNetServerAttributesGetter implements NetServerAttributesGetter<
 	}
 
 	@Override
-	public Integer hostPort(HttpRequest httpRequest) {
+	public Integer hostPort(HttpServerRequest httpRequest) {
 		return httpRequest.remotePort();
 	}
 
 	@Override
-	public String sockPeerAddr(HttpRequest httpRequest) {
+	public String sockPeerAddr(HttpServerRequest httpRequest) {
 		return httpRequest.remoteIp();
 	}
 
 	@Override
-	public Integer sockPeerPort(HttpRequest httpRequest) {
+	public Integer sockPeerPort(HttpServerRequest httpRequest) {
 		return httpRequest.remotePort();
 	}
 
