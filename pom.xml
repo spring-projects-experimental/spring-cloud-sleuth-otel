@@ -303,6 +303,11 @@
 				<version>${opentelemetry-instrumentation-alpha.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>io.opentelemetry.contrib</groupId>
+				<artifactId>opentelemetry-aws-xray-propagator</artifactId>
+				<version>${opentelemetry-alpha.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.springframework.security.oauth</groupId>
 				<artifactId>spring-security-oauth2</artifactId>
 				<version>${spring-security-oauth2.version}</version>

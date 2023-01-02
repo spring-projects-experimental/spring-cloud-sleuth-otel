@@ -23,7 +23,7 @@ import java.util.Map;
 import io.opentelemetry.api.baggage.Baggage;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapGetter;
-import io.opentelemetry.extension.aws.AwsXrayPropagator;
+import io.opentelemetry.contrib.awsxray.propagator.AwsXrayPropagator;
 import io.opentelemetry.extension.trace.propagation.B3Propagator;
 import io.opentelemetry.extension.trace.propagation.JaegerPropagator;
 import io.opentelemetry.extension.trace.propagation.OtTracePropagator;
@@ -55,12 +55,14 @@ class CompositeTextMapPropagatorTest {
 	}
 
 	@Test
-	void should_map_propagaotr_string_class_names_to_actual_classes() {
+	void should_map_propagator_string_class_names_to_actual_classes() {
 		CompositeTextMapPropagator propagator = new CompositeTextMapPropagator(new StaticListableBeanFactory(),
 				Collections.emptyList());
 
 		SoftAssertions softly = new SoftAssertions();
 		softly.assertThat(propagator.awsClass()).isEqualTo(AwsXrayPropagator.class.getName());
+		softly.assertThat(propagator.deprecatedAwsClass())
+				.isEqualTo(io.opentelemetry.extension.aws.AwsXrayPropagator.class.getName());
 		softly.assertThat(propagator.b3Class()).isEqualTo(B3Propagator.class.getName());
 		softly.assertThat(propagator.jaegerClass()).isEqualTo(JaegerPropagator.class.getName());
 		softly.assertThat(propagator.otClass()).isEqualTo(OtTracePropagator.class.getName());

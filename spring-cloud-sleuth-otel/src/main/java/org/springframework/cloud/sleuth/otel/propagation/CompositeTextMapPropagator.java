@@ -30,7 +30,7 @@ import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapGetter;
 import io.opentelemetry.context.propagation.TextMapPropagator;
 import io.opentelemetry.context.propagation.TextMapSetter;
-import io.opentelemetry.extension.aws.AwsXrayPropagator;
+import io.opentelemetry.contrib.awsxray.propagator.AwsXrayPropagator;
 import io.opentelemetry.extension.trace.propagation.B3Propagator;
 import io.opentelemetry.extension.trace.propagation.JaegerPropagator;
 import io.opentelemetry.extension.trace.propagation.OtTracePropagator;
@@ -60,6 +60,11 @@ public class CompositeTextMapPropagator implements TextMapPropagator {
 		if (isOnClasspath(awsClass())) {
 			this.mapping.put(PropagationType.AWS, beanFactory.getBeanProvider(AwsXrayPropagator.class)
 					.getIfAvailable(AwsXrayPropagator::getInstance));
+		}
+		else if (isOnClasspath(deprecatedAwsClass())) {
+			this.mapping.put(PropagationType.AWS,
+					beanFactory.getBeanProvider(io.opentelemetry.extension.aws.AwsXrayPropagator.class)
+							.getIfAvailable(io.opentelemetry.extension.aws.AwsXrayPropagator::getInstance));
 		}
 		if (isOnClasspath(b3Class())) {
 			this.mapping.put(PropagationType.B3, beanFactory.getBeanProvider(B3Propagator.class)
@@ -93,8 +98,12 @@ public class CompositeTextMapPropagator implements TextMapPropagator {
 		return "io.opentelemetry.extension.trace.propagation.B3Propagator";
 	}
 
-	String awsClass() {
+	String deprecatedAwsClass() {
 		return "io.opentelemetry.extension.aws.AwsXrayPropagator";
+	}
+
+	String awsClass() {
+		return "io.opentelemetry.contrib.awsxray.propagator.AwsXrayPropagator";
 	}
 
 	private boolean isOnClasspath(String clazz) {
