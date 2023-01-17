@@ -31,7 +31,7 @@
 	<name>spring-cloud-sleuth-otel-dependencies</name>
 	<description>Spring Cloud Sleuth OTel Dependencies</description>
 	<properties>
-		<opentelemetry.version>1.21.0</opentelemetry.version>
+		<opentelemetry.version>1.22.0</opentelemetry.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
