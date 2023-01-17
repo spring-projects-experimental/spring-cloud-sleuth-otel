@@ -100,6 +100,10 @@ class OtelBaggageInScope implements BaggageInScope {
 			baggage = Baggage.builder().put(entry().getKey(), value, entry().getMetadata()).build();
 		}
 		Context withBaggage = current.with(baggage);
+		Scope previousScope = this.scope.get();
+		if (previousScope != null) {
+			previousScope.close();
+		}
 		this.scope.set(withBaggage.makeCurrent());
 		if (this.tagFields.stream().map(String::toLowerCase).anyMatch(s -> s.equals(entry().getKey()))) {
 			currentSpan.setAttribute(entry().getKey(), value);

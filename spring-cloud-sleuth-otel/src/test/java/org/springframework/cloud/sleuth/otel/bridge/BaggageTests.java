@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.opentelemetry.api.baggage.Baggage;
 import io.opentelemetry.api.baggage.propagation.W3CBaggagePropagator;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.propagation.ContextPropagators;
@@ -69,13 +70,18 @@ class BaggageTests {
 	void canSetAndGetBaggage() {
 		// GIVEN
 		Span span = tracer.nextSpan().start();
+		then(Baggage.current()).isSameAs(Baggage.empty());
+
 		try (Tracer.SpanInScope spanInScope = tracer.withSpan(span)) {
 			// WHEN
-			this.tracer.getBaggage(KEY_1).set(VALUE_1);
-
-			// THEN
-			then(tracer.getBaggage(KEY_1).get()).isEqualTo(VALUE_1);
+			try (BaggageInScope baggage = this.tracer.getBaggage(KEY_1)) {
+				baggage.set(VALUE_1);
+				// THEN
+				then(tracer.getBaggage(KEY_1).get()).isEqualTo(VALUE_1);
+			}
 		}
+
+		then(Baggage.current()).isSameAs(Baggage.empty());
 	}
 
 	@Test
@@ -85,14 +91,16 @@ class BaggageTests {
 
 		Span span = tracer.nextSpan().start();
 		try (Tracer.SpanInScope spanInScope = tracer.withSpan(span)) {
-			this.tracer.createBaggage(KEY_1, VALUE_1);
+			try (BaggageInScope baggage = this.tracer.createBaggage(KEY_1, VALUE_1)) {
+				// WHEN
+				this.propagator.inject(tracer.currentTraceContext().context(), carrier, Map::put);
 
-			// WHEN
-			this.propagator.inject(tracer.currentTraceContext().context(), carrier, Map::put);
-
-			// THEN
-			then(carrier.get(KEY_1)).isEqualTo(VALUE_1);
+				// THEN
+				then(carrier.get(KEY_1)).isEqualTo(VALUE_1);
+			}
 		}
+
+		then(Baggage.current()).isSameAs(Baggage.empty());
 
 		// WHEN
 		Span extractedSpan = propagator.extract(carrier, Map::get).start();
@@ -104,6 +112,8 @@ class BaggageTests {
 				then(baggageInScope.get()).isEqualTo(VALUE_1);
 			}
 		}
+
+		then(Baggage.current()).isSameAs(Baggage.empty());
 	}
 
 }
