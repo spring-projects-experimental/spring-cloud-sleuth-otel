@@ -179,7 +179,8 @@ public class OtelAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	Sampler otelSampler(OtelProperties otelProperties) {
-		return Sampler.traceIdRatioBased(otelProperties.getTraceIdRatioBased());
+		Sampler rootSampler = Sampler.traceIdRatioBased(otelProperties.getTraceIdRatioBased());
+		return Sampler.parentBased(rootSampler);
 	}
 
 	@Bean
