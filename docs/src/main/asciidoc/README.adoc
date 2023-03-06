@@ -61,7 +61,7 @@ Add Spring Cloud Sleuth to the classpath of a Spring Boot application (together 
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-sleuth-otel-autoconfigure</artifactId>
-		</dependency>`
+		</dependency>
 		<!-- Add otlp specific exporter -->
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
