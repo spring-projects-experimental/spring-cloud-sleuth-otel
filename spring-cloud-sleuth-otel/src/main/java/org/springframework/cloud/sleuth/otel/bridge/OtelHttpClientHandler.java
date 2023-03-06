@@ -137,7 +137,8 @@ public class OtelHttpClientHandler implements HttpClientHandler {
 		// entirely correct here atm
 		Context contextToEnd = Context.current().with(otelSpanWrapper.delegate);
 		// response.getRequest() too often returns null
-		instrumenter.end(contextToEnd, otelContext.get(REQUEST_CONTEXT_KEY), response, response.error());
+		Throwable error = response != null ? response.error() : null;
+		instrumenter.end(contextToEnd, otelContext.get(REQUEST_CONTEXT_KEY), response, error);
 	}
 
 }
