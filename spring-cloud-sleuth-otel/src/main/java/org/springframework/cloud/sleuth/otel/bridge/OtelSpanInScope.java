@@ -44,10 +44,6 @@ class OtelSpanInScope implements Tracer.SpanInScope {
 	}
 
 	private Scope storedContext(io.opentelemetry.api.trace.Span otelSpan) {
-		if (otelSpan instanceof SpanFromSpanContext) {
-			SpanFromSpanContext spanFromSpanContext = (SpanFromSpanContext) otelSpan;
-			return spanFromSpanContext.otelTraceContext.context().makeCurrent();
-		}
 		if (this.sleuthSpan == null || this.sleuthSpan.context() == null
 				|| this.sleuthSpan.context().context() == null) {
 			return otelSpan.makeCurrent();
