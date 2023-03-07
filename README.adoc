@@ -39,7 +39,7 @@ Add Spring Cloud Sleuth to the classpath of a Spring Boot application (together 
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-sleuth-otel-dependencies</artifactId>
-                <!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project -->
+                <!-- Provide the version of the Spring Cloud Sleuth OpenTelemetry project (e.g. 1.1.2) -->
                 <version>${spring-cloud-sleuth-otel.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
@@ -69,31 +69,15 @@ Add Spring Cloud Sleuth to the classpath of a Spring Boot application (together 
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-sleuth-otel-autoconfigure</artifactId>
         </dependency>
+        <!-- Add otlp specific exporter -->
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+        <artifactId>opentelemetry-exporter-otlp</artifactId>
+        </dependency>
     </dependencies>
-
-<!-- You 'll need those to add OTel support -->
-        <repositories>
-            <repository>
-                <id>spring-snapshots</id>
-                <url>https://repo.spring.io/snapshot</url>
-                <snapshots><enabled>true</enabled></snapshots>
-            </repository>
-            <repository>
-                <id>spring-milestones</id>
-                <url>https://repo.spring.io/milestone</url>
-            </repository>
-        </repositories>
-        <pluginRepositories>
-            <pluginRepository>
-                <id>spring-snapshots</id>
-                <url>https://repo.spring.io/snapshot</url>
-            </pluginRepository>
-            <pluginRepository>
-                <id>spring-milestones</id>
-                <url>https://repo.spring.io/milestone</url>
-            </pluginRepository>
-        </pluginRepositories>
 ----
+
+NOTE: Make sure to configure the otlp exporter's endpoint by settings `spring.otel.exporter.otlp.endpoint=http://collector-url:4317`.
 
 Consider the following HTTP handler:
 
