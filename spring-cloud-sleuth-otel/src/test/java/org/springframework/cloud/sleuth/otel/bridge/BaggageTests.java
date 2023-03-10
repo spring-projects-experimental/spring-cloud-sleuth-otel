@@ -23,9 +23,9 @@ import java.util.function.Function;
 
 import io.opentelemetry.api.baggage.Baggage;
 import io.opentelemetry.api.baggage.propagation.W3CBaggagePropagator;
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.context.propagation.TextMapPropagator;
-import io.opentelemetry.extension.trace.propagation.B3Propagator;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import org.junit.jupiter.api.Test;
@@ -49,7 +49,7 @@ class BaggageTests {
 			Collections.singletonList(KEY_1), Collections.emptyList(), Function.identity()::apply);
 
 	ContextPropagators contextPropagators = ContextPropagators.create(
-			TextMapPropagator.composite(W3CBaggagePropagator.getInstance(), B3Propagator.injectingSingleHeader(),
+			TextMapPropagator.composite(W3CBaggagePropagator.getInstance(), W3CTraceContextPropagator.getInstance(),
 					new BaggageTextMapPropagator(Collections.singletonList(KEY_1), otelBaggageManager)));
 
 	SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()

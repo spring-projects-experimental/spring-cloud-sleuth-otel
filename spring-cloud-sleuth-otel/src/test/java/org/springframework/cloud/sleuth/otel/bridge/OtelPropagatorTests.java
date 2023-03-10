@@ -97,7 +97,8 @@ class OtelPropagatorTests {
 
 	@Test
 	void should_use_created_child_context_in_scope_instead_of_parent() {
-		OtelBaggageManager baggageManager = new OtelBaggageManager(otelCurrentTraceContext, Collections.emptyList(), Collections.emptyList(), Function.identity()::apply);
+		OtelBaggageManager baggageManager = new OtelBaggageManager(otelCurrentTraceContext, Collections.emptyList(),
+				Collections.emptyList(), Function.identity()::apply);
 		OtelTracer tracer = new OtelTracer(otelTracer, Function.identity()::apply, baggageManager);
 
 		Map<String, String> carrier = new HashMap<>();
@@ -107,19 +108,15 @@ class OtelPropagatorTests {
 		String expectedSpanId = extracted.context().spanId();
 
 		try (Tracer.SpanInScope ignored = tracer.withSpan(extracted)) {
-			assertThat(tracer.currentSpan())
-					.extracting(Span::context)
-					.returns(expectedSpanId, TraceContext::spanId)
+			assertThat(tracer.currentSpan()).extracting(Span::context).returns(expectedSpanId, TraceContext::spanId)
 					.returns("3e425f2373d89640bde06e8285e7bf88", TraceContext::traceId)
 					.returns("9a5fdefae3abb440", TraceContext::parentId);
 
-			assertThat(tracer.currentTraceContext())
-					.isNotNull()
-					.extracting(CurrentTraceContext::context)
-					.isNotNull()
+			assertThat(tracer.currentTraceContext()).isNotNull().extracting(CurrentTraceContext::context).isNotNull()
 					.returns(expectedSpanId, TraceContext::spanId)
 					.returns("3e425f2373d89640bde06e8285e7bf88", TraceContext::traceId)
 					.returns("9a5fdefae3abb440", TraceContext::parentId);
 		}
 	}
+
 }

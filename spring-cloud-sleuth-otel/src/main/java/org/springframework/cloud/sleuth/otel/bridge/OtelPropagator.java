@@ -21,7 +21,6 @@ import java.util.List;
 
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
-import io.opentelemetry.context.Scope;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.context.propagation.TextMapGetter;
 import io.opentelemetry.context.propagation.TextMapPropagator;
@@ -74,10 +73,7 @@ public class OtelPropagator implements Propagator {
 		});
 		io.opentelemetry.api.trace.Span span = io.opentelemetry.api.trace.Span.fromContextOrNull(extracted);
 		OtelTraceContext otelTraceContext = getOtelTraceContext(extracted, span);
-
-		try (Scope ignored = extracted.makeCurrent()) {
-			return OtelSpanBuilder.fromOtel(this.tracer.spanBuilder("")).setParent(otelTraceContext);
-		}
+		return OtelSpanBuilder.fromOtel(this.tracer.spanBuilder("")).setParent(otelTraceContext);
 	}
 
 	private static OtelTraceContext getOtelTraceContext(Context extracted, io.opentelemetry.api.trace.Span span) {
