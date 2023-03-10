@@ -19,13 +19,13 @@ package org.springframework.cloud.sleuth.otel.bridge;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import io.opentelemetry.api.baggage.Baggage;
 import io.opentelemetry.api.baggage.propagation.W3CBaggagePropagator;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.context.propagation.TextMapPropagator;
-import io.opentelemetry.extension.trace.propagation.B3Propagator;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import org.junit.jupiter.api.Test;
@@ -43,28 +43,26 @@ class BaggageTests {
 
 	public static final String VALUE_1 = "value1";
 
-	SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()
-			.setSampler(io.opentelemetry.sdk.trace.samplers.Sampler.alwaysOn()).build();
-
-	OpenTelemetrySdk openTelemetrySdk = OpenTelemetrySdk.builder().setTracerProvider(sdkTracerProvider)
-			.setPropagators(ContextPropagators.create(B3Propagator.injectingSingleHeader())).build();
-
-	io.opentelemetry.api.trace.Tracer otelTracer = openTelemetrySdk.getTracer("io.micrometer.micrometer-tracing");
-
 	OtelCurrentTraceContext otelCurrentTraceContext = new OtelCurrentTraceContext();
 
 	OtelBaggageManager otelBaggageManager = new OtelBaggageManager(otelCurrentTraceContext,
-			Collections.singletonList(KEY_1), Collections.emptyList(), event -> {
-			});
+			Collections.singletonList(KEY_1), Collections.emptyList(), Function.identity()::apply);
 
 	ContextPropagators contextPropagators = ContextPropagators.create(
 			TextMapPropagator.composite(W3CBaggagePropagator.getInstance(), W3CTraceContextPropagator.getInstance(),
 					new BaggageTextMapPropagator(Collections.singletonList(KEY_1), otelBaggageManager)));
 
+	SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()
+			.setSampler(io.opentelemetry.sdk.trace.samplers.Sampler.alwaysOn()).build();
+
+	OpenTelemetrySdk openTelemetrySdk = OpenTelemetrySdk.builder().setTracerProvider(sdkTracerProvider)
+			.setPropagators(contextPropagators).build();
+
+	io.opentelemetry.api.trace.Tracer otelTracer = openTelemetrySdk.getTracer("io.micrometer.micrometer-tracing");
+
 	OtelPropagator propagator = new OtelPropagator(contextPropagators, otelTracer);
 
-	Tracer tracer = new OtelTracer(otelTracer, event -> {
-	}, otelBaggageManager);
+	Tracer tracer = new OtelTracer(otelTracer, Function.identity()::apply, otelBaggageManager);
 
 	@Test
 	void canSetAndGetBaggage() {
