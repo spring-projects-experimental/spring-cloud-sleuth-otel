@@ -39,7 +39,7 @@ public class WebClientTests
 
 	@Override
 	protected String templatedName() {
-		return "HTTP GET";
+		return "GET";
 	}
 
 	@Configuration(proxyBeanMethods = false)

@@ -64,7 +64,7 @@ public class MultipleHopsIntegrationTests
 	// TODO: Why do we have empty names here
 	@Override
 	protected void assertSpanNames() {
-		then(this.spans).extracting(FinishedSpan::getName).containsAll(asList("HTTP GET", "handle", "send"));
+		then(this.spans).extracting(FinishedSpan::getName).containsAll(asList("GET", "handle", "send"));
 	}
 
 	@BeforeEach

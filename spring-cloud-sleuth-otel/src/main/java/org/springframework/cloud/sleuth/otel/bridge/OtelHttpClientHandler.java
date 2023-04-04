@@ -25,6 +25,7 @@ import io.opentelemetry.instrumentation.api.instrumenter.http.HttpClientAttribut
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanNameExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.http.HttpSpanStatusExtractor;
 import io.opentelemetry.instrumentation.api.instrumenter.net.NetClientAttributesExtractor;
+import io.opentelemetry.instrumentation.api.instrumenter.net.NetClientAttributesGetter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -62,18 +63,47 @@ public class OtelHttpClientHandler implements HttpClientHandler {
 
 	private final Instrumenter<HttpClientRequest, HttpClientResponse> instrumenter;
 
+	/**
+	 * Creates a new instance of {@link OtelHttpClientHandler}.
+	 * @param openTelemetry open telemetry
+	 * @param httpClientRequestParser http client request parser
+	 * @param httpClientResponseParser http client response parser
+	 * @param samplerFunction sampler function
+	 * @param httpAttributesExtractor http attributes extractor
+	 * @deprecated use
+	 * {@link OtelHttpClientHandler#OtelHttpClientHandler(OpenTelemetry, HttpRequestParser, HttpResponseParser, SamplerFunction, HttpClientAttributesGetter, NetClientAttributesGetter)}
+	 */
+	@Deprecated
 	public OtelHttpClientHandler(OpenTelemetry openTelemetry, @Nullable HttpRequestParser httpClientRequestParser,
 			@Nullable HttpResponseParser httpClientResponseParser, SamplerFunction<HttpRequest> samplerFunction,
-			HttpClientAttributesGetter<HttpClientRequest, HttpClientResponse> httpAttributesGetter) {
+			HttpClientAttributesGetter<HttpClientRequest, HttpClientResponse> httpAttributesExtractor) {
+		this(openTelemetry, httpClientRequestParser, httpClientResponseParser, samplerFunction, httpAttributesExtractor,
+				new HttpRequestNetClientAttributesExtractor());
+	}
+
+	/**
+	 * Creates a new instance of {@link OtelHttpClientHandler}.
+	 * @param openTelemetry open telemetry
+	 * @param httpClientRequestParser http client request parser
+	 * @param httpClientResponseParser http client response parser
+	 * @param samplerFunction sampler function
+	 * @param httpAttributesExtractor http attributes extractor
+	 */
+	public OtelHttpClientHandler(OpenTelemetry openTelemetry, @Nullable HttpRequestParser httpClientRequestParser,
+			@Nullable HttpResponseParser httpClientResponseParser, SamplerFunction<HttpRequest> samplerFunction,
+			HttpClientAttributesGetter<HttpClientRequest, HttpClientResponse> httpAttributesExtractor,
+			NetClientAttributesGetter<HttpClientRequest, HttpClientResponse> netAttributesGetter) {
 		this.httpClientRequestParser = httpClientRequestParser;
 		this.httpClientResponseParser = httpClientResponseParser;
 		this.samplerFunction = samplerFunction;
 		this.instrumenter = Instrumenter
-				.<HttpClientRequest, HttpClientResponse>builder(openTelemetry, "org.springframework.cloud.sleuth",
-						HttpSpanNameExtractor.create(httpAttributesGetter))
-				.setSpanStatusExtractor(HttpSpanStatusExtractor.create(httpAttributesGetter))
-				.addAttributesExtractor(NetClientAttributesExtractor.create(new HttpRequestNetClientAttributesGetter()))
-				.addAttributesExtractor(HttpClientAttributesExtractor.create(httpAttributesGetter))
+				.<HttpClientRequest, HttpClientResponse>builder(openTelemetry, "io.micrometer.tracing",
+						HttpSpanNameExtractor.create(httpAttributesExtractor))
+				.setSpanStatusExtractor(HttpSpanStatusExtractor.create(httpAttributesExtractor))
+				.addAttributesExtractor(
+						NetClientAttributesExtractor.create(new HttpRequestNetClientAttributesExtractor()))
+				.addAttributesExtractor(
+						HttpClientAttributesExtractor.create(httpAttributesExtractor, netAttributesGetter))
 				.addAttributesExtractor(new PathAttributeExtractor())
 				.buildClientInstrumenter(HttpClientRequest::header);
 	}

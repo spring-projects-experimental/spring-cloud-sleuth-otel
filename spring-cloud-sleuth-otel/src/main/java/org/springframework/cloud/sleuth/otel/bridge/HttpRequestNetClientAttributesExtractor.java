@@ -18,8 +18,8 @@ package org.springframework.cloud.sleuth.otel.bridge;
 
 import io.opentelemetry.instrumentation.api.instrumenter.net.NetClientAttributesGetter;
 
-import org.springframework.cloud.sleuth.http.HttpRequest;
-import org.springframework.cloud.sleuth.http.HttpResponse;
+import org.springframework.cloud.sleuth.http.HttpClientRequest;
+import org.springframework.cloud.sleuth.http.HttpClientResponse;
 import org.springframework.lang.Nullable;
 
 /**
@@ -27,32 +27,25 @@ import org.springframework.lang.Nullable;
  *
  * @author Nikita Salnikov-Tarnovski
  */
-class HttpRequestNetClientAttributesGetter implements NetClientAttributesGetter<HttpRequest, HttpResponse> {
+class HttpRequestNetClientAttributesExtractor
+		implements NetClientAttributesGetter<HttpClientRequest, HttpClientResponse> {
 
 	@Nullable
 	@Override
-	public String transport(HttpRequest httpRequest, @Nullable HttpResponse httpResponse) {
+	public String getTransport(HttpClientRequest httpClientRequest, @Nullable HttpClientResponse httpClientResponse) {
 		return null;
 	}
 
+	@Nullable
 	@Override
-	public String peerName(HttpRequest httpRequest) {
+	public String getPeerName(HttpClientRequest httpClientRequest) {
 		return null;
 	}
 
+	@Nullable
 	@Override
-	public Integer peerPort(HttpRequest httpRequest) {
-		return httpRequest == null ? null : httpRequest.remotePort();
-	}
-
-	@Override
-	public String sockPeerAddr(HttpRequest httpRequest, HttpResponse httpResponse) {
-		return httpRequest == null ? null : httpRequest.remoteIp();
-	}
-
-	@Override
-	public Integer sockPeerPort(HttpRequest httpRequest, HttpResponse httpResponse) {
-		return httpRequest == null ? null : httpRequest.remotePort();
+	public Integer getPeerPort(HttpClientRequest httpClientRequest) {
+		return httpClientRequest == null ? null : httpClientRequest.remotePort();
 	}
 
 }
