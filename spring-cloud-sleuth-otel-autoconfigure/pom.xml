@@ -25,7 +25,7 @@
 	<name>Spring Cloud Sleuth OTel AutoConfigure</name>
 	<description>Spring Cloud Sleuth AutoConfigure</description>
 	<properties>
-		<grpc-netty-shaded.version>1.35.0</grpc-netty-shaded.version>
+		<grpc-netty-shaded.version>1.35.1</grpc-netty-shaded.version>
 	</properties>
 
 	<parent>
