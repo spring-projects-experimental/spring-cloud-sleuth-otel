@@ -19,7 +19,11 @@ package org.springframework.cloud.sleuth.otel.bridge;
 import java.util.LinkedList;
 import java.util.List;
 
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.common.AttributesBuilder;
+import io.opentelemetry.api.trace.SpanBuilder;
 import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.semconv.trace.attributes.SemanticAttributes;
 
 import org.springframework.cloud.sleuth.Span;
@@ -36,34 +40,39 @@ class OtelSpanBuilder implements Span.Builder {
 
 	static final String REMOTE_SERVICE_NAME_KEY = "peer.service";
 
-	private final io.opentelemetry.api.trace.SpanBuilder delegate;
+	private final Tracer tracer;
 
 	private final List<String> annotations = new LinkedList<>();
+
+	private final AttributesBuilder attributes = Attributes.builder();
 
 	private String name;
 
 	private Throwable error;
 
-	private TraceContext parentContext;
+	private TraceContext parentTraceContext;
 
-	OtelSpanBuilder(io.opentelemetry.api.trace.SpanBuilder delegate) {
-		this.delegate = delegate;
+	private boolean noParent;
+
+	private SpanKind spanKind = SpanKind.INTERNAL;
+
+	OtelSpanBuilder(Tracer tracer) {
+		this.tracer = tracer;
 	}
 
-	static Span.Builder fromOtel(io.opentelemetry.api.trace.SpanBuilder builder) {
-		return new OtelSpanBuilder(builder);
+	static Span.Builder fromOtel(Tracer tracer) {
+		return new OtelSpanBuilder(tracer);
 	}
 
 	@Override
 	public Span.Builder setParent(TraceContext context) {
-		this.delegate.setParent(OtelTraceContext.toOtelContext(context));
-		this.parentContext = context;
+		this.parentTraceContext = context;
 		return this;
 	}
 
 	@Override
 	public Span.Builder setNoParent() {
-		this.delegate.setNoParent();
+		this.noParent = true;
 		return this;
 	}
 
@@ -81,7 +90,7 @@ class OtelSpanBuilder implements Span.Builder {
 
 	@Override
 	public Span.Builder tag(String key, String value) {
-		this.delegate.setAttribute(key, value);
+		this.attributes.put(key, value);
 		return this;
 	}
 
@@ -94,7 +103,7 @@ class OtelSpanBuilder implements Span.Builder {
 	@Override
 	public Span.Builder kind(Span.Kind spanKind) {
 		if (spanKind == null) {
-			this.delegate.setSpanKind(SpanKind.INTERNAL);
+			this.spanKind = SpanKind.INTERNAL;
 			return this;
 		}
 		SpanKind kind = SpanKind.INTERNAL;
@@ -112,37 +121,43 @@ class OtelSpanBuilder implements Span.Builder {
 			kind = SpanKind.CONSUMER;
 			break;
 		}
-		this.delegate.setSpanKind(kind);
+		this.spanKind = kind;
 		return this;
 	}
 
 	@Override
 	public Span.Builder remoteServiceName(String remoteServiceName) {
-		this.delegate.setAttribute(REMOTE_SERVICE_NAME_KEY, remoteServiceName);
+		this.attributes.put(REMOTE_SERVICE_NAME_KEY, remoteServiceName);
 		return this;
 	}
 
 	@Override
 	public Span.Builder remoteIpAndPort(String ip, int port) {
-		this.delegate.setAttribute(SemanticAttributes.NET_SOCK_PEER_ADDR, ip);
-		this.delegate.setAttribute(SemanticAttributes.NET_PEER_PORT, (long) port);
+		this.attributes.put(SemanticAttributes.NET_SOCK_PEER_ADDR.getKey(), ip);
+		this.attributes.put(SemanticAttributes.NET_PEER_PORT.getKey(), port);
 		return this;
 	}
 
 	@Override
 	public Span start() {
-		io.opentelemetry.api.trace.Span span = this.delegate.startSpan();
-		if (StringUtils.hasText(this.name)) {
-			span.updateName(this.name);
+		SpanBuilder spanBuilder = this.tracer.spanBuilder(StringUtils.hasText(this.name) ? this.name : "");
+		if (this.parentTraceContext != null) {
+			spanBuilder.setParent(OtelTraceContext.toOtelContext(this.parentTraceContext));
 		}
+		if (this.noParent) {
+			spanBuilder.setNoParent();
+		}
+		spanBuilder.setAllAttributes(this.attributes.build());
+		spanBuilder.setSpanKind(this.spanKind);
+		io.opentelemetry.api.trace.Span span = spanBuilder.startSpan();
 		if (this.error != null) {
-			span.recordException(error);
+			span.recordException(this.error);
 		}
 		this.annotations.forEach(span::addEvent);
 		Span otelSpan = OtelSpan.fromOtel(span);
-		if (this.parentContext != null) {
+		if (this.parentTraceContext != null) {
 			return OtelSpan.fromOtel(
-					new SpanFromSpanContext(span, span.getSpanContext(), (OtelTraceContext) this.parentContext));
+					new SpanFromSpanContext(span, span.getSpanContext(), (OtelTraceContext) this.parentTraceContext));
 		}
 		return otelSpan;
 	}
