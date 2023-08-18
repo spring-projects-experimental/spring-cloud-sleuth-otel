@@ -39,6 +39,7 @@ import org.springframework.cloud.sleuth.CurrentTraceContext;
 import org.springframework.cloud.sleuth.TraceContext;
 import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.lang.Nullable;
 
 import static java.util.Collections.unmodifiableCollection;
 import static java.util.Collections.unmodifiableMap;
@@ -54,12 +55,18 @@ import static java.util.stream.Collectors.toMap;
  */
 public class OtelBaggageManager implements BaggageManager {
 
+	/**
+	 * Taken from one of the W3C OTel tests. Can't find it in a spec.
+	 */
+	private static final String PROPAGATION_UNLIMITED = "propagation=unlimited";
+
 	private final CurrentTraceContext currentTraceContext;
 
 	private final List<String> remoteFields;
 
 	private final List<String> tagFields;
 
+	// Not used
 	private final ApplicationEventPublisher publisher;
 
 	public OtelBaggageManager(CurrentTraceContext currentTraceContext, List<String> remoteFields,
@@ -121,7 +128,10 @@ public class OtelBaggageManager implements BaggageManager {
 			entry = getBaggage(name, Baggage.fromContext(ctx));
 			ctx = removeFirst(stack);
 		}
-		return createNewEntryIfMissing(name, entry);
+		if (entry != null) {
+			return otelBaggage(entry);
+		}
+		return null;
 	}
 
 	Entry getEntry(OtelTraceContext traceContext, String name) {
@@ -145,18 +155,17 @@ public class OtelBaggageManager implements BaggageManager {
 
 	@Override
 	public BaggageInScope createBaggage(String name) {
-		return createBaggage(name, "");
+		return createBaggage(name, null);
 	}
 
 	@Override
 	public BaggageInScope createBaggage(String name, String value) {
-		BaggageInScope baggageInScope = baggageWithValue(name, "");
-		return baggageInScope.set(value);
+		BaggageInScope baggage = baggageWithValue(name, value);
+		return baggage.set(value);
 	}
 
-	private BaggageInScope baggageWithValue(String name, String value) {
-		List<String> remoteFieldsFields = this.remoteFields;
-		boolean remoteField = remoteFieldsFields.stream().map(String::toLowerCase)
+	private BaggageInScope baggageWithValue(String name, @Nullable String value) {
+		boolean remoteField = this.remoteFields.stream().map(String::toLowerCase)
 				.anyMatch(s -> s.equals(name.toLowerCase()));
 		BaggageEntryMetadata entryMetadata = BaggageEntryMetadata.create(propagationString(remoteField));
 		Entry entry = new Entry(name, value, entryMetadata);
@@ -164,10 +173,9 @@ public class OtelBaggageManager implements BaggageManager {
 	}
 
 	private String propagationString(boolean remoteField) {
-		// TODO: [OTEL] Magic strings
 		String propagation = "";
 		if (remoteField) {
-			propagation = "propagation=unlimited";
+			propagation = PROPAGATION_UNLIMITED;
 		}
 		return propagation;
 	}
@@ -176,8 +184,6 @@ public class OtelBaggageManager implements BaggageManager {
 
 class CompositeBaggage implements io.opentelemetry.api.baggage.Baggage {
 
-	// TODO: Try to use a Map of BaggageEntry only: delete the Entry class
-	// (might need a bigger refactor)
 	private final Collection<Entry> entries;
 
 	private final Map<String, BaggageEntry> baggageEntries;
@@ -247,6 +253,12 @@ class Entry implements BaggageEntry {
 		this.entryMetadata = entryMetadata;
 	}
 
+	static List<Entry> fromBaggage(Baggage baggage) {
+		List<Entry> list = new ArrayList<>(baggage.size());
+		baggage.forEach((key, value) -> list.add(new Entry(key, value.getValue(), value.getMetadata())));
+		return list;
+	}
+
 	public String getKey() {
 		return this.key;
 	}
@@ -277,12 +289,6 @@ class Entry implements BaggageEntry {
 	@Override
 	public int hashCode() {
 		return Objects.hash(this.key, this.value, this.entryMetadata);
-	}
-
-	static List<Entry> fromBaggage(Baggage baggage) {
-		List<Entry> list = new ArrayList<>(baggage.size());
-		baggage.forEach((key, value) -> list.add(new Entry(key, value.getValue(), value.getMetadata())));
-		return list;
 	}
 
 }

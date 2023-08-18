@@ -21,11 +21,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import io.opentelemetry.api.baggage.Baggage;
 import io.opentelemetry.api.baggage.propagation.W3CBaggagePropagator;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.context.propagation.TextMapPropagator;
+import io.opentelemetry.extension.trace.propagation.B3Propagator;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import org.junit.jupiter.api.Test;
@@ -43,6 +43,14 @@ class BaggageTests {
 
 	public static final String VALUE_1 = "value1";
 
+	SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()
+			.setSampler(io.opentelemetry.sdk.trace.samplers.Sampler.alwaysOn()).build();
+
+	OpenTelemetrySdk openTelemetrySdk = OpenTelemetrySdk.builder().setTracerProvider(sdkTracerProvider)
+			.setPropagators(ContextPropagators.create(B3Propagator.injectingSingleHeader())).build();
+
+	io.opentelemetry.api.trace.Tracer otelTracer = openTelemetrySdk.getTracer("io.micrometer.micrometer-tracing");
+
 	OtelCurrentTraceContext otelCurrentTraceContext = new OtelCurrentTraceContext();
 
 	OtelBaggageManager otelBaggageManager = new OtelBaggageManager(otelCurrentTraceContext,
@@ -52,14 +60,6 @@ class BaggageTests {
 			TextMapPropagator.composite(W3CBaggagePropagator.getInstance(), W3CTraceContextPropagator.getInstance(),
 					new BaggageTextMapPropagator(Collections.singletonList(KEY_1), otelBaggageManager)));
 
-	SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()
-			.setSampler(io.opentelemetry.sdk.trace.samplers.Sampler.alwaysOn()).build();
-
-	OpenTelemetrySdk openTelemetrySdk = OpenTelemetrySdk.builder().setTracerProvider(sdkTracerProvider)
-			.setPropagators(contextPropagators).build();
-
-	io.opentelemetry.api.trace.Tracer otelTracer = openTelemetrySdk.getTracer("io.micrometer.micrometer-tracing");
-
 	OtelPropagator propagator = new OtelPropagator(contextPropagators, otelTracer);
 
 	Tracer tracer = new OtelTracer(otelTracer, Function.identity()::apply, otelBaggageManager);
@@ -68,18 +68,14 @@ class BaggageTests {
 	void canSetAndGetBaggage() {
 		// GIVEN
 		Span span = tracer.nextSpan().start();
-		then(Baggage.current()).isSameAs(Baggage.empty());
-
 		try (Tracer.SpanInScope spanInScope = tracer.withSpan(span)) {
 			// WHEN
-			try (BaggageInScope baggage = this.tracer.getBaggage(KEY_1)) {
-				baggage.set(VALUE_1);
+			try (BaggageInScope baggageInScope = this.tracer.getBaggage(KEY_1).set(VALUE_1)) {
+
 				// THEN
 				then(tracer.getBaggage(KEY_1).get()).isEqualTo(VALUE_1);
 			}
 		}
-
-		then(Baggage.current()).isSameAs(Baggage.empty());
 	}
 
 	@Test
@@ -89,7 +85,7 @@ class BaggageTests {
 
 		Span span = tracer.nextSpan().start();
 		try (Tracer.SpanInScope spanInScope = tracer.withSpan(span)) {
-			try (BaggageInScope baggage = this.tracer.createBaggage(KEY_1, VALUE_1)) {
+			try (BaggageInScope baggageInScope = this.tracer.createBaggage(KEY_1, VALUE_1)) {
 				// WHEN
 				this.propagator.inject(tracer.currentTraceContext().context(), carrier, Map::put);
 
@@ -97,8 +93,6 @@ class BaggageTests {
 				then(carrier.get(KEY_1)).isEqualTo(VALUE_1);
 			}
 		}
-
-		then(Baggage.current()).isSameAs(Baggage.empty());
 
 		// WHEN
 		Span extractedSpan = propagator.extract(carrier, Map::get).start();
@@ -110,8 +104,6 @@ class BaggageTests {
 				then(baggageInScope.get()).isEqualTo(VALUE_1);
 			}
 		}
-
-		then(Baggage.current()).isSameAs(Baggage.empty());
 	}
 
 }
