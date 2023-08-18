@@ -23,7 +23,6 @@ import io.opentelemetry.instrumentation.api.instrumenter.http.HttpClientAttribut
 
 import org.springframework.cloud.sleuth.http.HttpClientRequest;
 import org.springframework.cloud.sleuth.http.HttpClientResponse;
-import org.springframework.lang.Nullable;
 
 /**
  * Extracts OpenTelemetry http semantic attributes value for client http spans.
@@ -33,25 +32,13 @@ import org.springframework.lang.Nullable;
 public class SpringHttpClientAttributesGetter
 		implements HttpClientAttributesGetter<HttpClientRequest, HttpClientResponse> {
 
-	@Nullable
 	@Override
-	public String getUrl(HttpClientRequest httpClientRequest) {
-		return httpClientRequest.url();
-	}
-
-	@Nullable
-	@Override
-	public String getFlavor(HttpClientRequest httpClientRequest, @Nullable HttpClientResponse httpClientResponse) {
-		return null;
-	}
-
-	@Override
-	public String getMethod(HttpClientRequest httpClientRequest) {
+	public String getHttpRequestMethod(HttpClientRequest httpClientRequest) {
 		return httpClientRequest.method();
 	}
 
 	@Override
-	public List<String> getRequestHeader(HttpClientRequest httpClientRequest, String name) {
+	public List<String> getHttpRequestHeader(HttpClientRequest httpClientRequest, String name) {
 		if (httpClientRequest == null) {
 			return Collections.emptyList();
 		}
@@ -60,7 +47,7 @@ public class SpringHttpClientAttributesGetter
 	}
 
 	@Override
-	public Integer getStatusCode(HttpClientRequest httpClientRequest, HttpClientResponse httpClientResponse,
+	public Integer getHttpResponseStatusCode(HttpClientRequest httpClientRequest, HttpClientResponse httpClientResponse,
 			Throwable error) {
 		if (httpClientResponse == null) {
 			return null;
@@ -69,8 +56,8 @@ public class SpringHttpClientAttributesGetter
 	}
 
 	@Override
-	public List<String> getResponseHeader(HttpClientRequest httpClientRequest, HttpClientResponse httpClientResponse,
-			String name) {
+	public List<String> getHttpResponseHeader(HttpClientRequest httpClientRequest,
+			HttpClientResponse httpClientResponse, String name) {
 		if (httpClientResponse == null) {
 			return Collections.emptyList();
 		}
@@ -81,6 +68,11 @@ public class SpringHttpClientAttributesGetter
 		catch (Exception e) {
 			return Collections.emptyList();
 		}
+	}
+
+	@Override
+	public String getUrlFull(HttpClientRequest httpClientRequest) {
+		return httpClientRequest.url();
 	}
 
 }

@@ -36,16 +36,4 @@ class HttpRequestNetClientAttributesExtractor
 		return null;
 	}
 
-	@Nullable
-	@Override
-	public String getPeerName(HttpClientRequest httpClientRequest) {
-		return null;
-	}
-
-	@Nullable
-	@Override
-	public Integer getPeerPort(HttpClientRequest httpClientRequest) {
-		return httpClientRequest == null ? null : httpClientRequest.remotePort();
-	}
-
 }

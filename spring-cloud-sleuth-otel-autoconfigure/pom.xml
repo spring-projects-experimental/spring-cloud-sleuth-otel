@@ -108,10 +108,6 @@
 		</dependency>
 		<dependency>
 			<groupId>io.opentelemetry</groupId>
-			<artifactId>opentelemetry-api-logs</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.opentelemetry</groupId>
 			<artifactId>opentelemetry-sdk-metrics</artifactId>
 			<exclusions>
 				<exclusion>

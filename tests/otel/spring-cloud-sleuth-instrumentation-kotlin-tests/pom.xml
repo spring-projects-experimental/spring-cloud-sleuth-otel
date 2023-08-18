@@ -22,7 +22,7 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>spring-cloud-sleuth-instrumentation-otel-tests</artifactId>
+	<artifactId>spring-cloud-sleuth-instrumentation-kotlin-otel-tests</artifactId>
 	<packaging>jar</packaging>
 	<name>Spring Cloud Sleuth OTel Kotlin Instrumentation Tests</name>
 	<description>Spring Cloud Sleuth OTel Kotlin Instrumentation Tests</description>

@@ -36,39 +36,13 @@ public class SpringHttpServerAttributesGetter
 
 	@Nullable
 	@Override
-	public String getFlavor(HttpServerRequest httpServerRequest) {
-		return null;
-	}
-
-	@Nullable
-	@Override
-	public String getTarget(HttpServerRequest httpServerRequest) {
-		URI uri = toUri(httpServerRequest);
-		if (uri == null) {
-			return null;
-		}
-		return uri.getPath() + queryPart(uri);
-	}
-
-	private URI toUri(HttpServerRequest request) {
-		String url = request.url();
-		return url == null ? null : URI.create(url);
-	}
-
-	private String queryPart(URI uri) {
-		String query = uri.getQuery();
-		return query != null ? "?" + query : "";
-	}
-
-	@Nullable
-	@Override
-	public String getRoute(HttpServerRequest httpServerRequest) {
+	public String getHttpRoute(HttpServerRequest httpServerRequest) {
 		return httpServerRequest.route();
 	}
 
 	@Nullable
 	@Override
-	public String getScheme(HttpServerRequest httpServerRequest) {
+	public String getUrlScheme(HttpServerRequest httpServerRequest) {
 		String url = httpServerRequest.url();
 		if (url == null) {
 			return null;
@@ -82,27 +56,50 @@ public class SpringHttpServerAttributesGetter
 		return null;
 	}
 
+	@Override
+	public String getUrlPath(HttpServerRequest httpServerRequest) {
+		URI uri = toUri(httpServerRequest);
+		if (uri == null) {
+			return null;
+		}
+		return uri.getPath();
+	}
+
+	@Override
+	public String getUrlQuery(HttpServerRequest httpServerRequest) {
+		URI uri = toUri(httpServerRequest);
+		if (uri == null) {
+			return null;
+		}
+		return uri.getQuery();
+	}
+
+	private URI toUri(HttpServerRequest request) {
+		String url = request.url();
+		return url == null ? null : URI.create(url);
+	}
+
 	@Nullable
 	@Override
-	public String getMethod(HttpServerRequest httpServerRequest) {
+	public String getHttpRequestMethod(HttpServerRequest httpServerRequest) {
 		return httpServerRequest.method();
 	}
 
 	@Override
-	public List<String> getRequestHeader(HttpServerRequest httpServerRequest, String name) {
+	public List<String> getHttpRequestHeader(HttpServerRequest httpServerRequest, String name) {
 		String value = httpServerRequest.header(name);
 		return value == null ? Collections.emptyList() : Collections.singletonList(value);
 	}
 
 	@Override
-	public Integer getStatusCode(HttpServerRequest httpServerRequest, HttpServerResponse httpServerResponse,
+	public Integer getHttpResponseStatusCode(HttpServerRequest httpServerRequest, HttpServerResponse httpServerResponse,
 			Throwable error) {
 		return httpServerResponse.statusCode();
 	}
 
 	@Override
-	public List<String> getResponseHeader(HttpServerRequest httpServerRequest, HttpServerResponse httpServerResponse,
-			String name) {
+	public List<String> getHttpResponseHeader(HttpServerRequest httpServerRequest,
+			HttpServerResponse httpServerResponse, String name) {
 		String value = httpServerResponse.header(name);
 		return value == null ? Collections.emptyList() : Collections.singletonList(value);
 	}

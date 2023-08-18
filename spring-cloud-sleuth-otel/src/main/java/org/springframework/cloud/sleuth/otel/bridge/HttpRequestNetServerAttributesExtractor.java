@@ -21,6 +21,7 @@ import java.net.URI;
 import io.opentelemetry.instrumentation.api.instrumenter.net.NetServerAttributesGetter;
 
 import org.springframework.cloud.sleuth.http.HttpServerRequest;
+import org.springframework.cloud.sleuth.http.HttpServerResponse;
 import org.springframework.lang.Nullable;
 
 /**
@@ -28,7 +29,8 @@ import org.springframework.lang.Nullable;
  *
  * @author Nikita Salnikov-Tarnovski
  */
-class HttpRequestNetServerAttributesExtractor implements NetServerAttributesGetter<HttpServerRequest> {
+class HttpRequestNetServerAttributesExtractor
+		implements NetServerAttributesGetter<HttpServerRequest, HttpServerResponse> {
 
 	@Nullable
 	@Override
@@ -39,34 +41,6 @@ class HttpRequestNetServerAttributesExtractor implements NetServerAttributesGett
 		}
 		URI uri = URI.create(url);
 		return uri.getScheme();
-	}
-
-	@Nullable
-	@Override
-	public String getHostName(HttpServerRequest httpRequest) {
-		String url = httpRequest.url();
-		if (url == null) {
-			return null;
-		}
-		URI uri = URI.create(url);
-		return uri.getHost();
-	}
-
-	@Override
-	public Integer getHostPort(HttpServerRequest httpRequest) {
-		return httpRequest.remotePort();
-	}
-
-	@Nullable
-	@Override
-	public String getSockPeerAddr(HttpServerRequest httpRequest) {
-		return httpRequest.remoteIp();
-	}
-
-	@Nullable
-	@Override
-	public Integer getSockPeerPort(HttpServerRequest httpRequest) {
-		return httpRequest.remotePort();
 	}
 
 }
