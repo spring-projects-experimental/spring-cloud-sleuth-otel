@@ -60,7 +60,7 @@
 		<maven-enforcer-plugin.version>3.1.0</maven-enforcer-plugin.version>
 		<spring-cloud-build.version>3.1.6</spring-cloud-build.version>
 		<spring-cloud-commons.version>3.1.7</spring-cloud-commons.version>
-		<spring-cloud-sleuth.version>3.1.9</spring-cloud-sleuth.version>
+		<spring-cloud-sleuth.version>3.1.10</spring-cloud-sleuth.version>
 		<spring-cloud-gateway.version>3.1.8</spring-cloud-gateway.version>
 		<spring-cloud-config.version>3.1.8</spring-cloud-config.version>
 		<spring-cloud-circuitbreaker.version>2.1.7</spring-cloud-circuitbreaker.version>
